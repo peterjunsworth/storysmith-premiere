@@ -1,0 +1,1357 @@
+- Right now? - I saw grass.
+ - Saw grass out there. - Oh, okay, okay.
+ He works with saw grass at the end point, right?
+ - Yeah, let's do that. - Yeah, let's do that.
+ - We've worked together. - Okay, very cool.
+ - It was a new project, too, until the last year.
+ And I was helping online product
+ and scrum, but then pretty much it's a fun to go over.
+ - Okay. - Yeah.
+ - Yeah. - Yeah, it was more so,
+ I was a cheaper option.
+ - Gotcha. (laughing)
+ - That's how we all started. - It's how we all started.
+ - The thing that actually happened at the time
+ was they left and there was so good product marketing.
+ - Yeah, there's no marketing.
+ I mean, we barely just got into marketing,
+ because we were just trying to win it.
+ Everybody was trying to chip in.
+ And now we have a marketing director and--
+ - Oh, cool. - Yeah, she's okay.
+ She's good, actually.
+ She knows what she's doing, but of course,
+ she's been about three months now, three months.
+ - But the problem is there's got to be a team, right?
+ - A team, right?
+ - Yeah, so we have some external marketing companies
+ working that she manages as well, too,
+ that she has one internal person,
+ but I think it will for next year,
+ it's for her to get.
+ She identified some gaps just to keep up,
+ like the marketing agencies are too slow in delivering stuff.
+ - Well, maybe delivering a cell, right?
+ They don't aren't good.
+ - Exactly.
+ - So there's certain things
+ that we can't continue to rely on them for.
+ - Got some designs and assets and that kind of stuff.
+ - Yeah, you have to have someone in house.
+ - You have to have a decent amount
+ of marketing operations in house.
+ - Yeah, yeah.
+ - I mean, the good news for you guys is,
+ Peter, we have a shoes on or off.
+ - Doesn't matter, you're good.
+ - Okay, I'm really afraid of that.
+ - Or if you're afraid of being afraid of anything.
+ - I was so excited when Reebok had these A.E.'s
+ - Tell them they looked at the shoes again.
+ - Yeah.
+ - I was like, man.
+ - So, I'm just gonna care.
+ - I mean, the good news is you guys have a customer base, right?
+ You can organically just roll over people
+ from old product into new products.
+ - Yeah.
+ - Without them being able to do much about it, right?
+ So, this way you get adoption, it's way hotter.
+ I mean, when I left last year, the problem was just,
+ how do you kind of get this thing launched?
+ - Yeah.
+ - A two-sided marketplace that is just,
+ I mean, and we didn't really go much more there
+ as we launched it.
+ - You get into customer acquisition, right?
+ - Yeah.
+ - Yeah, we just, middle of the night organically just launched
+ and just kind of directed people.
+ That's, I mean, that's what we're pushing.
+ We had, of course, we had dealer conversations
+ with a bunch of dealers on new products coming out
+ and this is what they should be directing customers to.
+ But we didn't do much marketing.
+ A lot of them were kind of mad
+ that they didn't know in advance or they wanted more time.
+ But I think that it benefited us
+ 'cause we didn't have influx of people.
+ - All right, it's going to be from a marketing system.
+ We have some performance issues
+ that we're trying to figure out now.
+ So, it's a good thing in the long run
+ that we didn't do too big of a marketing effort.
+ - Okay.
+ - Now that we're getting some of those things
+ on the control and the marketing is ramping up,
+ even our social media marketing just paid marketing
+ as well too is benefiting us a little bit.
+ So, it is going pretty good.
+ We actually started 7 Prince Direct now too.
+ - Really?
+ - Yeah, so.
+ - Okay.
+ - And that's been, I think we've been in a month.
+ - Yep.
+ - So, 21 Prince, 21 Prince.
+ - Okay.
+ - So, I was talking with you and Saul Gras.
+ - I don't know.
+ - Yeah.
+ - How's it going now?
+ When you guys were looking at like the Ethereum E?
+ - Yeah.
+ - And we used to have an E1 protocol.
+ - There was, there was a lot of blockchain talk for.
+ - Yeah.
+ - Year.
+ - And there was just too much work.
+ You know, it was like, by the time we talked to it,
+ well, James, nothing.
+ - Yeah, that's true.
+ 'Cause at the time, like Ethereum Gatsby's
+ are like 75 bucks for like the simplest stuff.
+ 'Cause I was doing a whole bunch of like smart contract
+ development around that time.
+ And I was like, I don't think it makes sense for you guys.
+ I was like, I wanted you to quantum editor,
+ like just use it.
+ - Well, that's what we wanted.
+ That's what we're gonna use.
+ We ended up just really using a public key encryption.
+ We took that part of it and used that.
+ 'Cause we didn't really need it.
+ They wrote a pass-in on it.
+ And the pass-in like all the other day,
+ it was like, so what's this about?
+ And I was like, honestly,
+ should we talk about the buzz word?
+ If this can get out in the next three months,
+ you're gonna make a lot of publicity.
+ Do you need it?
+ - Yeah.
+ (laughing)
+ - All right, guys, get in there.
+ Two on the couch.
+ Two on the chin.
+ - Yeah.
+ - It's recording, so.
+ - Ooh, look at that.
+ - And the level's a little bit over there.
+ - Greg, you wanna chat, you wanna talk, Greg?
+ - Yeah, but what am I just gonna do
+ just to get in one time?
+ - I don't even need much to talk.
+ - All right, now that.
+ All right.
+ - Were you checking the volume, Mark?
+ - Yeah.
+ - Yeah.
+ - I think we're good.
+ - Yeah, I just already did this thing,
+ but it might have just...
+ I know how long this goes for.
+ It doesn't really matter if the other guy uses one.
+ - Is it Cameron?
+ Maybe 30 minutes?
+ - What is that all?
+ - Whatever.
+ (laughing)
+ - I love how you read it the room.
+ - Yeah, that's what's really good.
+ - Yeah.
+ - You did it yourself?
+ - Yeah, yeah, I did this one.
+ I was meant to paint the white,
+ but by the time I done everything else,
+ I was like, it's fine.
+ - Yeah.
+ - What else?
+ All right, so, I guess I'll get a little intro,
+ and then we can start here.
+ - I'll get a little intro,
+ and then we can introduce ourselves a little bit about.
+ - You're gonna bring a photo.
+ - I'll chart ours with all the agenda points.
+ - Yes.
+ - Yeah, I don't, like I started writing down points,
+ but I feel like it's probably better or more organic
+ about what we're passionate about,
+ and correct here is obviously,
+ well, in the depths of more fragile stuff.
+ But anyway, so, I wanted to get us together.
+ We're both developers.
+ You guys are more on the product side.
+ Agile has been a thing for quite a while,
+ especially in development.
+ It got blown up a few years ago,
+ and everyone did it, everyone migrared, do it.
+ I love it and hate it for many different reasons.
+ - Same.
+ - I think it has great points.
+ I think doing Agile by the book is generally a mistake.
+ I think there's stuff that can just be mixed completely
+ from a practical standpoint.
+ Theoretically, it's all brilliant,
+ practically not so much.
+ I also think it, for a startup,
+ probably doesn't make sense for a few reasons.
+ One of them being budget and identifying
+ how to get something to make money in the market
+ without having your entire scope laid out.
+ I know what you're gonna spend.
+ That's just the Doris that let me live in there, but if you...
+ If you want to introduce yourself.
+ - Yes, absolutely.
+ - So Dale Straco, I've been a developer for 20 years now,
+ so I'm gonna update myself here.
+ Been in Agile environment for a good decade now.
+ Could speak to both on a small scale,
+ at a startup side of things,
+ and it's a large scale like multi-hundred engineer programs.
+ Usually around like three-hundred, three-hundred-fifty engineers.
+ And then to mid-size.
+ So whether that's a Fortune 100 company to start up,
+ I can certainly speak to how Agile plays
+ in these development environments
+ across a commercial military entities.
+ - Well, I'm stuff on.
+ I've been project managers last storm master
+ for the greater part of two and a half years now.
+ Still learning, but I do have my good ideas
+ on how Agile works for startups
+ as like I work with now,
+ and I do have some concerns on how it fits,
+ but I do understand that there are ways to make it work.
+ And like you said earlier, it won't work for everybody,
+ but Scrum kind of gives you the ability to tailor it
+ until it fits for your business.
+ - Cool, Gregor.
+ - Right, I'm Gregor.
+ I'm a product management since 15 years now.
+ I'm an economist by trade and business administration guy.
+ And I think my first role when I started working
+ in 2008 was marketing managers.
+ So that was in telecommunication,
+ which I spent 10 years in my corporate career in.
+ And I then landed on the tech side
+ from telecommunication over like software products,
+ consumer electronic hardware products,
+ big corporation in Europe I work for.
+ And I mean, Agile's just the language that business speaks
+ when they have to bring tech products to market, right?
+ So like the first big Agile transformation project
+ I was part of was like 2012.
+ That was in the software organization.
+ Then another one, 2015, I was like scaled.
+ - You're allergic or sorry.
+ - I am, I am.
+ But I can manage.
+ It takes like an hour to kick in.
+ - Oh, hard work.
+ - But I haven't had a Louis for a long time.
+ So that's all right.
+ - We've got the time.
+ - So then I got out of the corporate world after 10 years
+ and trying to build like a foothold as a freelancer.
+ Like what's the kind of the professional stamps
+ that you put in yourself?
+ And then for me was pretty easy to do.
+ The product owner's certifications.
+ [BLANK_AUDIO]
+
+I'm a scrum master and then I was just on this track like at scrum. I did the scrum,
+ agile leadership, evidence-based management and Kanban. Like I did all these
+ certifications because I'm just curious and once again for me it's a language and
+ then now jumping from project to project and ultimately becoming a product
+ management trainer. It's just I think agility the cool thing is it's 25 years of
+ open-source knowledge for how software products are being deployed. Right? So
+ and the body of work is pretty transparent as agility, right? So you can go to
+ scrum.org and without even paying a single dime you can just learn all this
+ stuff, right? So it's kind of like the frameworks and the language that's out there
+ and yeah there's a lot of evidence in like what works and what doesn't work.
+ It's an industry too, right? It certifies people you can pay money and then you
+ know you get a certificate and that makes you stand out or not or it's
+ table stakes for whatever you want to do and what I just see right now is the
+ dynamic. It's like the agility kind of trends like going down. It's like the
+ this. It's like in the Gardner website that the drought of disillusionment is
+ kicking in hard right now, right? So people like this doesn't really work and
+ product management becomes more of a thing, right? Which is more outcome focus.
+ I would say agility is probably more like collaboration focused and kind of
+ industrial production of software focus whereas product management is more
+ what's the outcome? What is it that we actually gain from bringing something to
+ market, right? How does how does the business get revenue? Well yeah, on that note,
+ I think the thing that I struggle with agile I think works great in
+ large organizations. I think when there's money being put into something and you
+ can pivot on the dime, you can make decisions on the fly. There isn't a finite
+ budget that is restricting the development. I think it works fine. I think for
+ startups or for for anyone that needs to reach a certain point to get funding.
+ It's it's almost a killer purely for the fact that you have to agree on some
+ form of scope to be able to get out there to be able to get that funding. And agile
+ in this essence is scope has to change based on your learnings and how long
+ things are taken. You have to be able to pivot. Which I don't know if can always be
+ the case. It's been my experience as well both on projects that might be R&D
+ based especially with the military or in our budget scope or budget limits.
+ Don't really exist but even in that short-term R&D app you're really trying
+ to prove something out. So the idea of being able to define a scope is six to
+ 12 week process. It feels like unnecessary overhead because you really just are
+ in the research phase. Once you start introducing some of those, you know, the
+ artifact generation, you know, whether it's a weekly by the sprint, then
+ interacting with the customers as to what your output are, your outputs are for
+ that given sprint. It's a lot of process overhead that your team. That's right, chill.
+ That your team is fairly shell ready. I know already. That's chill. You're good.
+ It's low ease podcast. Yeah, absolutely. You can always tell another
+ cat owner. That's where it has now. But just one year, especially when you are
+ trying to develop something in a four, six, eight week cycle, you're spending,
+ what feels like you're spending 20, 25% of that time just with the agile
+ rituals, right? The product outputs, the document artifacts that you're
+ generating, managing Gira, managing the reports that come from that. And it
+ feels, it feels weighty on that. But again, larger projects that actually do have
+ longer timelines where you can actually spend a time to scope things out,
+ adjust, present to a customer. And then if the scope needs to change, that's
+ fine. You can, you have time, take stock and learn lessons. Then it doesn't
+ feel as weighty. And I think the, the output of Gira with the velocities in the
+ graphs and the reporting is great for some executives that are heavily
+ invested in the technology as opposed to just the output. I don't think
+ personally you can do a job without buy in from executive level.
+ I 100% agree with you. Yeah. What you're working on, right? Just like,
+ what does all the money go? Yeah. So on the smaller project, you guys mentioned
+ you're still in the start phase right now where you are. I mean, like, what
+ are these geo reports? Like, who is consuming those things? So before I get
+ into that, I think just picking back kind of what Peter said, I think a lot
+ of starters are quick to adapt. Oh, let's do agile, but not fully
+ understanding what's involved in the whole process of the framework of agile
+ scrum. And then you find there's a battle with the execs where they're
+ expecting certain things by a hard date, which more leans onto a waterfall
+ system and not necessarily aligned with agile. And then of course with with
+ agile, you're expected to deliver some value to them, to the customer within
+ a two week, the one week or a month type sprint. But after that sprint, you review,
+ they can say, oh, no, it doesn't work. And then come with new requirements that
+ you have to go ahead and execute on. Whereas at a startup, they want to make
+ sure that they're getting value for their money and what they spend. So they
+ expect, okay, they don't necessarily expect that whatever they get after two
+ weeks does not meet what they really thought at the beginning. Right? So then
+ that's why you have that disconnect as to, okay, it's okay that it didn't meet
+ your requirements, but now just let us know what to do so we can go execute on
+ it. And I think that's where the disconnect comes. So if the execs don't even
+ understand what the framework is or how their team is operating, then you can't
+ have that disconnect. So because we're talking about startups, right? 2001 is
+ one of the Agile Manifesto was written, I think. And 10 years later was Eric
+ Grease lean startup, which was his kind of Silicon Valley thing where the lean
+ work comes from was, all right, you build an MVP, you bring that to market, you get
+ the customer feedback you iterate. Right? So that was kind of agility and the
+ 2.0 at that time, I guess. And that was still applies because as a startup, you're
+ running out of money all the time. You don't monetize your product right now. You
+ need to find product market fit, right? I don't think it's a good
+ characterization to say startups do agile because it's just a go-to. I think
+ they're just improvising on the fly. Usually you have technical founders, they know
+ how to develop. And they are seeking funding, they got a law or something, customer
+ acquisition costs money, they're getting funding, and then they just throw
+ product at the wall to see what stakes. And hopefully they find traction in the
+ market. And then they haven't, I don't know, a chance maybe to IPO, whatever they
+ want to do, right? I would say that is kind of a territory of where this kind of
+ lean startup and not a lot of like the codified agility place. As much of a
+ role, I think when it is about big organizations, as you say, who are used to
+ waterfall industrial processes, right? They hit a wall because you can't plan
+ out complex work, right? Agilities, how do you, how do you navigate this
+ cone of uncertainty? Because you don't know what the software is going to do and
+ the architects you need to bid for something that's a year out, right? So the best
+ way to deal with it is you forecast a couple of sprints. Hopefully you have good
+ leadership and product people with a rate. This is where we think we need to go
+ and let's learn along the way, right? And that's where I think then safe
+ kick in because then you can say, "We're doing program increment planning for a
+ quarter and then we're planning out the second quarter to start looking at half a
+ year." That's very pretty good because I think in 2001, these guys wrote the
+ manifesto because they said, "For software, the old rules don't apply. You're
+ not building an industrialized product out of metal and whatever." So it's like
+ there's so much complex, we can't foresee what we need to do. There's no basis on
+ what we can plan, right? And this is why you break it into sprints, right? And I
+ think the truth is now in that a lot of ads are the sprinting down the
+ waterfall, right? Budgets are still being planned on a yearly basis. Right now in
+ my project, it's November, there's a budget for all of next year, right? And I
+ think this is still how most organizations work. So you're like, "Okay, let's
+ plan one quarter." And then you pretend you can already look into the next six
+ sprints. That's already pretty complicated, right? And based off of that, I don't
+ know, you build a ramp and a forecast for the rest of the year, but in
+ honesty, it's a lot of wishful thinking, you know? Yeah, yeah. You really know.
+ And because like business is one, predictability. Yeah. This is what the
+ budget is being for. All right, we're investing X to get out Y, right? And
+ then the question marks get bigger, the more you look into the biggest
+ software, it's just... Yeah, and I've never seen an accurate formula for calculating
+ our away from spring points or story points. Yeah. Yeah. Yeah. I think that the I
+ guess by the book it says do it based on complexity, which is fine in theory, but
+ from a number of standpoint, some you need to equate that to time. I don't see
+ how you cannot equate, can't equate story points two time and still
+
+we'll get bunion from the people paying the bills.
+ - Yeah, I migrated away from that notion
+ of scoring by complexity.
+ - Yeah.
+ - We've gone into a story point
+ as four hours--
+ - Four hours, okay.
+ - For work time, right?
+ - Yeah, I think it can only be that way.
+ - Yeah, half a day.
+ And that is just kind of the approach
+ that the US military has taken on
+ in terms of their engineering efforts, right?
+ Good for the, they're good for like the VA,
+ US, the four branches, it used to be five,
+ but now one of them is folded under Homeland Security.
+ They were really early adopters, Agile.
+ Which I was fully impressed with and just didn't see it
+ 'cause Agile, to me coming from, you know,
+ Fortune 500 financial side of things was scary,
+ but I thought it was really cool being in an environment
+ that was developing Algos really, really quickly.
+ So it made perfect sense.
+ Like here's an idea, can we create sort of trading Algo
+ in the next two or the weeks that kind of does this
+ and then adjust on the fly, right?
+ 'Cause these are small bits of code.
+ So it almost kind of lends itself to, you know,
+ the Agile process, but it was cool to go in like 2010
+ on a $3 billion military contract
+ and they're just like, okay, we're gonna be Agile.
+ And I was just, they're really impressed with it.
+ And they were happy with the scoring VA complexity
+ 'cause I think they could just got,
+ and maybe this is other organizations too,
+ I think they just got tired of seeing requirements,
+ scale out 12, 18, 24 months.
+ And then once you're six months in,
+ like what their buildings completely different.
+ So I think they just get tired of that repeated mistake.
+ When I do say, hey, but let's just go ahead and acknowledge
+ that what we think we're building today is gonna change
+ as early as six weeks from now.
+ Quests, latest is six months from now.
+ And it's just kind of stylistically go that way.
+ - And who would be in the military projects?
+ Who would point the stories?
+ Would it be the person doing the work or the team
+ or how would you do that?
+ - So that kind of changes based on the customer
+ that you're working with and then, you know,
+ you guys in the startup space
+ and then the consulting space kind of know,
+ it's always dependent on the client themselves, right?
+ It still kind of felt like there was some waterfall gates
+ that were being placed around the agile process.
+ So you still had an expectation,
+ especially once you got up to like kernel levels
+ and one stars and two stars,
+ it still dictated that by this day that need to see something.
+ So that was kind of like the guidepost, right?
+ There were the guideposts out there
+ and then start working backwards.
+ And then within the context of, you know,
+ three week sprint, maybe four sprints,
+ all the flexibility in the world on our end is engineers
+ to score by complexity.
+ But that never erased the fact that there was something
+ that had to be delivered, right?
+ - Yeah.
+ - Good on versus discipline, too.
+ - Oh, absolutely, absolutely.
+ 'Cause you'd go to sprints and feeling like pretty good
+ and then by sprint, like four, you're like,
+ oh crap, like milestone ones right there.
+ And I don't fail that close to it, right?
+ Which meant it was a lot of high touch with the customer.
+ I think there's one of that complaints with ad journals
+ because it is so big of a griff
+ and because it is so tactile to the customer
+ and the stay colder, the executive, your investor.
+ It forces a lot of communication,
+ which I think is good and bad.
+ This is why I love hating relationship
+ with this in engineering.
+ 'Cause sometimes I'm on the code train,
+ like I cannot break off, right?
+ If you're coding for six hours, I'm in it.
+ You take me out of it and I lose another six hours
+ of programming to this. - Yeah, that's a big job again.
+ - Right.
+ So I'm getting a little warm winded at this point.
+ But, at least from the military standpoint,
+ they focused more on feature
+ than the implementation of set feature.
+ Can I actually accomplish this?
+ How you build around that isn't something
+ that we're gonna put in the requirements.
+ I just wanna know, as a user, can I?
+ - Yeah.
+ - Which was, I guess amazing.
+ - Nope. - Absolutely.
+ - Yeah.
+ - Yeah, I think that one thing I see a lot of
+ is not learning from previous sprints, you know?
+ It's like, estimations remain the same type of estimations.
+ - I've been in engineering for 20 years.
+ We're terrible at estimating.
+ We're awful at it.
+ - We'll see team's estimate on day one
+ and they'll estimate based on the same criteria
+ at the end of the project, without reflecting on
+ what the estimation actually means.
+ I sometimes I feel like estimations
+ are more rushed to get a timeline to the executives
+ than you actually sticking to your estimations.
+ - But then the question is like,
+ what prevents that from being an honest process really?
+ And that boils down to stay a whole management
+ in the expectation because I agree.
+ And that transparency can be weaponized
+ against adults, right?
+ Because the whole thing, it's like a good faith thing.
+ Like I sometimes think of it as like a scrum team
+ like walking into like a hardcore corporation
+ is like, you know, in Star Wars when they kind of,
+ you know, when they bring in that, you know,
+ rebel ship into the death star, you know,
+ and all these like good faith kind of Jedi's
+ walk out that thing and oh yeah, we're the good guys.
+ You know, we're transparent about everything.
+ You can always look at all of our artifacts, right?
+ And then like, if you have bad faith people
+ on the other side, that just can be used against you
+ like big time, right?
+ Which is why I see about like story points also like,
+ scrum teams to defend themselves,
+ they just inflate estimations, right?
+ So there's like smokes and mirrors and stuff,
+ you know, put a buffer in here, right?
+ Yeah, and then that comes down, which is a very good point
+ because that comes down to traditional agile,
+ not wanting to pull in story points
+ when a sprint has started.
+ So you conflated story points and got your work done,
+ but then there's reluctancy to pull things
+ in or push things out because it's going to affect the graph.
+ Or to ex, to ex, to, that's what I'm looking for here.
+ To exceed your capacity and then set the tone moving forward
+ that you can go for.
+ Yeah, that's what I want to square up the line.
+ Why do you guys only scale in the thing we're 22, right?
+ Yeah, right.
+ And so I think there is a lot of fudging
+ that happens in there.
+ I've been president in it too,
+ where you start the customer sees 32 expected story points
+ for a sprint and then your complexity rises or, or falls
+ and you're like, so, and because there's like,
+ that evidence is kind of in that that game is being played
+ hard pretty much everywhere, especially in big corporations
+ is like, even, there's like two really cool scrum trends
+ that scrum that work to have a great podcast on YouTube too.
+ And they're like, hopefully saying story points are trash,
+ right?
+ And this is why I did like the, the con bonds certificate
+ because they're like, let's focus on flow metrics.
+ Like it's going to, teams are norming themselves
+ to pretty much do like equally sized chunks of work.
+ So if you just look at work in progress and cycle time
+ and if you just in the stand up look at tickets,
+ like back up items that are in progress
+ for more than X days, you're like,
+ let's just manage the bottleneck, right?
+ And everybody only does, I don't know like,
+ one, two, three things maybe at a time.
+ You don't estimate any more and you only look at flow metrics.
+ I think that's like the next level of,
+ because the kind of, yeah, the quantification of story points
+ can just be gained, right?
+ So relative value, right?
+ And I however have yet to fully pull that off in a project
+ well, because I think it takes like huge maturity
+ of the engineers to do that, only look at the flow metrics
+ and then what do you do about reporting?
+ You have no story point, you have no positive metrics
+ to give to stakeholders and the people
+ who kind of put in the budget for the project, right?
+ But like, that's like the next level stuff,
+ but once again, you probably are then looking
+ at an organization where people are super savvy,
+ budget is like everywhere left, right, and center
+ and everything's working well already anyways.
+ - I think that's life, the charts.
+ I mean, that's the nice thing about Agile,
+ especially with the geartools.
+ I mean, thankfully they auto-generate the stuff
+ where you can hide behind those charts.
+ (laughing)
+ And so I can't imagine a environment.
+ I mean, what you're saying right now,
+ in terms of a canned bandit of observing flow
+ and the bottlenecks versus actually output points
+ sounds fascinating to me,
+ but I don't know what I go to executive with the show,
+ like what my team accomplished in the last three weeks.
+ - Yeah, I think, guess Scrum teams benefit
+ other than the better when the product owner
+ and the product manager, or even the exact team,
+ like I said before, understands what's happening
+ at that level.
+ So if they understand the whole process of scrum and Agile,
+ and how it differs from waterfall,
+ how it benefits you in different projects,
+ then they won't weaponize it against the developers,
+ especially when things don't go the way
+ that they expect it to,
+ and they're not seeing the output that they expect.
+ Also, I think just managing,
+ especially with with live products,
+ managing things that are issues, bugs and stuff
+ that come up.
+ - Some some executive or stakeholders expect you
+ to continue to fix the issue that's live to the public
+ and instead-- - But that it takes,
+ exactly, I think, with them understanding
+ that that's not possible.
+ And of course, if you do that,
+ or you expect that from your team,
+ then the quality of work that's gonna get output
+ on the end is not gonna be off the par.
+ I think if they understand that,
+ it will be less of a friction between,
+ or accurately estimating story points
+ and then interpret it the right way.
+ - Yeah, and I think too that the general way
+ that I've always seen it is,
+ if you're equating a point to a day, for instance,
+ and a two-week sprint allocating a point,
+ so you have two days worth of time
+ to accommodate bugs or anything else.
+
+However, that very much comes down to acurately guessing how long things are going to take you.
+ We're assuming a bug is just a point, right?
+ But what I definitely see as a consultant, I know you do, Stefan, is
+ I always get asked the question, how long is this going to take?
+ What's the timeline?
+ Once it's going to be delivered?
+ Right.
+ I don't think the methodology matters.
+ But trying to fit in agile to a timeline where, as a consultant, we're building higher rates
+ than in-house developers.
+ They want to know how much they're going to spend.
+ And how do you fit that in with agile is very challenging.
+ Without overestimating and throwing a massive number in them.
+ Or leaving its managers to wholly underestimate the level of evidence.
+ Exactly.
+ And then putting their feet to the far right.
+ I mean, you said this was going to take a day.
+ Yeah.
+ It's 24 years of allows here.
+ Well, and then also the balancing out there when you're looking into the engineering side is
+ in order to deploy a tech product, you're actually building two products.
+ You're building the customer-facing thing that you release.
+ But then the other product is the process by which the product is being
+ generating, how the increment that comes together.
+ So do you have great DevOps stuff?
+ Do you have great technical excellence in the testing?
+ Like how high is the quality?
+ How did a tech debt do you have?
+ So, and that costs money.
+ And it's not ultimately delivering to customer-facing stuff.
+ Because for an executive point of view, you're like, what feature are we launching?
+ Yeah, you can turn something out.
+ There's very little metric in terms of like, oh, what's going to be the quality?
+ It takes like a lot of product operations and like marketing analytics
+ to also have an understanding for the business to say, right,
+ this is actually a good product that we launched.
+ Is the feature released?
+ Yes or no, that's pretty binary, right?
+ But like, are we actually launching something proper?
+ Is this really what it does, right?
+ Because the invest, like once again, talking about velocity,
+ if you're investing in tech debt and bug fixing,
+ that's no output, right?
+ That's just keeping the wheels turning and everything,
+ keeping the machine running and the reporting is always towards it.
+ Let's build new stuff, right?
+ Because then the business has an interest.
+ Oh, you know, this is for us, you know,
+ the conduit to get more revenue in and everything.
+ But actually, I think what easily gets neglected is like,
+ let's focus on the excellence for how we build product, right?
+ And limit the technical debt because that ultimately makes a lot of customers happy, too, right?
+ But it's in most of the parts that I've been,
+ it's easily an afterthought,
+ unless you really have stakeholders, like really understanding,
+ all right, what does it take to run this machine?
+ And yes, do we need to give the team two sprints just
+ to clean up architecture and to make sure that everything is running smoothly?
+ And you know, just get production issues out of the way
+ so that the next launch is actually going to be good.
+ So I'm actually intrigued.
+ So when it comes to your bigger company or when you have to go through security protocols,
+ military, we have something called risk management framework.
+ We have to do authority to operate.
+ It's a whole security, cyber security process.
+ Obviously, whether it's classified higher load as a matter.
+ So you have this natural gate check to say,
+ we actually do have to follow up and work on that infrastructure, right?
+ Because you have to harden it, you have to secure it,
+ you have to test it, you have to scan it, it's got to be routine,
+ you've got to throw chaos monkeys out there to find the edges,
+ you know, the rounded out edges.
+ And so you have something that's in that process flow
+ that's already telling you we need to improve the underlying infrastructure, right?
+ I don't know on the start of culture or a smaller,
+ I've never certainly succeeded at this in my own, right?
+ To be able to go to a customer and explain to them what the long-term value is
+ of making sure that their Kubernetes scale is working correctly.
+ Right, that we are managing the Docker image versions
+ and being able to respond to CVEs really, really quickly.
+ You know once it goes wrong.
+ Yeah, you know once it goes wrong, but I can't go to a customer
+ and show them the value for something that hasn't happened,
+ that I've ever succeeded at 100%.
+ Yeah, I agree, but I do see a value in creating technical debt
+ when you don't have the data to back up what you're building yet.
+ Like, you could spend a huge amount of budget
+ and time on writing the unit tests,
+ writing the end-to-end test, setting scalability up,
+ load balancing, disaster recovery, you name it.
+ But if you get no actual live users to actually test your scale,
+ we'll have a point of building this game, right?
+ Yeah, and are you going to pivot away from needing X, Y, and Z?
+ Yeah, so I think from a startup perspective or small company,
+ it's okay to create technical debt
+ as long as the executive team understands what they're launching.
+ That, okay, you're launching this,
+ but if you have a marketing team of 100 people
+ that are going to push this like crazy
+ and the user is going to come running in,
+ it's not going to hold up.
+ So you need to have the, I guess, the conversations
+ with more than the development team,
+ with the marketing team, with the executives
+ to know what are we actually putting out there?
+ We know what it can do, but who should use it?
+ How are we going to market?
+ How are we going to advertise it?
+ And what's the game plan on getting to that next level?
+ Yeah, and we see that a lot.
+ Yeah, we definitely do, but I think I can't say enough.
+ I think a lot of people who sit in different roles,
+ executive roles, product managers,
+ or even that startup company, they have the idea that they think,
+ okay, this is going to bring money,
+ but they don't take the time to understand
+ the infrastructure, how is it going to get ex-again?
+ How does, like you mentioned,
+ Kubernetes and all this stuff.
+ How does that impact my idea or what we're pushing out there?
+ And if it doesn't work, what's the impact there?
+ And then, of course, setting time aside,
+ even after launch, to just monitor the system,
+ to make sure that everything goes right,
+ and adjust, because, oh, we're getting 10,000 users,
+ and we only expected five.
+ How do we adjust there, and what does that mean
+ in terms of development and that kind of stuff?
+ I think, what's the trade-off between doing it now?
+ For instance, putting it right,
+ is the putting it off going to cost a double?
+ Exactly.
+ And that's what a lot of people,
+ from my experience in the startup world,
+ well, exact thing.
+ Okay, well, we paid to get it done, and now we're out there,
+ but they don't remember, okay, well, it was technical debt,
+ so we might have to pay for it, and then,
+ you bring up the conversation, well,
+ we might have to redo this, or readjust,
+ they were like, well, we don't have to pay for this again, right?
+ So I think that knowledge from an executive level
+ needs to be a little bit higher, at least from my experience.
+ I guess I'm going to throw this as a knock-on on Agile,
+ because it does allow those continuous conversations
+ around what new feature can we adopt,
+ based on the feedback of the previous two sprints,
+ or this last venture that we've had out there,
+ and being able to tie that supposed potential revenue
+ to the actual development costs of that.
+ I mean, I've done the startup spit-a-baw for me.
+ I've seen a couple go really well,
+ and a hold a dozen or so with it just fell flat,
+ and I would say the biggest reason why the ones
+ that fell flat did fall in fall hard,
+ was it just kind of seemed like we were just chasing features
+ for theoretical dollars.
+ Without truly understanding,
+ the underlying cost to release that feature
+ and that being what's high to actual revenue,
+ because everything you develop actually has a cost to it.
+ And then everything you develop, if it generates revenue,
+ has revenue attached to it, right?
+ In a startup world, it's really tough to imagine
+ what those two things are and forecast that out,
+ even if you're only talking like a handful of days.
+ So I've never really succeeded at managing customer expectations
+ around it, especially when a startup is trying to get funding.
+ It's a lot of people just grabbing that stuff.
+ Like, hey, here's this idea about this,
+ or this investor thinks we can add this to the platform,
+ and then if you already have this innate agile process,
+ which is agile about nature,
+ right, you can think like here's a new feature
+ that we can consider, we can size it.
+ If it's this brand, it's the next one.
+ It almost lends itself to that kind of strong grasping, right?
+ And I've never successfully managed that
+ in a startup environment.
+ Yeah, and I think the investor environment
+ has changed so much that the last couple of years,
+ you can't be so flippant as you once were.
+ And people have thrown dollars at anything,
+ back years ago, now it's...
+ The free funding is over, yeah, yeah, for sure.
+ And I think that's a good thing, right?
+ And I have to shamelessly plug like what I've gotten into,
+ which is more of the product management world,
+ and how you look at the bottom line and the incoming,
+ because, actually, once again,
+ I think it's like for producing software, right?
+ So you're always looking at it from a cost center point of view.
+ Arguing with the biggest kind of outcome of the whole agility thing
+ is the good DevOps, right?
+ That's, yeah.
+ I mean, that is like a discipline
+ that is like fully productized.
+ And it's like, now you push a button.
+
+You can release in I don't know like a hot minute right and we have clients for them
+ It took like with all the scripts that have two days to release something right it's like that problem is like fixed and industrial
+ You do with a multiple requests and you plug into AWS or Azure and it's like you've got that scaling and everything figured out right
+ What now gets more interesting is like what are we actually building right?
+ It's like you you're investing for a feature that kind of gets customer activity you need to monetize need to get money in right
+ It's like how that is being built in the machine to you know churn out that functionality
+ That's that's what the last 20 25 years actually got out of it, but it almost feels like as a screenmaster you always like
+ both looking at the engineering team and they're supposed to have all these sophisticated processes for you know like deploying the technology and developing everything and then I look at the
+ As a product owner, I often look at staco as I'm saying it's like all right
+ It's like you have this machine you were making them both this feature. How do you know this works?
+ Have you done the feature benefit analysis?
+ Like what's the customer into what's the working on Linux you have like what's the what's the real like show me the customer interviews?
+ What are the jobs to be done here?
+ Because every time you ask this machine to do something it's a whole apparatus that costs a lot of money
+ Right do you really know what you're doing?
+ I think there's more scrutiny more being put back into the business to say all right
+ Like actually what is good product discovery? There's like a lot of cool stuff now product operation how you'll like
+ Automate a lot of the
+ Interface from kind of customer facing stuff into agility like the marketing to development interface
+ Like there's a lot of new cool stuff being defined there because yes products now need to earn money. Yeah, that's a great thing
+ That's a fantastic thing right because you've been talking to me such a bad word. No, it's the framework that I now started to become
+ Trainer for it's called software profit streams because a product that generates profit is sustainable
+ It pays for itself and it puts like the product people in the executive team in the position to say
+ What benefit are we actually what's the tangible and intangible value that we're transporting to the customer and
+ How can you monetize it right and then if you've got the money flowing in then you can allocate your funding to you know
+ Whatever works best for the customer right and I think it's exciting
+ We've had like 10 to 15 great years of no interest rates free funding venture capital
+ You know coming out the faucet left right in center and that that is finding coming to an end
+ Which puts more scrutiny on how much everything costs but even more so it's like all right sure
+ We got to manage the cost, but like how do we actually transport benefit and
+ Functionizing the customers such that there's value coming back
+ I am so glad that that is the approach now coming from investors and executives at least your guy's face because as an engineer
+ I want to know what I'm building is actually going to matter. It's going to mean something. It's going to be used
+ Yeah, right the number of times I said there's an engineer listening to somebody just throw out an idea thinking that revenue could
+ It theoretically be attached to it like I'm going to spend three days on this I would have spent three weeks on this
+ I don't think it's going to get used so as seeing that thought that forethought
+ Right up front even before it gets to the engineers. Yeah, thank you
+ Which is an important thing right stakeholders need to like for agile teams
+ They need to you need to communicate the purpose. Yeah, right?
+ It's it's not only like sometimes I think about this as it's like the guys like your car doesn't work well
+ And then you bring it to the shop right and then the garage they got to fix it
+ But you're not really interested in what they fixed right if if that's the stakeholder mindset
+ That's not great, right? It's like I get it. Yes the carburetor broken right or you know this might not be interested
+ But it actually matters right because otherwise you're incentive might be you bring this to you get a duct tape
+ Together by the cheapest thing and then kind of product works again or are you actually interested in investing
+ Into that process of getting something built and fixed because you might write into the deal with the mods then you might leave the deal with the Mercedes
+ Because once again that machine that builds machines is like a really well one, right?
+ But are you interested in?
+ kind of the
+ You know it's like the sophistication and the excellence of that machine that does it and yeah
+ If you're bringing revenue you can build a beautiful machine that does prop
+ Right, but if you're only slashing costs you can always make tech cheaper right? Yeah tech tech depth is like exploding through the roof
+ But it's like that house with that roof is like far and there and until it explodes it doesn't really matter
+ Right and so yeah, and if you've got revenue coming in and the business monetizes you can you can fund that
+ Yeah, it is tricky though. I think with
+ To get into building a technology business now without
+ Having a pathway to get VC funding is I don't know if you can do it without being technically minded or having a technical partner
+ I think you were going to hit a brick road. You're going to make bad decisions in terms of technology choices
+ This has gone away from agile part of another conversation, but I don't
+ Like what we were talking about with executives just wanting to know when something's going to be ready and how long it's going to take
+ even within that time frame the
+ The cost difference is drastic depending on the decisions that are made in terms of
+ The software or the the framework or where if you're using AWS or Google versus Digitalization
+ Whatever you're using and how you're implementing it and having fixed costs per month versus a scalable cost
+ All those sort of things I think make it really hard today to get build a technology business without a
+ Technology partner that knows their ship or without a lot of money
+ I think the days of just being a startup with an idea or somewhat over I'm grateful for that
+ To some extent again having been in that startup space and just having the technical know-how and be able to say all right
+ So here's what we think we can eventually do
+ Here's the money that we're raising to hopefully eventually do that thing and then we'll make the technology decisions and adjust, you know, via agile like methodologies
+ I would say the success rate was pretty low maybe that's just what the startup success rate is maybe but I also thought that the idea of being able to work the idea of trying to attain
+ A product or release a product without really doing too much to do diligence on whether a product has a chance for success
+ Sure, I just I always thought that was I was just thought there was something wrong with that
+ But there was a time 10 years ago that sounds like that time into five years ago where that was perfectly acceptable
+ They were just one the technical you got some technical on the team cool
+ Here's the thing that we think we're going to do we're going to put you in a room with a bunch of people
+ You're going to feel a whole bunch of ideas you're going to feed those ideas into your actual process and then we're gonna somehow succeed in profit at some point
+ Time and even if we don't maybe we just sell it and we make money and sell that problem to somebody else down here
+ Which they're very well
+ Ventured with making sure it makes money there. Yeah, and it's like what I like about this is and I always love being kind of super close to the
+ Engineering team as a product person because I just love cool tech being built, right?
+ But it's super frustrating if you're part of building something and investing
+ I don't know your daily work into something ultimately doesn't matter because it can't sustain itself
+ Like in my corporate careers like I had I managed a smartphone portfolio, which was a cost plus
+ Kind of initiative, which there's always somebody in China who's going to be cheaper. Yeah, you're doing. Yeah, right
+ And the other one was just ultimately like unable they didn't have like the values change model
+ It didn't didn't never integrate with the business model of the rest of the company
+ So we build like a mobile payment system which ultimately it's like the distribution channels could sell it
+ All right, because the monetization just like the whole kind of profit engine would never was never stacked up to work and like I waste it like
+ Not waste it. I mean it's like it's been great experiences, but arguably like a bidding product for like more than four years
+ And honestly, there's products don't exist anymore because they've been sustained themselves
+ Right and there's engineers who put architectures for it and everything and then at a certain point in time like people pull the plug because yeah
+ This didn't work. I mean right. That's the that's the kind of the nature of the game
+ But yeah, it's like I love when you said engineers and architects they want to see all right
+ This is this is the value we're generating for the business. Yeah, that drives an agile team motivation to say like cool
+ We're gonna build this and this is gonna earn the money for the business. This is gonna pay our bonus at the end of the year
+ Yeah, right it's a good thing
+ Yeah, so like
+ 100% and I think that
+ That era is is now and a lot of stuff has been you know
+ It's so funny. I like I set up a new phone the other day and then I'm
+ You can go down all the apps that you ever installed and then you see all these apps that are a lot more thing
+ This was something I used right look back on your cat, which is like right before and fine
+ Which became end of our YouTube live and all that stuff you look back and all these that had right so much promise and so much like investor hype and
+ People look at this like software teams build this and deploy this right and and that's great
+ I mean it's like that's also like market economics right stuff that doesn't work, but it's probably better soon than later things
+
+That doesn't work and doesn't matter, just not to do it anymore.
+ Yeah, links to agile with ongoing agile being able to pivot and change based on the changing in the environment and people how people use things.
+ Talking about the longevity of how things get to market, like working on something for four years,
+ within that time, the likelihood of developers switching it out is high.
+ And people are going to move on to different things.
+ So within that, I know I said technical debt was a thing.
+ Leading back on that documentation has to be part of any development task and should be factored into any agile story.
+ So one part of agile that I do like is the ticketing system, as long as the acceptance criteria includes things like unit testing,
+ when budget allows, but documentation for developer, developer handoff, because there's nothing hard in coming in or trying to understand someone else's code and spending endless time just digging through to,
+ anti-robbing line by line, how does this work in that?
+ I'm sorry, I think that kind of contradicts the whole idea of agile as well too, because agile more focuses on managing people and processes and documentation.
+ So documentation is lower on the list of priorities when you do agile, because you're trying to get stuff out, they come in, I have an idea, this is what I want, so two weeks let's get it done.
+ And you really don't have, unit testing, I'm making sure you're the quality of your code is good, but in terms of documentation, but to your point, when you have a long project, then that's a limitation that you have when you developers come in and they're like, okay, so where's the documentation for this?
+ So yeah, we kind of, we did a time, I didn't think that I can say is one of the limiting factors of agile, that's interesting.
+ And it varies with how the teams are actually like willing to do it, right?
+ If you have a great developer, they automatically document everything, but if people just improvising, then don't worry.
+ I'll give, I think, I don't think it's a great developer, I think a developer that actually cares about the code,
+ but also, selfishly, doesn't want to deal with it again.
+ >> What's something that happens to you?
+ >> It's like, as a developer, I don't want to write something like a UTIL function, that three years later, I still have to own.
+ I want it to be making clear enough so that three years later, if they come back to me, it could be like, what the hell did I write?
+ So I can go back in and do it, but at the same point in time, anybody can jump in.
+ So I don't know if you necessarily be a talented developer, but I think you just like, experience, experience, just to understand what that means,
+ how that piece of code is going to live on after you committed in there.
+ But I like how we're bifurcating the whole motion of like unit testing versus documentation.
+ I have never been a strong proponent for unit testing, and I say this, not because I can't see the value of it.
+ I see the obvious value of it, but I also see the cost associated with it.
+ So when I always looked at it, it wasn't just because I'm a hardy developer, my code works, it works on my machine, I'm good.
+ I looked at it as like, I don't even know if this feature is going to be something that goes to production.
+ I don't know if it's going to, like, how long it's going to exist in production and how valuable it is to that overrun environment.
+ Is it going to exist six months from now?
+ Why am I going to spend the sale of out of time?
+ It took me to develop it to write a unit test for it.
+ I like unit testing once you know that that feature is in there.
+ It's established and we want to make sure that as we are building around it, when we make a change, it doesn't break.
+ I see that value stream.
+ I see that value much further down the stream than off the stream.
+ I agree with you there.
+ I do want to make the distinction of unit testing versus end-to-end and regression testing,
+ because I do see the value and end-to-end testing to see how all the systems connect and making sure that someone's not deploying something isolated that breaks the entire flow of the system.
+ Which plugs the other podcast we made learning up to test, so you can watch that.
+ But I would agree that there's not a lot of clients that I work with that want to spend the money on unit testing.
+ End-to-end testing, yes, but after the fact, when they can see what happens when you don't have end-to-end.
+ I have a question, isn't AI going to leverage this whole automation for you?
+ Hopefully.
+ If you press a button here and all the unit tests are going to be written.
+ Yeah. I have you co-pilot, GitHub co-pilot, which I'm not like sponsored or anything.
+ I absolutely love GitHub co-pilot.
+ One, because it just gives you an auto-complete a lot of that, like a rudimentary code that I could spend, you know, 30 minutes, like remembering how to do,
+ or like we look at the documentation for this work and write a comment, this is connect to QLDB and query based on this ID,
+ and it will just, all the medical study about, but I can do the same thing with units as it does crank out.
+ I wouldn't say 80% accurate, but we'll get you halfway there, and halfway there with unit tests is a long way.
+ Because I think that's like an efficiency that software teams need, right?
+ Instead of the building quality can be easier, right?
+ You say it's like, they have this 10X kind of hypothesis, right?
+ Like a great developer, it's like 10 times better than like a poor one.
+ I hope that kind of gets narrowed down just because stuff like co-pilot just helps that on just overall quality gets kind of built in.
+ Yeah, I think a good developer needs to validate what the AI is producing, but doesn't necessarily need to know.
+ Off at this, like, Google camera round, you don't need to know exactly how to do something.
+ You need to know enough to look it up or know that it's factual, which I'm all for in Jake, our DevOps guy, uses co-pilot religiously and loves it.
+ Because, once again, like, stakeholders are like, yeah, of course this stuff got to work, right?
+ Non-technical executives, they're like, I don't care that it now breaks, like, why it just has to work, right?
+ And once again, complexity is, I think, not really like a great conversation started with executive.
+ Because they're like, yeah, sure, I mean, this is why we hire all of you people, because a lot of money figure it out, right?
+ So, I think, like, that conversation with stakeholders is always tricky, and I hope that kind of these painful, polishing and quality things that they get alleviated with all these new tools.
+ Because that's just going to make scrum teams look good, right? They say, okay, we now DevOps make sure we deploy this, and yes, we have automated tests filled in, the pipeline always works, all this stuff.
+ That's just how to say, because executives, they're like, of course, this got to work, right?
+ And if it doesn't, like, that's a problem, like, where's your solution, right?
+ If you then show up with the ass to say, no, we need more money for our technical act, so that's always the different conversation then, again.
+ That's pretty much.
+ Yeah, and again, like, the tech debt, it's tough to be able to go to an executive, even with a larger budget, or an investor, and say, like, tech debt, this is going to hurt us, because they don't see it actually hurting it, because you're still speaking to a theoretical outcome.
+ And because Agile, it seems to have made its use or story, where the whole process is so focused on features, like, how do you recenter that focus on the things that support those features?
+ And again, I've never mastered that science of being able to make a feature, a delivered feature, just as valuable as the underpending infrastructure that supports it.
+ I have never been able to make those two things equal in the eyes of anybody beyond an engineer.
+ Yeah, yeah, it takes like a technical perspective on it, for sure.
+ Speaking of AI, though, I know we've had this conversation before about how that could change Agile, Scrum Masters, actually building stories for you.
+ Oh, wow.
+ Yeah, so talk about that. So two things. And once again, I'm no programmer, right? So I think AI is fantastic just to build your context for complex things, just to smarten yourself up and ask kind of AI questions.
+ Like, I don't know, like, I've asked myself, how does unites and work and why it doesn't matter to me as a product person, right?
+ That's stuff. And so there's there's two things. I think Scrum and Agility have put the product own role into a technical interface to engineering teams.
+ Whereas I think product management is actually somebody with commercial responsibility to make sure that the revenues coming in to define the pricing, product monetization, to be somebody to go to the executive team and say,
+ OK, this is a commercial target that we're going to put it, right? We're going to have your business model in a better shape compared to last year because we're building this stuff.
+ The whole product owner curriculum, as I've gone through it, hi, Louie. I was like, why did you go away in the first place?
+ The whole product owner curriculum is very much on you are the technical guide who speaks to the engineers because the stakeholders don't want to or don't have time to.
+ So you're dealing with sales, you're dealing with sales and marketing. They all of their wishes. You need to figure out the priority and then translate to the technical people.
+ I think AI is massively going to change that role for the better because, and you know how, or teams, I love to be Scrum mom.
+ I want the engineers to focusing on the stuff which I can do, which is the coding. So I was like, I'm going to figure that out. I'm going to put all the details in the backlog.
+ So you write the user stories and how this fits in with the context of the rest of the portfolio and the acceptance criteria and everything else that you should know.
+ So it's like, you start writing a novel in the backlog, right?
+ A.I. is rapidly going to kind of zoom in.
+
+So there's now tools out there, the name escapes me. You can upload a figmify and that thing writes you an entire backlog with acceptance criteria, with happy journeys and unhappy journeys also like everything that can go wrong.
+ If you click this button without having done this and that, all of these permutations of unhappy flows, that stuff is going to be way more efficient.
+ So I think a product owner just say, "Oh, I'm managing the backlog," which is not a healthy thing that scrum actually they'd made people do.
+ "Oh, I'm just managing the backlog. I'm described here. I'm documenting stuff." That's not a product in my opinion.
+ The product guy is the one who rakes in the money. He is customer focused. He's a marketplace expert and he knows how to monetize.
+ It's all about the fun. You've got people looking at your product and who ends up spending money.
+ That is your job to optimize. That is your job to optimize as a product person.
+ It's not making sure that you write a novel such that a front-end engineer knows where to put a button.
+ And I think the product on the road kind of went into this like, "Oh, you're the backlog ninja."
+ Which also, by the way, doesn't give you as a product person great credibility with business.
+ Because then the stakeholder, like the important marketing person who's responsible for revenue, he goes through this feature form.
+ I don't think that's a healthy handover that should happen.
+ And that's also the reason why companies like Airbnb, for example, say, "Oh, our product people are actually product marketing managers."
+ They are focused on go-to-market and how you sell this product. I think this is where that part needs to go.
+ But that's also because AI hopefully is going to be like, "All right, you have to use experience specification."
+ This is how it automatically becomes backlog items such as an engineer looks at it and he's like, "Oh, I can imagine I can fake my file that talks to you."
+ This is how I kind of imagine hopefully in the future, right?
+ I think they're making small strides, but I know Jiro already has integrations with like chat GPT and fake man and all that stuff.
+ This is fascinating to me.
+ One of the things I always thought was very negative about ad jobs. It always seemed to be very inward focused. It's like, "Here's the engineer, here's the product development for it."
+ And we're all eyes, all attention and all output is put into that process.
+ Without really thinking about what the outside world is actually going to use, that's the actual end product that comes out of this.
+ I always thought it was weird. As much as I enjoyed it as an engineer to be like, "Okay, let's admit that a requirements document that we're going to laugh at 12 months from now."
+ We all sat in a room, we all admitted, "Yes, this is going to be Garbo in six months."
+ And we wanted to adjust that and say, "There's a lot of uncertainty. Let's just build a process around uncertainty."
+ That's the more stuff the ability offers every two, three weeks, right? That was great. But then we took, it's like all that focus went into maintaining those offerings every two to three weeks.
+ Versus, once the actual value of what we're building here, I was such that was crazy. I'm so glad to see this reversing you guys in the industry saying that it's no longer just money into hopeful end of products.
+ Let's get the talent. Let's put money behind it and hope either through an IPO or a sale or just passing the book onto the next investor.
+ Now focus on like, "Okay, let's before we go build something, before we write stories, before we write a novella inside of JIRA inside of a backlog."
+ What's the actual value of the thing that we're going to build here? What's the motility of it in the hands of a user?
+ Not just in the hands of a user, but how does that action get monetized?
+ That's all kind of value, you know, this is a load of work, right? But how do you transport that?
+ Yeah, so there's big changes coming to those roles, I think.
+ That's awesome, hopefully for the better. And yeah, the input focus is this, right? I think there's a great book and it's called Agile 2, which is like a recap of everything.
+ And I think the guys in 2001 who wrote the manifesto, they were in work focus. They were building software and they were frustrated with the fact that,
+ "Oh, we're being asked for something in two years now and that everybody's going to be disappointed."
+ Because that plan that everybody made didn't come to fruition because it's so complex that we can't plan it out that far, right?
+ We said that before. And yeah, I think management is not a word that's being used in the manifesto or anything, even not in the first Scrum guy. It was very much like a technical, even more focused.
+ And I think that story kind of has resolved itself to a certain degree, right? Which is why, what do you do while this war?
+ Yeah. And the Scrum team is like an expensive thing to run. The Scrum team can be about like 8 to 10 engineers.
+ Yeah, it's a small one. Yeah, it's like a sprint. Two weeks, like 10 FTEs, right? And an engineering manager, that's a lot of money you're blowing every sprint.
+ Yeah, I think that will be better. That's something on a military project I want to say of Scrum team of 8 to 10 people with the mix disciplines, I think estimated like 1.7 million.
+ And so we're going to cross a VA project, have 36 of them. And so if you start looking at the meetings and all the artifacts, you have to come out of a Scrum, you're like, these dumbass ads that they had up, they had up.
+ Like scale ads are programmed increment plans like, oh, cool, let's put 120 people in a room three days. Wow, talk of an expensive.
+ Yeah. But it's funny at the end of some meetings, you hear people congratulating each other or being like, that was a really good meeting.
+ Which generally comes back to, we accomplished something and we didn't blow money. You know, that was a worthwhile meeting.
+ But you only hear that once every dozen times. Like, those are 11 times. Well, how necessary.
+ And I was just hooked at the cost of a 30 minute meeting. I'm like, the output of what we're spending this 30 minutes for needs to surpass that value.
+ When you focus yourself on that, through that lens, you start scheduling a lot less meetings.
+ But then also, like, once again, look in the pre-edge award, that would have taken you a year to have that meeting.
+ Right. The big product. Now remember in telecommunications, too, it's like they were building. And it's like building terrors was pretty much like building like building schemes and stuff.
+ But then there would be like a launch and it was one and a half years in the making. And there was no pre-product environment or anything or it was like a big bang thing.
+ In agility, at least after every sprint meeting, you can have the review. And I think that's the only thing I think that is like a strong artifact or an event that everybody kind of appreciates.
+ I love to kind of put that meeting together, bring the steak. It's like, all right, it's like, we're here. We're going to kind of pull back the curtain. We're going to show you everything we got.
+ And then we want to hear what you think. And everybody can say something, right? And good feedback, bad feedback, right?
+ And if you do that in every two weeks, it's like an incredibly healthy thing to do, right? Because that course correction in the interaction is like, that's what agility kind of gave to the world.
+ You do that in small increments instead of every what?
+ Two years. And then everybody's like, oh my god, what have we done, right? So you can course correct morale.
+ I think that review, the higher the low comes down to the storyteller. A good scrum master or a good product owner has to be able to tell a good story.
+ Because if the end result or the review wasn't exactly like the expectations, what happened throughout to make this a success?
+ And if you can't articulate that, then it's a fail. So making sure you can tell a good story, even if the story is not the story that you thought you're going to be able to tell.
+ The scrum team needs a good narrator. I think the scrum master needs to be able to set the right expectations as well to even throughout the sprint.
+ Like if we know that we're going to be way off the deliverable, I think it'd be good to inform the product owner or executive learner, hey, this is what happened to sprint.
+ This is what we're going to expect. And so it's sort of not too thrown off when it comes to the sprung reviews. I don't know. Like, well, this is not what the last problem is.
+ So apart from just flowering up or narrating the deliverable, I think second the right expectations.
+ But also think you need to be able to express that even something that seems very innocuous in that velocity chart is actually a giant leap.
+ And you need to be able to tell the stories to why that small little incremental thing is actually a giant thing for the overall product.
+ So yeah, I've never had a praise over it. That's good.
+ But again, even if the sprint review is really nothing, being able to articulate your learnings and why didn't we deliver something is because we learn all this along the way.
+ So we no longer have to do a six week effort on this because of the learnings that came back and this is why we're not delivering.
+ And then you're a corporate culture, right? So the interesting thing about agility is that the technical teams usually started.
+ And if you make it a big, if it's a big organization, the technical people who adopt that they are a cultural outliers, right?
+ Because you embrace that transparency. And yeah, you might show up the sprint review and say, hey, we spiked around this. We got nothing.
+ This does not work. If we want to do this, it takes nine months of architecture and investment, right?
+ And then the rest of the organization is like, that's not great. Right? So it's like, you're putting yourself on the spot.
+ You're maybe it's a vulnerable, right? So the organization actually needs to vibe with that, right?
+ Otherwise, that you need to.
+
+then you start up with like faking your sprint meetings into fake success because that's what the organization
+ exactly expects from you right because like your scrum if you're pulling on your pants in the
+ sprint review is what you've done right but then like how does the rest of the of the organization
+ vibe with that and then agility hopefully it's like part of carpet culture where you have a
+ failure culture and then we can say okay we messed up here but it's cool because we learned
+ of it right but is it really cool for the stakeholders I don't know does somebody get their
+ hat shocked off right and then like that's the question it's like is the rest of the business
+ actually agile yeah because the scrum teams they kind of have to come sound to money though I
+ think it's like if it's someone that doesn't have endless or deep pockets it's very hard to spend
+ as a success because you spend x amount of dollars on something that had technically no output
+ but it's a large organization it could be very successful doing that and coming up with nothing so
+ exactly but and then how do you equate okay we tried doing this for nine ten months and came out
+ of nothing as apart from doing a spike for two weeks two sprints yeah and then deciding hey this
+ is not gonna work I mean you lose money just going ahead and doing it for for the moment that's
+ where the value in that would come in and like you said the scrum master needs to be with
+ articulate right you need a good territory to explain why that you can't really have no
+ product activity actually saved you nine months yeah yeah and I go like it's I fully agree this
+ for reviews like one of my favorite aspects of agile one because I just like the tactile nature
+ I like being able to interact with the customer be like here's what we did what do you think I want
+ to have that conversation every two to three weeks rather than every six months or quarter by quarter
+ right I will say that if not done correctly you will code towards a demo more than you code towards
+ building a platform that's the danger that is the danger and you'll you'll hit it faster than
+ you think you'll I've gone to the project to be like no every sprint here's where to show what we
+ got and then before you know it's someone some higher level executive they're just going to
+ invite them to the sprint and you're like well shit here we go I gotta make sure this one's got
+ shine it was going to show like here's how we used an iron bank ATO image to actually build our
+ Kubernetes infrastructure out of right which is sexy to everybody that's already part of that
+ platform but now I've got a kernel coming in I'm like I'm not going to show him a Kubernetes build
+ I gotta show them something right so we spend two weeks building something it's flashy that we
+ may or may not use versus the actual platform development I'd like to say it's fuel and far
+ between but it's a slippery slope you can happen quick before you know it every two weeks just like
+ we got to show them something it's got to look shiny right and I've been part of organizations
+ where developers have said to the person that's damn away just make sure you don't demo this part
+ yeah you just like literally develop we do the developers holding their breath through the
+ meaning yeah we just got to get to the other ends then I can fix the little things that I wanted to
+ get to yeah um which can be dangerous but and then stakeholders that have been smart
+ dare to beat and have a kernel they're like push that button yeah but again this goes back into
+ like a culture of transparency you have the outliers that are like you know that's the world
+ we really want to show that's one of the cool things about the military is that they actually do
+ want to fail they want to fail all right show me that feeling because I do not want you to
+ hide I don't want to give you an order that's incorrect right I want you to tell me that my
+ order is incorrect so in that culture I think that's maybe why they were such an early adopter
+ that child is that they wanted that transparency everything is now but the military eats you see
+ a dollar graph right for a project budget but then you also have a little red line of me if in terms
+ of life lost or life saved right that's the number that matters more so the flexibility in the
+ transparency putting and pulling your pants down every two weeks for the customer makes a lot
+ of sense and that's an environment that can absorb it and will adopt it very very quickly um
+ but yeah go into that culture to culture like again if he works with a massive telecom I work
+ I work right now with a fortune on hundred I don't go very I'm not very transparent on my
+ screen reviews with that organization yeah because in my backfire that's a that's a cultural
+ thing once again there's like that transparency can be pretty dangerous yeah right so and so for
+ a sprint for them it's just a metric it's a touch point and in that environment that's like I
+ don't even know why they have right why they implement scrum right but I mean it's like it's the
+ nature of there's that organization of size right also like the military stuff I find
+ fascinating some Murray Robinson he's got like what is it um no nonsense agile pockets I think
+ he's got a couple of episodes with like military leaders and I didn't know that agility is like
+ rooted in military like super hard because I think centralized organization but what is the common
+ word he was also in the in the in the military in the 60s I think it's all about reacting to
+ something right and decentralized decision making by small platoons as opposed to like top down
+ command right so it's it's kind of funny because agility it's like this fluffy kumbaya oh let's all
+ work together no it actually comes from a hardcore like how do you evolve top down command and
+ control systems into something that is agile right dynamic and able to react quickly right so
+ that's I need to read up on it because yeah it's like that perilous it's like every time I leave
+ that world I get sucked right back into that exact reason it's we this we just want if we're
+ going to fail we just want to do really really quickly and it's a trend right it's it's yeah
+ exactly it's it's it's already innately transparent right it's you are going to be judged here's
+ the criteria you are going to be judged by we're going to tell you upfront we're going to repeat
+ it we're going to tell it often and then we are going to judge you in front of it and so it fits
+ perfectly with agile because you already have to bear the coverage so to speak and say this is
+ the criteria here's how I do it judge me right yeah so no matter how many times I leave it I
+ get right back into it well I mean that's a great professional experience and I can imagine
+ like working on that sprint too well yeah like when then that's your leader comes in like you
+ yeah you you you want to you want to have kind of all of those questions are ready like yeah
+ through in your head right all the challenges and the cool thing about that again this might actually
+ apply to other areas right if you can't meet a feature or like here we're not at this point yet
+ or what we developed with the intention of what we developed for us let's say for instance like
+ it was optical character recognition in the field staying super super high side being able to
+ take handwritten text picture from a phone on the edge no connectivity whatsoever be able to
+ convert it and be able to at least with some level of confidence that this is what that handwritten
+ message means we proved it for two of the four languages with high accuracy to the other four
+ languages low accuracy with handwritten stuff type character stuff 90 something percent handwritten
+ very very low so we demo this and it didn't matter that was only 50% it's like the question that
+ came back to us was how did you how do you how can you improve it and if we could speak to the
+ process as to how it gets approved the more intel that we gather the more translations that we get
+ the more angles the bit which is that we get it's a self-feeding mechanism and we're time it gets
+ better better and once we describe it that way perfect they're like that's exactly what we need
+ perfect it wasn't like what's my accuracy written today yeah it's what can it be you know how's
+ you know right and I don't know if there's any pair of loss of the commercial but it's the thing
+ that I've loved the most about the military world is it just carried more about like do you know
+ the process to make this better if you know that part we're to keep going right again it's the
+ machine behind the project right yeah I think there are somewhat parallels not as cool is that
+ obviously but it's not always cool I'm giving you a cooler one also from pretty boring but the
+ terrible thing is budget yeah you have infinite budget you can always you can adopt that mindset
+ okay this is what I have how can I improve it but things like performance testing and stuff like
+ that being able to come into a meeting to say what needs to be done or the steps that need to
+ be taken to meet your ultimate performance goals in a month from now um it is quite often enough
+ it's like okay you can if you come in blind and be like this is super slow this isn't loading what's
+ the issue with this you know the answer is versus there's a lot of work that needs to be done
+ but this is how we get there you're gonna get positive feet in general to speak no but once again
+ it's the storytelling that you do that okay you need to show the vision and incredibly demonstrate
+ that yeah you can you can get that trajectory going to get the part where it needs to be exactly
+ right but like if you can if you can't communicate that so does it help fail if you don't have a good
+ narrator and this is where I was gonna say maybe top three things out about agile that you take
+ with you mine reprioritization and continual reprioritization of tasks I think the daily
+ scrums are good if you can keep in 15 minutes if you if you can you need to break out 15 minutes
+ the last thing that is not really a positive or a negative it's you need you need to always
+ think about the money you cannot go into agile blindly you need to understand what it's going to
+ cost you and can you afford that approach the alternative approach is working in more of a
+ waterfall way with a technical investment
+
+or sweat equity investor, whatever it may be.
+ Nobody yet.
+ All right, top three.
+ For review, it's still one of my favorites.
+ Again, as long as you're kind of managing what those reviews actually stand for
+ versus just a demo that you're doing every two weeks.
+ Because you can very quickly find yourself just coding to a demo every two weeks
+ and building nothing as a result.
+ I do enjoy some of the rigor that agile puts or scrum puts in place.
+ Particularly around documentation.
+ I know we've got some different opinions on the value of documentation.
+ I think document early and often is the way to go for at least from an engineering standpoint.
+ Because the savings do get realized very, very quickly on that front.
+ But that's not to say that I agree that every artifact, every piece of rigor with agile is worthwhile,
+ especially in a two-week sprint when you're moving quickly.
+ Sometimes it feels like 20, 25% of what you do is just for the process rather than what you're actually building.
+ So it's nice to like take a breath.
+ What do I need to do and have time to think about the value of what you're doing
+ versus just running and trying to meet, you know, a specific deadline.
+ And then on the third, I think I just really enjoy the transparency of it going back to it.
+ Maybe this is like an engineering centric view of the world.
+ But I like the idea of like, here's something that I built.
+ I want you to look at it.
+ I want you to break it apart.
+ I want you to tell me what's good.
+ I want you to tell me what's bad.
+ I want you to give suggestions on how it can be made better.
+ I like those discussions and then having a process that says,
+ we're doing, this isn't just engineers.
+ We're doing this all around.
+ I think that's a magical thing in our world.
+ So that's my favorite part of it.
+ I think the collaborative nature for me is the biggest thing for agile.
+ I like interacting with developers from different disciplines.
+ Just knowing and understanding what is being done to deliver that product.
+ Number two, the retrospectives to me, I think, is good.
+ Just understanding where we went wrong, how it could have been better,
+ and just growing in that process, I think is invaluable to any Scrone team.
+ And then just the fact that you're delivering features quickly.
+ So that iterative process, I think, would be those three things would be my top three in the Scrone.
+ Spoken like a true scrone master with the retrospective, right?
+ So I want to echo what you said.
+ I think my top one is cross-functionality because it's like the traditional
+ style way of organization.
+ It's like, oh, say this is your marketing, it's your engineering, it's your...
+ You want to put together a bunch of ten people.
+ They can buy themselves, they can build stuff.
+ They can build tech, right?
+ They've got everything in it, even if they go with them,
+ they're going to smart enough to do it, right?
+ And my fun and the spirit reviews was always like to celebrate those people.
+ Every two weeks, you guys collaborate, you're great.
+ And it's like everybody learns something along the way.
+ So my second point is also like the retrospective point is,
+ I think the coolest thing about agility is, and this is a little bit of like a naive
+ or philosophical pipe dreamist.
+ I think agility, once again, it's like a good faith philosophy.
+ Ideally, every team member and scrum team and agile team has got this feeling like,
+ I am part of a system that I can change, right?
+ It's like, I improve, I can improve this team, I produce technology that the company uses,
+ and I can shape the organization that I'm in because we're all like in a learning environment.
+ As opposed to like most of the people, and this is especially if you go into the corporate,
+ where people go, I'm subject to the system, right?
+ It's like I'm just a small wheel in this big machine I can change much.
+ I think true agility will be, everybody's got this feeling like,
+ I'm part of a system that I shape and that I can make better.
+ Like I'm making myself better, organization gets better, value to customer gets better.
+ That's a very fluffy, naive way to look at it,
+ but I think there's a lot of beauty in agility about this.
+ Of course, oftentimes it doesn't pay out that way, right?
+ And then the last thing is, yeah, transparency.
+ I think also, Joe isn't here, right?
+ But he's got this great book recommendation that's just being open.
+ I think it's also been a great kind of maturity kind of thing was for me just to be,
+ yeah, to say, yeah, we don't know this.
+ It's like, oh, are we building this? Is this any good?
+ We don't know. Like it's really fun to say we don't know.
+ I don't know because I don't have enough data, right?
+ Because you need to inspect what you've got in order to adapt and then iterate, right?
+ And if you don't know, it's perfectly fun.
+ The agility is saying we don't know, right?
+ Because a lot of these one to two years plans were always made out of assumptions and opinions.
+ There's this, you know, a hippo like highest opinion in the room or something, right?
+ Highest individual of paid opinion, right? It's like, agility would always be like,
+ like, all right, it's like, that's your assumption.
+ Do we know this?
+ And if we don't know, it's cool because we just lack data to, you know,
+ like, I don't know, drive the next sprint for whatever.
+ Just being that honest in front of everybody and say,
+ it's like, do we know it? And if we don't, it's cool.
+ Right?
+ And then last thing, one thing you hate or one thing that should be thrown out the door,
+ my one thing is, which military's already doing,
+ do not equate points to complexity. Cut that out.
+ Has to be time. It's the only thing that matters. Time is money.
+ That's it.
+ That's mine. I'm going to just, yeah.
+ I think the idea of this assortary notion of complexity is only understood by the person who sized it themselves.
+ So, I think the thing that I don't like the most, I won't say hate,
+ but it's just the number of meetings that are involved in terms of just agile development.
+ There's just a lot of ceremonies and the just grooming the product backlog
+ and, you know, that takes a lot of time away from developers and getting work done.
+ Is it beneficial? Yes, it is, but I think we could come up with some different way of,
+ of either reducing the meetings or having sessions that are not in that scrum period,
+ or that sprint period dedicated for planning and backlog.
+ Because you have to account for that throughout your sprint as well, too.
+ So, when you think, okay, eight story points, and this is not work we're going to get,
+ but then out of that ten days, you're going to use two days of the developer's time just planning and grooming the backlog.
+ So, I think that part for me is hard to maneuver and just still trying to figure out the best way to maximize on time and output.
+ For me is, I think, pushing this agile thing into, like, a super technical direction.
+ What I said before with product owners being backlogged jugglers,
+ just, you know, writing acceptance question that maybe one engineer reads already doesn't, right?
+ Being, like, devoted only, like, to the implementation side.
+ That's my biggest criticism right now.
+ And if you look at LinkedIn, where, like, job poses for product owners, it's like, yeah, it's like, he's the gyro guy.
+ I think that has to, and I think it is ending.
+ And I think there should be, like, ruthless focus on customers.
+ I think scrum, he's, like, costing that much money.
+ It's like, what's the value we transport to users and what's the revenue and the profit that the business is raking in?
+ It's like, who do you essentially build this for?
+ Yeah, you might be building this for the CMO, but really, like, who you're building this for is the customer.
+ When was the last time you talked to a customer?
+ When was the last time you had user research done in somebody, like, qualitative study, qualitative,
+ do you know what the pain points are, right?
+ It's like, what jobs does your product need to do, right?
+ So it's like, this inward focus, I hope that the penions going to swing back just, like, ruthless orientation of customers.
+ And how to get money from them, essentially.
+ Well, thanks guys, appreciate it.
+ This is fine, right?
+ Yeah, watch it.
+ This is doing good.
+ Nice, man.
+ We didn't even have a lot of beer before now.
+ How long do we do now?
+ It was almost two hours, man.
+ What?
+ One hour and a half?
+ Yeah?
+ You guys are great.
+ This is so much fun.
+ Oh, dude, this is absolutely blast.
+ Good.
+ Absolutely.
+ What are we doing next week?
+ Well, I'm actually looking forward to the engineering focus tomorrow.

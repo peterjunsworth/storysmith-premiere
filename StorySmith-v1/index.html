@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="main.js"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h4 id="plugin-heading">StorySmith - Clip File Paths</h4>
+
+    <!-- Controls Section -->
+    <div class="controls-section">
+      <button id="btnLoadClips" class="primary-button">Load Clips from Project</button>
+      <button id="btnGetPaths" class="primary-button">Get File Paths for Selected</button>
+      <button id="btnSendToWebhook" class="primary-button">Send to Webhook</button>
+      <button id="btnLogSelected" class="secondary-button">Log Selected to Console</button>
+      <button id="btnClearSelection" class="secondary-button">Clear Selection</button>
+    </div>
+
+    <!-- Status Display -->
+    <div id="status" class="status" style="display: none;">
+      <div id="status-content"></div>
+    </div>
+
+    <!-- Clips Section -->
+    <div class="clips-section">
+      <div class="clips-header">
+        <span id="clips-count">No clips loaded</span>
+        <span id="selected-count">0 selected</span>
+      </div>
+
+      <div id="clips-container" class="clips-container">
+        <div class="empty-state">
+          Click "Load Clips from Project" to get started
+          <br><br>
+          <small>This will load all clips and retrieve their file paths</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="instructions">
+      <strong>Instructions:</strong>
+      <ul>
+        <li>Click "Load Clips from Project" to load all clips from sequences</li>
+        <li>Check boxes to select clips you want file paths for</li>
+        <li>Click "Get File Paths for Selected" to search for them on your file system</li>
+        <li>Click "Send to Webhook" to post selected clips' file paths to n8n</li>
+        <li>📁 Green folder icon = file path found</li>
+        <li>⚠️ Warning icon = no file path yet</li>
+      </ul>
+    </div>
+  </body>
+</html>

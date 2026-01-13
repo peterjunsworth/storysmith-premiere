@@ -1,0 +1,82 @@
+# StorySmith Premiere Plugin - Project Rules
+
+This document provides official documentation links and guidelines for integrating **UXP** and **ExtendScript** with Adobe Premiere Pro. It is intended to be used as a reference or rule set for tools like Cursor AI to understand how to interact programmatically with Premiere.
+
+---
+
+## 1. Adobe UXP (Unified Extensibility Platform)
+
+UXP is Adobe's modern platform for building extensions, panels, and UI inside Adobe apps like Premiere, Photoshop, Illustrator, and After Effects.
+
+### Key Points:
+
+* UXP runs in a sandboxed environment inside Premiere.
+* JavaScript ES6+ is supported.
+* Node.js modules **cannot** be loaded directly; pure JS libraries can be bundled.
+* UI and API calls (e.g., to AWS, AI agents) happen in UXP.
+* Interaction with Premiere DOM requires calling ExtendScript functions via `app.evaluateJSX` or `app.evaluateJSXFile`.
+* Permissions must be declared in `manifest.json` for filesystem/network access.
+
+### Official Documentation Links:
+
+* Official UXP Developer Docs: [https://www.adobe.io/uxp/](https://www.adobe.io/uxp/)
+* Premiere-specific UXP Docs: [https://www.adobe.io/uxp/guides/premiere/](https://www.adobe.io/uxp/guides/premiere/)
+* UXP API Reference: [https://www.adobe.io/uxp/develop/api/](https://www.adobe.io/uxp/develop/api/)
+
+### Rules:
+
+* **Rule:** All AI or automated actions interacting with Premiere's timeline, clips, or markers must go through ExtendScript calls from UXP.
+* **Rule:** Do not attempt Node.js native modules directly in UXP; bundle pure JavaScript libraries only.
+* **Rule:** Network calls from UXP are allowed if the domains are whitelisted in manifest.json.
+
+---
+
+## 2. Adobe ExtendScript
+
+ExtendScript is Adobe's legacy scripting engine for automation inside Creative Cloud apps, including Premiere.
+
+### Key Points:
+
+* Runs ES3/ES5 style JavaScript.
+* Can directly manipulate Premiere DOM: sequences, clips, markers, tracks, etc.
+* No `require` or modern module system.
+* No async/await or Node.js APIs.
+* Functions can return JSON strings for structured data exchange with UXP.
+* Typically stored as `.jsx` files and invoked via `app.evaluateJSXFile` or `app.evaluateJSX` from UXP.
+
+### Official Documentation Links:
+
+* ExtendScript Toolkit Guide: [https://www.adobe.com/devnet/scripting.html](https://www.adobe.com/devnet/scripting.html)
+* Premiere ExtendScript API Reference: [https://ppro-scripting.docsforadobe.dev/](https://ppro-scripting.docsforadobe.dev/)
+* Examples of ExtendScript usage: [https://ppro-scripting.docsforadobe.dev/examples.html](https://ppro-scripting.docsforadobe.dev/examples.html)
+
+### Rules:
+
+* **Rule:** When manipulating sequences, clips, markers, or exporting media, use ExtendScript functions.
+* **Rule:** Return structured data as JSON strings from ExtendScript functions for UXP consumption.
+* **Rule:** Avoid modern JavaScript syntax in ExtendScript (ES6 features are not fully supported).
+* **Rule:** Separate UI logic (UXP) from Premiere automation logic (ExtendScript).
+
+---
+
+## 3. Best Practices
+
+* Use **UXP for UI, network, and AI calls**.
+* Use **ExtendScript for direct Premiere DOM interactions**.
+* Always test ExtendScript code inside Premiere to verify compatibility.
+* Bundle any external JS dependencies into UXP panel using a bundler (Webpack/Rollup/Vite).
+
+---
+
+## 4. Folder Structure Recommendation
+
+```text
+my-plugin/
+├─ manifest.json  # UXP metadata
+├─ index.html     # Panel UI
+├─ main.js       # UXP logic
+├─ styles.css    # Panel styles
+└─ jsx/
+   └─ main.jsx   # ExtendScript functions
+```
+
