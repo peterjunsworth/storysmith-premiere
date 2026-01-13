@@ -5,48 +5,65 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <h4 id="plugin-heading">StorySmith - Clip File Paths</h4>
+    <h4 id="plugin-heading">StorySmith</h4>
 
-    <!-- Controls Section -->
-    <div class="controls-section">
-      <button id="btnLoadClips" class="primary-button">Load Clips from Project</button>
-      <button id="btnGetPaths" class="primary-button">Get File Paths for Selected</button>
-      <button id="btnSendToWebhook" class="primary-button">Send to Webhook</button>
-      <button id="btnLogSelected" class="secondary-button">Log Selected to Console</button>
-      <button id="btnClearSelection" class="secondary-button">Clear Selection</button>
+    <!-- Welcome Screen (Step 1) -->
+    <div id="welcome-screen" class="screen">
+      <div class="welcome-content">
+        <h2>Welcome to StorySmith</h2>
+        <p>StorySmith helps you process your audio clips for semantic search and AI-powered workflows.</p>
+
+        <div class="welcome-instructions">
+          <h3>How it works:</h3>
+          <ol>
+            <li>Click "Initialize StorySmith" to connect to your project</li>
+            <li>Select clips from your Premiere Pro project panel</li>
+            <li>Process selected clips to extract file paths</li>
+          </ol>
+        </div>
+
+        <button id="btnInitialize" class="primary-button large-button">Initialize StorySmith</button>
+      </div>
     </div>
 
-    <!-- Status Display -->
-    <div id="status" class="status" style="display: none;">
-      <div id="status-content"></div>
-    </div>
-
-    <!-- Clips Section -->
-    <div class="clips-section">
-      <div class="clips-header">
-        <span id="clips-count">No clips loaded</span>
-        <span id="selected-count">0 selected</span>
+    <!-- Clip Selection Screen (Step 2) -->
+    <div id="selection-screen" class="screen" style="display: none;">
+      <div class="instruction-banner">
+        <strong>Step 2:</strong> Select all audio clips you will be working with by clicking on 'Load Clips from Project', Select the clips and then "Process Files for StorySmith Assistant"
       </div>
 
-      <div id="clips-container" class="clips-container">
-        <div class="empty-state">
-          Click "Load Clips from Project" to get started
-          <br><br>
-          <small>This will load all clips and retrieve their file paths</small>
+      <button id="btnProcessClips" class="primary-button">Load Clips from Project</button>
+
+      <!-- Status Display -->
+      <div id="status" class="status" style="display: none;">
+        <div id="status-content"></div>
+      </div>
+
+      <!-- Clips Section -->
+      <div class="clips-section">
+        <div class="clips-header">
+          <span id="clips-count">No clips loaded</span>
+          <span id="selected-count">0 selected</span>
+        </div>
+
+        <div id="clips-container" class="clips-container">
+          <div class="empty-state">
+            Processing clips...
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="instructions">
-      <strong>Instructions:</strong>
-      <ul>
-        <li>Click "Load Clips from Project" to load all clips from sequences</li>
-        <li>Check boxes to select clips you want file paths for</li>
-        <li>Click "Get File Paths for Selected" to search for them on your file system</li>
-        <li>Click "Send to Webhook" to post selected clips' file paths to n8n</li>
-        <li>📁 Green folder icon = file path found</li>
-        <li>⚠️ Warning icon = no file path yet</li>
-      </ul>
+      <div class="action-buttons">
+        <button id="btnSendToWebhook" class="primary-button">Process Files for StorySmith Assistant</button>
+        <button id="btnReset" class="secondary-button">Clear Selection</button>
+      </div>
+
+      <div class="help-text">
+        <small>
+          📁 Green folder icon = file path found<br>
+          ⚠️ Warning icon = no file path yet
+        </small>
+      </div>
     </div>
   </body>
 </html>

@@ -591,12 +591,39 @@ function escapeHtml(text) {
 document.addEventListener("DOMContentLoaded", () => {
   console.log("🚀 StorySmith Plugin Loaded");
 
-  // Button event listeners
-  document.getElementById("btnLoadClips").addEventListener("click", loadClipsFromProject);
-  document.getElementById("btnGetPaths").addEventListener("click", getFilePathsForSelectedClips);
+  // Screen references
+  const welcomeScreen = document.getElementById("welcome-screen");
+  const selectionScreen = document.getElementById("selection-screen");
+
+  // Button event listeners for welcome screen
+  document.getElementById("btnInitialize").addEventListener("click", async () => {
+    console.log("✨ Initializing StorySmith...");
+
+    // Hide welcome screen, show selection screen
+    welcomeScreen.style.display = "none";
+    selectionScreen.style.display = "block";
+
+    console.log("📋 Ready for clip selection");
+  });
+
+  // Button event listeners for selection screen
+  document.getElementById("btnProcessClips").addEventListener("click", async () => {
+    console.log("⚙️ Processing selected clips...");
+    await loadClipsFromProject();
+  });
+
   document.getElementById("btnSendToWebhook").addEventListener("click", sendToWebhook);
-  document.getElementById("btnLogSelected").addEventListener("click", logSelectedClips);
-  document.getElementById("btnClearSelection").addEventListener("click", clearSelection);
+
+  document.getElementById("btnReset").addEventListener("click", () => {
+    // Clear selected clips
+    selectedClips.clear();
+
+    // Update UI to reflect cleared selection
+    updateClipsDisplay();
+    updateSelectedCount();
+
+    console.log("✓ Selection cleared");
+  });
 
   // Initialize UI
   updateClipsCount();
