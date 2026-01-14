@@ -71,7 +71,7 @@ function normalizeClipName(name) {
  * Load all clips from the Premiere Pro project
  */
 async function loadClipsFromProject() {
-  console.log("\n🎬 Starting to load clips from project...");
+  console.log("🎬 Loading clips from project...");
 
   const statusDiv = document.getElementById("status");
   const statusContent = document.getElementById("status-content");
@@ -110,36 +110,27 @@ async function loadClipsFromProject() {
 
     // Get sequences using the correct API method
     try {
-      console.log(`\n🔍 Calling project.getSequences()...`);
       const sequences = await project.getSequences();
-      console.log(`📋 Sequences:`, sequences);
-      console.log(`📋 Sequences available: ${sequences ? 'yes' : 'no'}`);
-      console.log(`📋 Sequences length: ${sequences?.length || 0}`);
 
       if (sequences && sequences.length > 0) {
         for (let seqIndex = 0; seqIndex < sequences.length; seqIndex++) {
           const sequence = sequences[seqIndex];
-          console.log(`\n  Processing sequence ${seqIndex}: ${sequence.name}`);
 
           // Get sequence time range using the correct method
           let endTime = null;
           try {
             endTime = await sequence.getEndTime();
-            console.log(`    Sequence duration: ${endTime.seconds}s (${endTime.ticks} ticks)`);
 
             // Skip empty sequences
             if (endTime.ticks === 0) {
-              console.log(`    ⚠️ Skipping empty sequence`);
               continue;
             }
           } catch (e) {
-            console.log(`    Could not get sequence end time:`, e.message);
             continue;
           }
 
           // Get clips from video tracks
           const videoTrackCount = await sequence.getVideoTrackCount();
-          console.log(`    Video tracks: ${videoTrackCount}`);
 
           for (let trackIndex = 0; trackIndex < videoTrackCount; trackIndex++) {
             try {
@@ -148,14 +139,12 @@ async function loadClipsFromProject() {
               // Use the correct parameters: (Type: 1 for Clips, IncludeEmpty: false)
               try {
                 const trackItems = await track.getTrackItems(1, false);
-                console.log(`    ✓ Video Track ${trackIndex}: ${trackItems.length} items`);
 
                 // Process the items
                 for (const item of trackItems) {
                   try {
                     const projectItem = await item.getProjectItem();
                     if (!projectItem) {
-                      console.log(`      ⚠️ Skipping item - no project item`);
                       continue;
                     }
 
@@ -166,11 +155,6 @@ async function loadClipsFromProject() {
                     const outPoint = await item.getOutPoint();
                     const duration = await item.getDuration();
                     const clipName = await item.getName();
-
-                    console.log(`      ✓ Clip: ${projectItem.name}`);
-                    console.log(`        Timeline: ${startTime.seconds}s - ${endTime.seconds}s`);
-                    console.log(`        In/Out: ${inPoint.seconds}s - ${outPoint.seconds}s`);
-                    console.log(`        Duration: ${duration.seconds}s`);
 
                     // Generate a unique ID for this clip
                     const clipId = `clip_${seqIndex}_${trackIndex}_${allClipsList.length}`;
@@ -192,22 +176,20 @@ async function loadClipsFromProject() {
                       endTicks: endTime.ticks
                     });
 
-                    console.log(`      ✓ Added clip ${clipId} to list`);
                   } catch (error) {
-                    console.warn(`      ✗ Error processing video item:`, error);
+                    console.warn(`Error processing video item:`, error);
                   }
                 }
               } catch (e) {
-                console.log(`    ✗ getTrackItems failed for video track ${trackIndex}: ${e.message}`);
+                console.warn(`getTrackItems failed for video track ${trackIndex}:`, e.message);
               }
             } catch (trackError) {
-              console.warn(`    Error processing video track ${trackIndex}:`, trackError);
+              console.warn(`Error processing video track ${trackIndex}:`, trackError);
             }
           }
 
           // Get clips from audio tracks
           const audioTrackCount = await sequence.getAudioTrackCount();
-          console.log(`    Audio tracks: ${audioTrackCount}`);
 
           for (let trackIndex = 0; trackIndex < audioTrackCount; trackIndex++) {
             try {
@@ -215,14 +197,12 @@ async function loadClipsFromProject() {
 
               try {
                 const trackItems = await track.getTrackItems(1, false);
-                console.log(`    ✓ Audio Track ${trackIndex}: ${trackItems.length} items`);
 
                 // Process the items
                 for (const item of trackItems) {
                   try {
                     const projectItem = await item.getProjectItem();
                     if (!projectItem) {
-                      console.log(`      ⚠️ Skipping item - no project item`);
                       continue;
                     }
 
@@ -233,11 +213,6 @@ async function loadClipsFromProject() {
                     const outPoint = await item.getOutPoint();
                     const duration = await item.getDuration();
                     const clipName = await item.getName();
-
-                    console.log(`      ✓ Clip: ${projectItem.name}`);
-                    console.log(`        Timeline: ${startTime.seconds}s - ${endTime.seconds}s`);
-                    console.log(`        In/Out: ${inPoint.seconds}s - ${outPoint.seconds}s`);
-                    console.log(`        Duration: ${duration.seconds}s`);
 
                     // Generate a unique ID for this clip
                     const clipId = `clip_${seqIndex}_${trackIndex}_${allClipsList.length}`;
@@ -259,16 +234,15 @@ async function loadClipsFromProject() {
                       endTicks: endTime.ticks
                     });
 
-                    console.log(`      ✓ Added clip ${clipId} to list`);
                   } catch (error) {
-                    console.warn(`      ✗ Error processing audio item:`, error);
+                    console.warn(`Error processing audio item:`, error);
                   }
                 }
               } catch (e) {
-                console.log(`    ✗ getTrackItems failed for audio track ${trackIndex}: ${e.message}`);
+                console.warn(`getTrackItems failed for audio track ${trackIndex}:`, e.message);
               }
             } catch (trackError) {
-              console.warn(`    Error processing audio track ${trackIndex}:`, trackError);
+              console.warn(`Error processing audio track ${trackIndex}:`, trackError);
             }
           }
         } // end for loop through sequences
@@ -282,9 +256,9 @@ async function loadClipsFromProject() {
 
     // Query backend for file paths
     if (allClipsList.length === 0) {
-      console.log("\n🔍 No clips found via sequences - querying backend for all clips...");
+      console.log("No clips found in sequences");
     } else {
-      console.log(`\n🔍 Querying backend for file paths of ${allClipsList.length} clips...`);
+      console.log(`Found ${allClipsList.length} clips, querying backend for file paths...`);
     }
 
     try {
@@ -292,8 +266,6 @@ async function loadClipsFromProject() {
       const clipNames = allClipsList.length > 0
         ? [...new Set(allClipsList.map(clip => clip.name))]
         : []; // Empty array = get all clips
-
-      console.log(`   Clip names being sent to backend:`, clipNames);
 
       const response = await fetch(`${BACKEND_URL}/transcripts`, {
         method: 'POST',
@@ -309,18 +281,11 @@ async function loadClipsFromProject() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(`✅ Backend returned ${data.transcripts?.length || 0} clips`);
 
         if (data.transcripts && data.transcripts.length > 0) {
           // If we already have clips from sequences, match file paths
           if (allClipsList.length > 0) {
-            console.log(`\n🔗 Matching file paths to ${allClipsList.length} sequence clips...`);
-
             for (const transcript of data.transcripts) {
-              console.log(`\n  📄 Backend clip: "${transcript.clipName}"`);
-              console.log(`     Normalized: "${normalizeClipName(transcript.clipName)}"`);
-              console.log(`     File path: ${transcript.filePath || 'no path'}`);
-
               // Find clips with matching name (using normalized comparison)
               const normalizedBackendName = normalizeClipName(transcript.clipName);
               const matchingClips = allClipsList.filter(clip =>
@@ -328,20 +293,9 @@ async function loadClipsFromProject() {
               );
 
               if (matchingClips.length > 0) {
-                console.log(`     Matched to ${matchingClips.length} clip instance(s):`);
-
                 for (const clip of matchingClips) {
                   clip.filePath = transcript.filePath || "";
                   clip.hasAudio = transcript.audioInfo ? true : false;
-                  console.log(`       ✓ ${clip.id} (${clip.sequenceName}, ${clip.trackType} track ${clip.trackIndex})`);
-                  console.log(`         Clip name: "${clip.name}" → normalized: "${normalizeClipName(clip.name)}"`);
-                }
-              } else {
-                console.log(`     ⚠️ No matching clips found in sequences`);
-                console.log(`     Available clip names (normalized):`);
-                const uniqueNames = [...new Set(allClipsList.map(c => normalizeClipName(c.name)))];
-                for (const name of uniqueNames) {
-                  console.log(`       - "${name}"`);
                 }
               }
             }
@@ -349,15 +303,10 @@ async function loadClipsFromProject() {
             // Check for clips without file paths
             const clipsWithoutPaths = allClipsList.filter(clip => !clip.filePath);
             if (clipsWithoutPaths.length > 0) {
-              console.log(`\n  ⚠️ ${clipsWithoutPaths.length} clip(s) have no file path from backend:`);
-              for (const clip of clipsWithoutPaths) {
-                console.log(`     - ${clip.name} (${clip.id})`);
-              }
+              console.log(`${clipsWithoutPaths.length} clip(s) have no file path from backend`);
             }
           } else {
-            // No clips from sequences - backend clips won't have sequence context
-            console.log(`  ⚠️ No clips found in sequences, but backend returned ${data.transcripts.length} file(s)`);
-            console.log(`     These files cannot be used without sequence information`);
+            console.log(`No clips found in sequences, but backend returned ${data.transcripts.length} file(s)`);
           }
         }
       } else {
@@ -367,46 +316,6 @@ async function loadClipsFromProject() {
     } catch (backendError) {
       console.warn("Could not connect to backend:", backendError.message);
     }
-
-    // Log sequence information with clips at their timecodes
-    console.log("\n" + "=".repeat(80));
-    console.log("📊 SEQUENCE SUMMARY");
-    console.log("=".repeat(80));
-
-    // Group clips by sequence
-    const clipsBySequence = {};
-    for (const clip of allClipsList) {
-      if (!clipsBySequence[clip.sequenceName]) {
-        clipsBySequence[clip.sequenceName] = [];
-      }
-      clipsBySequence[clip.sequenceName].push(clip);
-    }
-
-    // Log each sequence with its clips
-    for (const [sequenceName, clips] of Object.entries(clipsBySequence)) {
-      console.log(`\n📺 Sequence: ${sequenceName}`);
-      console.log(`   Total clips: ${clips.length}`);
-
-      // Sort clips by timeline start position
-      clips.sort((a, b) => a.timelineStart - b.timelineStart);
-
-      console.log(`   Clips (sorted by timeline position):`);
-      for (const clip of clips) {
-        const startTC = formatTimecode(clip.timelineStart);
-        const endTC = formatTimecode(clip.timelineEnd);
-        const durationTC = formatTimecode(clip.duration);
-
-        console.log(`   ${clip.trackType === 'video' ? '🎥' : '🔊'} [${clip.trackType.toUpperCase()} Track ${clip.trackIndex}]`);
-        console.log(`      Name: ${clip.name}`);
-        console.log(`      Timeline: ${startTC} → ${endTC} (Duration: ${durationTC})`);
-        console.log(`      File: ${clip.filePath || '⚠️ No file path'}`);
-        console.log(`      ID: ${clip.id}`);
-      }
-    }
-
-    console.log("\n" + "=".repeat(80));
-    console.log(`✅ Total clips loaded: ${allClipsList.length}`);
-    console.log("=".repeat(80) + "\n");
 
     // Update state
     allClips = allClipsList;
@@ -507,7 +416,6 @@ async function getFilePathsForSelectedClips() {
           if (clip && transcript.filePath) {
             clip.filePath = transcript.filePath;
             matchedCount++;
-            console.log(`  ✓ ${clip.name} → ${clip.filePath}`);
           }
         }
 
@@ -887,7 +795,6 @@ function selectAllSearchSequences() {
   selectedSearchSequences.clear();
   uniqueSequences.forEach(seq => selectedSearchSequences.add(seq));
   updateSearchSequencesDisplay();
-  console.log(`✓ Selected all ${selectedSearchSequences.size} sequences for search`);
 }
 
 /**
@@ -896,7 +803,6 @@ function selectAllSearchSequences() {
 function deselectAllSearchSequences() {
   selectedSearchSequences.clear();
   updateSearchSequencesDisplay();
-  console.log("✓ Deselected all sequences for search");
 }
 
 // ============================================================================
@@ -1065,11 +971,8 @@ function switchTab(tabName) {
     }
   });
 
-  console.log(`📑 Switched to tab: ${tabName}`);
-
   // Auto-load sequences when Load & Send tab is activated and no sequences loaded yet
   if (tabName === "load-tab" && allClips.length === 0) {
-    console.log("⚙️ Auto-loading sequences from project...");
     setTimeout(() => {
       loadClipsFromProject();
     }, 100);
@@ -1089,16 +992,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Button event listeners for welcome screen
   document.getElementById("btnInitialize").addEventListener("click", async () => {
-    console.log("✨ Initializing StorySmith...");
-
     // Hide welcome screen, show selection screen
     welcomeScreen.style.display = "none";
     selectionScreen.style.display = "block";
 
-    console.log("📋 Ready for clip selection");
-
     // Auto-load sequences when first entering the app
-    console.log("⚙️ Auto-loading sequences from project...");
     setTimeout(() => {
       loadClipsFromProject();
     }, 100);
@@ -1114,11 +1012,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Button event listeners for Load & Send tab
-  document.getElementById("btnProcessClips").addEventListener("click", async () => {
-    console.log("⚙️ Loading clips from sequences...");
-    await loadClipsFromProject();
-  });
-
   document.getElementById("btnSendToWebhook").addEventListener("click", sendToWebhook);
 
   document.getElementById("btnReset").addEventListener("click", () => {
@@ -1137,10 +1030,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("btnDeselectAllSearch").addEventListener("click", deselectAllSearchSequences);
 
-  document.getElementById("btnSearch").addEventListener("click", async () => {
-    console.log("🔍 Searching sequences...");
-    await searchSequences();
-  });
+  document.getElementById("btnSearch").addEventListener("click", searchSequences);
 
   // Enter key in search textarea triggers search
   document.getElementById("searchQuery").addEventListener("keydown", (e) => {
