@@ -29,10 +29,10 @@
     <!-- Clip Selection Screen (Step 2) -->
     <div id="selection-screen" class="screen" style="display: none;">
       <div class="instruction-banner">
-        <strong>Step 2:</strong> Select all audio clips you will be working with by clicking on 'Load Clips from Project', Select the clips and then "Process Files for StorySmith Assistant"
+        <strong>Step 2:</strong> Load sequences from your project, select the ones you want to process, then send them to StorySmith Assistant
       </div>
 
-      <button id="btnProcessClips" class="primary-button">Load Clips from Project</button>
+      <button id="btnProcessClips" class="primary-button">Load Sequences from Project</button>
 
       <!-- Status Display -->
       <div id="status" class="status" style="display: none;">
@@ -42,7 +42,7 @@
       <!-- Clips Section -->
       <div class="clips-section">
         <div class="clips-header">
-          <span id="clips-count">No clips loaded</span>
+          <span id="clips-count">No sequences loaded</span>
           <span id="selected-count">0 selected</span>
         </div>
 
@@ -54,14 +54,14 @@
       </div>
 
       <div class="action-buttons">
-        <button id="btnSendToWebhook" class="primary-button">Process Files for StorySmith Assistant</button>
+        <button id="btnSendToWebhook" class="primary-button">Send to StorySmith Assistant</button>
         <button id="btnReset" class="secondary-button">Clear Selection</button>
       </div>
 
       <div class="help-text">
         <small>
-          📁 Green folder icon = file path found<br>
-          ⚠️ Warning icon = no file path yet
+          📁 Green folder icon = all clips have file paths<br>
+          ⚠️ Warning icon = some clips missing file paths
         </small>
       </div>
     </div>

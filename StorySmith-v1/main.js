@@ -1,6 +1,6 @@
 /**************************************************************************
- * StorySmith - Simplified Version
- * Load clips from Premiere Pro project and retrieve file paths
+ * StorySmith - Sequence-Based Clip Management
+ * Load clips from Premiere Pro sequences and retrieve file paths
  **************************************************************************/
 
 // Global object for Premiere Pro API
@@ -13,10 +13,10 @@ const BACKEND_URL = "https://42c2ac9a3068.ngrok-free.app";
 // STATE
 // ============================================================================
 
-// All clips loaded from project
+// All clips loaded from project sequences
 let allClips = [];
 
-// Selected clip IDs
+// Selected sequence names
 const selectedClips = new Set();
 
 // ============================================================================
@@ -268,12 +268,8 @@ async function loadClipsFromProject() {
               console.warn(`    Error processing audio track ${trackIndex}:`, trackError);
             }
           }
-
-
-
-
-          } // end if sequences && sequences.length > 0
-        } else {
+        } // end for loop through sequences
+      } else {
         console.log(`⚠️ No sequences found in project`);
       }
 
@@ -356,19 +352,9 @@ async function loadClipsFromProject() {
               }
             }
           } else {
-            // No clips from sequences, use backend clips
-            for (const transcript of data.transcripts) {
-              const clipId = `clip_${Date.now()}_${Math.random()}`;
-              allClipsList.push({
-                id: clipId,
-                name: transcript.clipName || "Unnamed",
-                filePath: transcript.filePath || "",
-                nodeId: clipId,
-                hasAudio: transcript.audioInfo ? true : false,
-                hasVideo: false
-              });
-              console.log(`  ✓ ${transcript.clipName}: ${transcript.filePath || 'no path'}`);
-            }
+            // No clips from sequences - backend clips won't have sequence context
+            console.log(`  ⚠️ No clips found in sequences, but backend returned ${data.transcripts.length} file(s)`);
+            console.log(`     These files cannot be used without sequence information`);
           }
         }
       } else {
@@ -566,11 +552,11 @@ async function getFilePathsForSelectedClips() {
 }
 
 /**
- * Send selected clips to webhook
+ * Send selected sequences to webhook
  */
 async function sendToWebhook() {
   if (selectedClips.size === 0) {
-    alert("Please select at least one clip first");
+    alert("Please select at least one sequence first");
     return;
   }
 
@@ -581,31 +567,71 @@ async function sendToWebhook() {
   statusContent.innerHTML = `
     <div class="status-info">
       ⏳ <strong>Sending to webhook...</strong><br>
-      <small>Posting file paths</small>
+      <small>Posting sequence information</small>
     </div>
   `;
 
   try {
-    // Get selected clips with file paths
-    const selectedClipsData = Array.from(selectedClips).map(clipId => {
-      const clip = allClips.find(c => c.id === clipId);
-      return clip ? {
-        name: clip.name,
-        filePath: clip.filePath,
-        nodeId: clip.nodeId,
-        hasAudio: clip.hasAudio,
-        hasVideo: clip.hasVideo
-      } : null;
-    }).filter(clip => clip !== null);
+    // Build sequence data with all clips for selected sequences
+    const sequences = [];
 
-    console.log(`📡 Sending ${selectedClipsData.length} clips to webhook...`);
+    for (const sequenceName of selectedClips) {
+      // Get all clips in this sequence
+      const clipsInSequence = allClips.filter(clip => clip.sequenceName === sequenceName);
+
+      if (clipsInSequence.length > 0) {
+        // Sort clips by timeline start position
+        clipsInSequence.sort((a, b) => a.timelineStart - b.timelineStart);
+
+        // Calculate sequence total duration
+        const totalDuration = clipsInSequence.reduce((sum, clip) => sum + (clip.duration || 0), 0);
+
+        // Count clip types
+        const videoCount = clipsInSequence.filter(c => c.trackType === 'video').length;
+        const audioCount = clipsInSequence.filter(c => c.trackType === 'audio').length;
+
+        sequences.push({
+          sequenceName: sequenceName,
+          totalClips: clipsInSequence.length,
+          videoClips: videoCount,
+          audioClips: audioCount,
+          totalDuration: totalDuration,
+          clips: clipsInSequence.map(clip => ({
+            id: clip.id,
+            name: clip.name,
+            filePath: clip.filePath,
+            trackType: clip.trackType,
+            trackIndex: clip.trackIndex,
+            timelineStart: clip.timelineStart,
+            timelineEnd: clip.timelineEnd,
+            inPoint: clip.inPoint,
+            outPoint: clip.outPoint,
+            duration: clip.duration,
+            startTicks: clip.startTicks,
+            endTicks: clip.endTicks,
+            hasAudio: clip.hasAudio,
+            hasVideo: clip.hasVideo
+          }))
+        });
+      }
+    }
+
+    const totalClips = sequences.reduce((sum, seq) => sum + seq.totalClips, 0);
+    console.log(`📡 Sending ${sequences.length} sequences with ${totalClips} total clips to webhook...`);
 
     const webhookUrl = "http://localhost:5678/webhook/c7b54aab-b27d-4832-bfc8-b03791cd441e";
     const webhookData = {
-      clips: selectedClipsData,
+      sequences: sequences,
       projectPath: window.currentProjectPath || "",
       timestamp: new Date().toISOString()
     };
+
+    // Log the complete data being sent
+    console.log("\n" + "=".repeat(80));
+    console.log("📤 WEBHOOK DATA BEING SENT");
+    console.log("=".repeat(80));
+    console.log(JSON.stringify(webhookData, null, 2));
+    console.log("=".repeat(80) + "\n");
 
     // Use backend as proxy to avoid UXP permission issues
     const response = await fetch(`${BACKEND_URL}/webhook-proxy`, {
@@ -626,8 +652,8 @@ async function sendToWebhook() {
 
       statusContent.innerHTML = `
         <div class="success">
-          ✅ <strong>Sent ${selectedClipsData.length} clips to webhook</strong><br>
-          <small>Check webhook for results</small>
+          ✅ <strong>Sent ${sequences.length} sequence${sequences.length !== 1 ? 's' : ''} to webhook</strong><br>
+          <small>${totalClips} total clips • Check webhook for results</small>
         </div>
       `;
     } else {
@@ -661,7 +687,7 @@ async function sendToWebhook() {
 // ============================================================================
 
 /**
- * Update clips display in UI
+ * Update UI display to show sequences (grouped clips)
  */
 function updateClipsDisplay() {
   const container = document.getElementById("clips-container");
@@ -675,18 +701,44 @@ function updateClipsDisplay() {
     return;
   }
 
-  let html = "";
+  // Group clips by sequence
+  const clipsBySequence = {};
   for (const clip of allClips) {
-    const isSelected = selectedClips.has(clip.id);
-    const hasPath = clip.filePath && clip.filePath.length > 0;
-    const pathIndicator = hasPath
-      ? `<span class="path-indicator" title="File path: ${escapeHtml(clip.filePath)}">📁</span>`
-      : `<span class="no-path-indicator" title="No file path yet">⚠️</span>`;
+    if (!clipsBySequence[clip.sequenceName]) {
+      clipsBySequence[clip.sequenceName] = [];
+    }
+    clipsBySequence[clip.sequenceName].push(clip);
+  }
+
+  let html = "";
+  for (const [sequenceName, clips] of Object.entries(clipsBySequence)) {
+    const isSelected = selectedClips.has(sequenceName);
+
+    // Calculate sequence statistics
+    const clipsWithPaths = clips.filter(c => c.filePath && c.filePath.length > 0).length;
+    const totalClips = clips.length;
+    const allHavePaths = clipsWithPaths === totalClips;
+    const pathIndicator = allHavePaths
+      ? `<span class="path-indicator" title="${clipsWithPaths}/${totalClips} clips have file paths">📁</span>`
+      : `<span class="no-path-indicator" title="${clipsWithPaths}/${totalClips} clips have file paths">⚠️</span>`;
+
+    // Calculate total duration
+    const totalDuration = clips.reduce((sum, clip) => sum + (clip.duration || 0), 0);
+    const durationText = formatTimecode(totalDuration);
+
+    // Count video and audio clips
+    const videoCount = clips.filter(c => c.trackType === 'video').length;
+    const audioCount = clips.filter(c => c.trackType === 'audio').length;
 
     html += `
-      <div class="clip-item ${isSelected ? 'selected' : ''}" data-clip-id="${escapeHtml(clip.id)}">
+      <div class="clip-item ${isSelected ? 'selected' : ''}" data-sequence-name="${escapeHtml(sequenceName)}">
         <input type="checkbox" ${isSelected ? 'checked' : ''} />
-        <span class="clip-name">${escapeHtml(clip.name)}</span>
+        <div class="sequence-info">
+          <span class="clip-name">${escapeHtml(sequenceName)}</span>
+          <span class="sequence-details">
+            ${totalClips} clip${totalClips !== 1 ? 's' : ''} (🎥${videoCount} 🔊${audioCount}) • ${durationText}
+          </span>
+        </div>
         ${pathIndicator}
       </div>
     `;
@@ -698,32 +750,32 @@ function updateClipsDisplay() {
   const clipItems = container.querySelectorAll(".clip-item");
   for (const item of clipItems) {
     const checkbox = item.querySelector("input[type='checkbox']");
-    const clipId = item.getAttribute("data-clip-id");
+    const sequenceName = item.getAttribute("data-sequence-name");
 
     // Clicking the clip item toggles selection
     item.addEventListener("click", (e) => {
       if (e.target.tagName !== "INPUT") {
         checkbox.checked = !checkbox.checked;
-        toggleClipSelection(clipId, checkbox.checked);
+        toggleClipSelection(sequenceName, checkbox.checked);
       }
     });
 
     // Checkbox change event
     checkbox.addEventListener("change", (e) => {
       e.stopPropagation();
-      toggleClipSelection(clipId, checkbox.checked);
+      toggleClipSelection(sequenceName, checkbox.checked);
     });
   }
 }
 
 /**
- * Toggle clip selection
+ * Toggle sequence selection
  */
-function toggleClipSelection(clipId, selected) {
+function toggleClipSelection(sequenceName, selected) {
   if (selected) {
-    selectedClips.add(clipId);
+    selectedClips.add(sequenceName);
   } else {
-    selectedClips.delete(clipId);
+    selectedClips.delete(sequenceName);
   }
 
   updateClipsDisplay();
@@ -731,13 +783,23 @@ function toggleClipSelection(clipId, selected) {
 }
 
 /**
- * Update clips count display
+ * Update sequences count display
  */
 function updateClipsCount() {
   const clipsCount = document.getElementById("clips-count");
-  clipsCount.textContent = allClips.length === 0
-    ? "No clips loaded"
-    : `${allClips.length} clip${allClips.length !== 1 ? 's' : ''}`;
+
+  if (allClips.length === 0) {
+    clipsCount.textContent = "No sequences loaded";
+    return;
+  }
+
+  // Count unique sequences
+  const uniqueSequences = new Set(allClips.map(clip => clip.sequenceName));
+  const sequenceCount = uniqueSequences.size;
+
+  clipsCount.textContent = sequenceCount === 0
+    ? "No sequences loaded"
+    : `${sequenceCount} sequence${sequenceCount !== 1 ? 's' : ''}`;
 }
 
 /**
@@ -746,42 +808,6 @@ function updateClipsCount() {
 function updateSelectedCount() {
   const selectedCount = document.getElementById("selected-count");
   selectedCount.textContent = `${selectedClips.size} selected`;
-}
-
-/**
- * Log selected clips to console
- */
-function logSelectedClips() {
-  if (selectedClips.size === 0) {
-    console.log("No clips selected");
-    return;
-  }
-
-  console.log(`\n📊 Selected Clips (${selectedClips.size}):`);
-  console.log("=====================================");
-
-  for (const clipId of selectedClips) {
-    const clip = allClips.find(c => c.id === clipId);
-    if (clip) {
-      console.log(`\n📌 ${clip.name}`);
-      console.log(`   File Path: ${clip.filePath || "(no path)"}`);
-      console.log(`   Node ID: ${clip.nodeId}`);
-      console.log(`   Has Audio: ${clip.hasAudio}`);
-      console.log(`   Has Video: ${clip.hasVideo}`);
-    }
-  }
-
-  console.log("\n=====================================\n");
-}
-
-/**
- * Clear all selections
- */
-function clearSelection() {
-  selectedClips.clear();
-  updateClipsDisplay();
-  updateSelectedCount();
-  console.log("✓ Selection cleared");
 }
 
 // ============================================================================
@@ -821,7 +847,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Button event listeners for selection screen
   document.getElementById("btnProcessClips").addEventListener("click", async () => {
-    console.log("⚙️ Processing selected clips...");
+    console.log("⚙️ Loading clips from sequences...");
     await loadClipsFromProject();
   });
 
