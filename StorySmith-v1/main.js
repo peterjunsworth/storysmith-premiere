@@ -16,8 +16,11 @@ const BACKEND_URL = "https://42c2ac9a3068.ngrok-free.app";
 // All clips loaded from project sequences
 let allClips = [];
 
-// Selected sequence names
+// Selected sequence names (for Load & Send tab)
 const selectedClips = new Set();
+
+// Selected sequences for search (separate from Load & Send selection)
+const selectedSearchSequences = new Set();
 
 // ============================================================================
 // MAIN FUNCTIONS
@@ -412,6 +415,7 @@ async function loadClipsFromProject() {
     // Update UI
     updateClipsDisplay();
     updateClipsCount();
+    updateSearchSequencesDisplay();
 
     if (allClips.length > 0) {
       statusContent.innerHTML = `
@@ -810,6 +814,91 @@ function updateSelectedCount() {
   selectedCount.textContent = `${selectedClips.size} selected`;
 }
 
+/**
+ * Update search sequences display (for Search tab)
+ */
+function updateSearchSequencesDisplay() {
+  const container = document.getElementById("search-sequences-container");
+
+  if (allClips.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <small>No sequences loaded yet</small>
+      </div>
+    `;
+    return;
+  }
+
+  // Get unique sequences
+  const uniqueSequences = [...new Set(allClips.map(clip => clip.sequenceName))];
+
+  let html = "";
+  for (const sequenceName of uniqueSequences) {
+    const isSelected = selectedSearchSequences.has(sequenceName);
+
+    html += `
+      <div class="search-sequence-item" data-sequence-name="${escapeHtml(sequenceName)}">
+        <input type="checkbox" ${isSelected ? 'checked' : ''} />
+        <span class="search-sequence-name">${escapeHtml(sequenceName)}</span>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
+
+  // Add event listeners
+  const sequenceItems = container.querySelectorAll(".search-sequence-item");
+  for (const item of sequenceItems) {
+    const checkbox = item.querySelector("input[type='checkbox']");
+    const sequenceName = item.getAttribute("data-sequence-name");
+
+    // Clicking the item toggles selection
+    item.addEventListener("click", (e) => {
+      if (e.target.tagName !== "INPUT") {
+        checkbox.checked = !checkbox.checked;
+        toggleSearchSequenceSelection(sequenceName, checkbox.checked);
+      }
+    });
+
+    // Checkbox change event
+    checkbox.addEventListener("change", (e) => {
+      e.stopPropagation();
+      toggleSearchSequenceSelection(sequenceName, checkbox.checked);
+    });
+  }
+}
+
+/**
+ * Toggle search sequence selection
+ */
+function toggleSearchSequenceSelection(sequenceName, selected) {
+  if (selected) {
+    selectedSearchSequences.add(sequenceName);
+  } else {
+    selectedSearchSequences.delete(sequenceName);
+  }
+}
+
+/**
+ * Select all sequences for search
+ */
+function selectAllSearchSequences() {
+  const uniqueSequences = [...new Set(allClips.map(clip => clip.sequenceName))];
+  selectedSearchSequences.clear();
+  uniqueSequences.forEach(seq => selectedSearchSequences.add(seq));
+  updateSearchSequencesDisplay();
+  console.log(`✓ Selected all ${selectedSearchSequences.size} sequences for search`);
+}
+
+/**
+ * Deselect all sequences for search
+ */
+function deselectAllSearchSequences() {
+  selectedSearchSequences.clear();
+  updateSearchSequencesDisplay();
+  console.log("✓ Deselected all sequences for search");
+}
+
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
@@ -821,6 +910,170 @@ function escapeHtml(text) {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
+}
+
+/**
+ * Send search query to API
+ */
+async function searchSequences() {
+  const searchQuery = document.getElementById("searchQuery").value.trim();
+
+  if (!searchQuery) {
+    alert("Please enter a search query");
+    return;
+  }
+
+  if (selectedSearchSequences.size === 0) {
+    alert("Please select at least one sequence to search");
+    return;
+  }
+
+  const statusDiv = document.getElementById("search-status");
+  const statusContent = document.getElementById("search-status-content");
+  const resultsDiv = document.getElementById("search-results");
+  const resultsContent = document.getElementById("search-results-content");
+
+  // Hide previous results
+  resultsDiv.style.display = "none";
+
+  // Show loading status
+  statusDiv.style.display = "block";
+  statusContent.innerHTML = `
+    <div class="status-info">
+      ⏳ <strong>Searching sequences...</strong><br>
+      <small>Query: "${escapeHtml(searchQuery)}" in ${selectedSearchSequences.size} sequence(s)</small>
+    </div>
+  `;
+
+  try {
+    console.log(`🔍 Searching for: "${searchQuery}"`);
+    console.log(`📋 Searching in sequences:`, Array.from(selectedSearchSequences));
+
+    // Placeholder API URL - replace with actual endpoint
+    const searchApiUrl = "https://api.placeholder.com/search";
+
+    const response = await fetch(searchApiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        query: searchQuery,
+        sequences: Array.from(selectedSearchSequences),
+        projectPath: window.currentProjectPath || "",
+        timestamp: new Date().toISOString()
+      })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("✅ Search results:", data);
+
+      // Hide status
+      statusDiv.style.display = "none";
+
+      // Display results
+      if (data.results && data.results.length > 0) {
+        let resultsHtml = "";
+
+        for (const result of data.results) {
+          resultsHtml += `
+            <div class="search-result-item" data-sequence="${escapeHtml(result.sequenceName)}" data-timecode="${result.timecode || 0}">
+              <div class="search-result-title">${escapeHtml(result.sequenceName)}</div>
+              <div class="search-result-details">
+                ${result.timecode ? `⏱️ ${formatTimecode(result.timecode)} • ` : ''}
+                ${result.clipName ? `📁 ${escapeHtml(result.clipName)}` : ''}
+              </div>
+              ${result.snippet ? `<div class="search-result-snippet">${escapeHtml(result.snippet)}</div>` : ''}
+            </div>
+          `;
+        }
+
+        resultsContent.innerHTML = resultsHtml;
+        resultsDiv.style.display = "block";
+
+        // Add click handlers to results
+        const resultItems = resultsContent.querySelectorAll(".search-result-item");
+        resultItems.forEach(item => {
+          item.addEventListener("click", () => {
+            const sequenceName = item.getAttribute("data-sequence");
+            const timecode = parseFloat(item.getAttribute("data-timecode") || "0");
+            console.log(`📍 Navigate to: ${sequenceName} at ${formatTimecode(timecode)}`);
+            // TODO: Add navigation logic to jump to sequence/timecode in Premiere
+          });
+        });
+      } else {
+        resultsContent.innerHTML = `
+          <div class="empty-state">
+            No results found for "${escapeHtml(searchQuery)}"
+          </div>
+        `;
+        resultsDiv.style.display = "block";
+      }
+    } else {
+      console.warn("Search request failed:", response.status);
+
+      statusContent.innerHTML = `
+        <div class="error">
+          ❌ <strong>Search request failed</strong><br>
+          <small>Status: ${response.status}. The search API may not be available yet.</small>
+        </div>
+      `;
+
+      setTimeout(() => {
+        statusDiv.style.display = "none";
+      }, 5000);
+    }
+
+  } catch (error) {
+    console.error("❌ Error searching sequences:", error);
+
+    statusContent.innerHTML = `
+      <div class="error">
+        ❌ <strong>Error:</strong> ${escapeHtml(error.message)}<br>
+        <small>The search API is not configured yet. This is a placeholder endpoint.</small>
+      </div>
+    `;
+
+    setTimeout(() => {
+      statusDiv.style.display = "none";
+    }, 5000);
+  }
+}
+
+/**
+ * Switch between tabs
+ */
+function switchTab(tabName) {
+  // Update tab buttons
+  const tabButtons = document.querySelectorAll(".tab-button");
+  tabButtons.forEach(button => {
+    if (button.getAttribute("data-tab") === tabName) {
+      button.classList.add("active");
+    } else {
+      button.classList.remove("active");
+    }
+  });
+
+  // Update tab content
+  const tabContents = document.querySelectorAll(".tab-content");
+  tabContents.forEach(content => {
+    if (content.id === tabName) {
+      content.classList.add("active");
+    } else {
+      content.classList.remove("active");
+    }
+  });
+
+  console.log(`📑 Switched to tab: ${tabName}`);
+
+  // Auto-load sequences when Load & Send tab is activated and no sequences loaded yet
+  if (tabName === "load-tab" && allClips.length === 0) {
+    console.log("⚙️ Auto-loading sequences from project...");
+    setTimeout(() => {
+      loadClipsFromProject();
+    }, 100);
+  }
 }
 
 // ============================================================================
@@ -843,9 +1096,24 @@ document.addEventListener("DOMContentLoaded", () => {
     selectionScreen.style.display = "block";
 
     console.log("📋 Ready for clip selection");
+
+    // Auto-load sequences when first entering the app
+    console.log("⚙️ Auto-loading sequences from project...");
+    setTimeout(() => {
+      loadClipsFromProject();
+    }, 100);
   });
 
-  // Button event listeners for selection screen
+  // Tab switching
+  const tabButtons = document.querySelectorAll(".tab-button");
+  tabButtons.forEach(button => {
+    button.addEventListener("click", () => {
+      const tabName = button.getAttribute("data-tab");
+      switchTab(tabName);
+    });
+  });
+
+  // Button event listeners for Load & Send tab
   document.getElementById("btnProcessClips").addEventListener("click", async () => {
     console.log("⚙️ Loading clips from sequences...");
     await loadClipsFromProject();
@@ -862,6 +1130,24 @@ document.addEventListener("DOMContentLoaded", () => {
     updateSelectedCount();
 
     console.log("✓ Selection cleared");
+  });
+
+  // Button event listeners for Search tab
+  document.getElementById("btnSelectAllSearch").addEventListener("click", selectAllSearchSequences);
+
+  document.getElementById("btnDeselectAllSearch").addEventListener("click", deselectAllSearchSequences);
+
+  document.getElementById("btnSearch").addEventListener("click", async () => {
+    console.log("🔍 Searching sequences...");
+    await searchSequences();
+  });
+
+  // Enter key in search textarea triggers search
+  document.getElementById("searchQuery").addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      searchSequences();
+    }
   });
 
   // Initialize UI
