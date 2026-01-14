@@ -83,7 +83,12 @@ app.post('/project-info', async (req, res) => {
 /**
  * Extract transcripts from Media Cache database
  * POST /transcripts
- * Body: { projectGuid: "xxx-xxx-xxx" } or { projectPath: "/path/to/project.prproj" } or { filePaths: ["..."], clipNames: ["..."] }
+ * Body: {
+ *   projectGuid: "xxx-xxx-xxx" (optional),
+ *   projectPath: "/path/to/project.prproj" (optional),
+ *   filePaths: [...] (optional - filter by file paths),
+ *   clipNames: [...] (optional - filter by clip names from sequences)
+ * }
  */
 app.post('/transcripts', async (req, res) => {
   try {
@@ -148,6 +153,7 @@ app.post('/transcripts', async (req, res) => {
       try {
         const db = new sqlite3.Database(mediaCacheDb, sqlite3.OPEN_READONLY);
 
+        // Query for files with completed transcripts
         const transcripts = await new Promise((resolve, reject) => {
           db.all(`
             SELECT
@@ -162,6 +168,34 @@ app.post('/transcripts', async (req, res) => {
             else resolve(rows);
           });
         });
+
+        // Also query for files without transcript status (like video files)
+        // but only if we have specific clip names to search for
+        if (clipNames && clipNames.length > 0) {
+          const filesWithoutTranscripts = await new Promise((resolve, reject) => {
+            db.all(`
+              SELECT DISTINCT
+                columnintrinsicfilename,
+                columnintrinsictranscriptstatus,
+                columnintrinsicfilepath,
+                columnintrinsicaudioinfo
+              FROM StringTable
+              WHERE columnintrinsicfilepath IS NOT NULL
+                AND columnintrinsicfilename IS NOT NULL
+            `, (err, rows) => {
+              if (err) reject(err);
+              else resolve(rows);
+            });
+          });
+
+          // Merge the results, avoiding duplicates
+          const existingPaths = new Set(transcripts.map(t => t.columnintrinsicfilepath));
+          for (const file of filesWithoutTranscripts) {
+            if (!existingPaths.has(file.columnintrinsicfilepath)) {
+              transcripts.push(file);
+            }
+          }
+        }
 
         db.close();
         allTranscripts = allTranscripts.concat(transcripts);
@@ -206,29 +240,16 @@ app.post('/transcripts', async (req, res) => {
             const dbName = (transcript.columnintrinsicfilename || '').toLowerCase().trim();
             const searchName = (name || '').toLowerCase().trim();
 
-            console.log(`  Comparing: DB="${dbName}" vs Search="${searchName}"`);
-
             // Direct match
-            if (dbName === searchName) {
-              console.log(`    ✓ Direct match!`);
-              return true;
-            }
+            if (dbName === searchName) return true;
 
             // Match with dots replaced by spaces (podcast.wav -> podcast wav)
             const searchNameWithSpaces = searchName.replace(/\./g, ' ');
-            console.log(`    Trying with spaces: "${searchNameWithSpaces}"`);
-
-            if (dbName === searchNameWithSpaces) {
-              console.log(`    ✓ Match with spaces!`);
-              return true;
-            }
+            if (dbName === searchNameWithSpaces) return true;
 
             // Match with extension removed (podcast.wav -> podcast)
             const nameWithoutExt = searchName.replace(/\.[^.]+$/, '').trim();
-            console.log(`    Trying without extension: "${nameWithoutExt}"`);
-
             if (dbName === nameWithoutExt || dbName.startsWith(nameWithoutExt + ' ')) {
-              console.log(`    ✓ Match without extension!`);
               return true;
             }
 

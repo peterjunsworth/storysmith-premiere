@@ -11,14 +11,14 @@
     <div id="welcome-screen" class="screen">
       <div class="welcome-content">
         <h2>Welcome to StorySmith</h2>
-        <p>StorySmith helps you process your audio clips for semantic search and AI-powered workflows.</p>
+        <p>StorySmith helps you find moments in your sequences using semantic search powered by AI.</p>
 
         <div class="welcome-instructions">
           <h3>How it works:</h3>
           <ol>
-            <li>Click "Initialize StorySmith" to connect to your project</li>
-            <li>Select clips from your Premiere Pro project panel</li>
-            <li>Process selected clips to extract file paths</li>
+            <li>Load sequences from your Premiere Pro project</li>
+            <li>Send sequences to StorySmith Assistant for processing</li>
+            <li>Search across your content using your own words</li>
           </ol>
         </div>
 
@@ -28,41 +28,96 @@
 
     <!-- Clip Selection Screen (Step 2) -->
     <div id="selection-screen" class="screen" style="display: none;">
-      <div class="instruction-banner">
-        <strong>Step 2:</strong> Select all audio clips you will be working with by clicking on 'Load Clips from Project', Select the clips and then "Process Files for StorySmith Assistant"
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab-button active" data-tab="load-tab">Load & Send</button>
+        <button class="tab-button" data-tab="search-tab">Search</button>
       </div>
 
-      <button id="btnProcessClips" class="primary-button">Load Clips from Project</button>
-
-      <!-- Status Display -->
-      <div id="status" class="status" style="display: none;">
-        <div id="status-content"></div>
-      </div>
-
-      <!-- Clips Section -->
-      <div class="clips-section">
-        <div class="clips-header">
-          <span id="clips-count">No clips loaded</span>
-          <span id="selected-count">0 selected</span>
+      <!-- Load & Send Tab -->
+      <div id="load-tab" class="tab-content active">
+        <div class="instruction-banner">
+          Select the sequences you want to process for your StorySmith Assistant
         </div>
 
-        <div id="clips-container" class="clips-container">
-          <div class="empty-state">
-            Processing clips...
+        <!-- Status Display -->
+        <div id="status" class="status" style="display: none;">
+          <div id="status-content"></div>
+        </div>
+
+        <!-- Clips Section -->
+        <div class="clips-section">
+          <div class="clips-header">
+            <span id="clips-count">No sequences loaded</span>
+            <span id="selected-count">0 selected</span>
+          </div>
+
+          <div id="clips-container" class="clips-container">
+            <div class="empty-state">
+              Processing clips...
+            </div>
           </div>
         </div>
+
+        <div class="action-buttons">
+          <button id="btnSendToWebhook" class="primary-button">Send to StorySmith Assistant</button>
+          <button id="btnReset" class="secondary-button">Clear Selection</button>
+        </div>
+
+        <div class="help-text">
+          <small>
+            📁 Green folder icon = all clips have file paths<br>
+            ⚠️ Warning icon = some clips missing file paths
+          </small>
+        </div>
       </div>
 
-      <div class="action-buttons">
-        <button id="btnSendToWebhook" class="primary-button">Process Files for StorySmith Assistant</button>
-        <button id="btnReset" class="secondary-button">Clear Selection</button>
-      </div>
+      <!-- Search Tab -->
+      <div id="search-tab" class="tab-content">
+        <div class="instruction-banner">
+          Search across sequences to find your moment.
+        </div>
 
-      <div class="help-text">
-        <small>
-          📁 Green folder icon = file path found<br>
-          ⚠️ Warning icon = no file path yet
-        </small>
+        <!-- Sequence Selection for Search -->
+        <div class="search-sequences-section">
+          <div class="search-sequences-header">
+            <span class="search-label">Search in:</span>
+            <div class="search-sequences-actions">
+              <button id="btnSelectAllSearch" class="link-button">Select All</button>
+              <span class="separator">•</span>
+              <button id="btnDeselectAllSearch" class="link-button">Deselect All</button>
+            </div>
+          </div>
+
+          <div id="search-sequences-container" class="search-sequences-container">
+            <div class="empty-state">
+              <small>No sequences loaded yet</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="search-section">
+          <label for="searchQuery" class="search-label">What are you looking for?</label>
+          <textarea
+            id="searchQuery"
+            class="search-textarea"
+            placeholder="e.g., 'Find moments where we discuss AI and machine learning' or 'Show me the intro section'"
+            rows="4"
+          ></textarea>
+
+          <button id="btnSearch" class="primary-button">Search Sequences</button>
+        </div>
+
+        <!-- Search Status Display -->
+        <div id="search-status" class="status" style="display: none;">
+          <div id="search-status-content"></div>
+        </div>
+
+        <!-- Search Results -->
+        <div id="search-results" class="search-results" style="display: none;">
+          <h3>Search Results</h3>
+          <div id="search-results-content"></div>
+        </div>
       </div>
     </div>
   </body>
