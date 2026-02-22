@@ -1,0 +1,198 @@
+{
+  "runAt": "2026-02-18T22:39:02.896Z",
+  "durationMs": 52290,
+  "transcriptComparisons": [
+    {
+      "clipId": "clip_bench_ch08",
+      "referenceWordCount": 1209,
+      "generatedWordCount": 5615,
+      "wer": 1,
+      "werPercent": "100.0%",
+      "commonWordsRatio": 0.766,
+      "sampleReference": "I woke up, and turned over. The sun was away up high, and there was that noise and stir going on again. I rubbed my eyes and looked around, scared. Then I remembered. The river looked miles and miles ",
+      "sampleGenerated": "The Adventures of Huckleberry Finn by Mark Twain. The sun was up so high when I waited, that I had judged it was after eight o'clock. I laid there in the grass in the cool shade, thinking about things"
+    },
+    {
+      "clipId": "clip_bench_ch18",
+      "referenceWordCount": 1141,
+      "generatedWordCount": 5924,
+      "wer": 1,
+      "werPercent": "100.0%",
+      "commonWordsRatio": 0.941,
+      "sampleReference": "Col. Grangerford was a gentleman, you see. He was a gentleman all over; and so was his family. He was well born, as the saying is, and that's worth as much in a man as it is in a horse, so the Widow D",
+      "sampleGenerated": "The Adventures of Huckleberry Finn by Mark Twain. Colonel Granger Ford was a gentleman, you see. He was a gentleman all over, and so was his family. He was well-born, as the saying is, and that's wort"
+    },
+    {
+      "clipId": "clip_bench_ch29",
+      "referenceWordCount": 1166,
+      "generatedWordCount": 4679,
+      "wer": 1,
+      "werPercent": "100.0%",
+      "commonWordsRatio": 0.849,
+      "sampleReference": "They was fetching a very nice looking old gentleman along, and a nice looking younger one, with his right arm in a sling. And my souls, how the people yelled and laughed, and kept it up. But I didn't ",
+      "sampleGenerated": "The Adventures of Huckleberry Finn by Mark Twain. There was fetching a very nice looking old gentleman along and a nice looking younger one with his right arm in the sling. And my souls have the peopl"
+    }
+  ],
+  "scenarios": [
+    {
+      "scenarioId": "S1",
+      "description": "Huck hiding still watching the search party pass by on the island",
+      "query": "person hiding quietly in the woods watching people search nearby",
+      "expectedClipId": "clip_bench_ch08",
+      "topHitClipId": "clip_bench_ch18",
+      "topHitScore": 0.593,
+      "absoluteStart": 1726.46,
+      "absoluteEnd": 1773.02,
+      "clipRelativeStart": 337.3,
+      "clipTimelineOffset": 0,
+      "chunkStartMs": 337320,
+      "chunkEndMs": 383880,
+      "hitInCorrectClip": false,
+      "hitInTimeWindow": false,
+      "keyPhraseMatched": false,
+      "chunkText": "road. Buck says, \"Quick! Jump for the woods!\" We done it, and then peeped down the woods through the leaves. Pretty soon a splendid young man come galloping down the road, setting his horse easy and looking like a soldier. He had a gun across his pommel. I had seen him before. It was young Harney Shepherdson. I heard Buck's gun go off in my ear, and Harney's hat tumbled off from his head. He grabbed his gun and rode straight to the place where we was hid. But we didn't wait. We started through the woods on a run. The woods weren't thick, so I looked over my shoulder to dodge a bullet.",
+      "top3ClipIds": [
+        "clip_bench_ch18",
+        "clip_bench_ch18",
+        "clip_bench_ch18"
+      ],
+      "top3InCorrectClip": false,
+      "passed": false
+    },
+    {
+      "scenarioId": "S2",
+      "description": "Jim mistakes Huck for a ghost and begs him not to harm him",
+      "query": "man thinks someone is a ghost and begs not to be hurt",
+      "expectedClipId": "clip_bench_ch08",
+      "topHitClipId": "clip_bench_ch08",
+      "topHitScore": 0.7279,
+      "absoluteStart": 682.2,
+      "absoluteEnd": 720.4,
+      "clipRelativeStart": 682.2,
+      "clipTimelineOffset": 0,
+      "chunkStartMs": 682200,
+      "chunkEndMs": 720400,
+      "hitInCorrectClip": true,
+      "hitInTimeWindow": true,
+      "keyPhraseMatched": true,
+      "chunkText": "and puts his hand together and says, \"Don't hurt me, don't. I ain't never done no harm to a ghost. I always like dead people, and done all I could for 'em. You go and get into River again what you belongs, and don't do nothin' to old Jim. I was always your friend.\" \"Well, I weren't long makin' him understand I weren't dead. I was ever so glad to see Jim. I weren't lonesome now. I told him I weren't afraid of him tellin' the people where I was. I talked along, but he only sat there and looked at me and never said nothin'. Then I says, \"It's good daylight, let's get breakfast. Make up your campfire, good.\"",
+      "top3ClipIds": [
+        "clip_bench_ch08",
+        "clip_bench_ch08",
+        "clip_bench_ch18"
+      ],
+      "top3InCorrectClip": true,
+      "passed": true
+    },
+    {
+      "scenarioId": "S3",
+      "description": "Colonel Grangerford described as a tall, slim, aristocratic gentleman",
+      "query": "description of a gentleman who was tall slim aristocratic with dark eyes",
+      "expectedClipId": "clip_bench_ch18",
+      "topHitClipId": "clip_bench_ch18",
+      "topHitScore": 0.7347,
+      "absoluteStart": 1442.5,
+      "absoluteEnd": 1480.7,
+      "clipRelativeStart": 53.4,
+      "clipTimelineOffset": 1389.139625,
+      "chunkStartMs": 53360,
+      "chunkEndMs": 91560,
+      "hitInCorrectClip": true,
+      "hitInTimeWindow": true,
+      "keyPhraseMatched": true,
+      "chunkText": "was very tall and very slim, and had a darkish paly complexion, not a sign of red in it anywhere. He was clean-shaved every morning all over his thin face, and he had the thinnest kind of lips, and the thinnest kind of nostrils and a high nose and heavy eyebrows, and the blackest kind of eyes sunk so deep back that they seemed like they were looking out of caverns at you, as you may say. His forehead was high, and his hair was black and straight and hung to his shoulders.",
+      "top3ClipIds": [
+        "clip_bench_ch18",
+        "clip_bench_ch18",
+        "clip_bench_ch18"
+      ],
+      "top3InCorrectClip": true,
+      "passed": true
+    },
+    {
+      "scenarioId": "S4",
+      "description": "Buck explains how a feud works and lists casualties on both sides",
+      "query": "someone explaining how a feud starts with a quarrel and killing on both sides",
+      "expectedClipId": "clip_bench_ch18",
+      "topHitClipId": "clip_bench_ch18",
+      "topHitScore": 0.7573,
+      "absoluteStart": 1829.06,
+      "absoluteEnd": 1879.98,
+      "clipRelativeStart": 439.9,
+      "clipTimelineOffset": 1389.139625,
+      "chunkStartMs": 439920,
+      "chunkEndMs": 490840,
+      "hitInCorrectClip": true,
+      "hitInTimeWindow": false,
+      "keyPhraseMatched": true,
+      "chunkText": "him, Buck?\" \"Well, I bet I did. What did he do to you?\" \"Him? He never done nothing to me.\" \"Well, then, what did you want to kill him for?\" \"What, nothing? Only it's on account of the feud.\" \"What's the feud? Why, where was you raised? Don't you know what a feud is?\" \"Never heard of it before. Tell me about it.\" \"Well,\" says Buck, \"a feud is this way. A man has a quarrel with another man and kills him. Then that other man's brother kills him. Then the other brother's on both sides goes for one another. Then the cousins chip in. And by and by, everybody's killed off, and there ain't no more feud.",
+      "top3ClipIds": [
+        "clip_bench_ch18",
+        "clip_bench_ch18",
+        "clip_bench_ch18"
+      ],
+      "top3InCorrectClip": true,
+      "passed": false
+    },
+    {
+      "scenarioId": "S5",
+      "description": "Imposters claiming to be the real Harvey Wilks when the actual relatives arrive",
+      "query": "two men pretending to be relatives while the real relatives confront them",
+      "expectedClipId": "clip_bench_ch29",
+      "topHitClipId": "clip_bench_ch29",
+      "topHitScore": 0.615,
+      "absoluteStart": 3523.87,
+      "absoluteEnd": 3555.11,
+      "clipRelativeStart": 482.6,
+      "clipTimelineOffset": 3041.306188,
+      "chunkStartMs": 482560,
+      "chunkEndMs": 513800,
+      "hitInCorrectClip": true,
+      "hitInTimeWindow": false,
+      "keyPhraseMatched": true,
+      "chunkText": "And so they kept it up and kept it up, and it was the worst mixed-up thing you ever see. They made the king tell his yarn, and they made the old gentleman tell his, and anybody but a lot of prejudiced chuckleheads would have seen that the old gentleman was spinning in truth, and the other one lies, and by and by they had me up to tell what I know'd. The king, he gave me a left-handed look out of the corner of his eye, and so I know'd enough to talk on the right side.",
+      "top3ClipIds": [
+        "clip_bench_ch29",
+        "clip_bench_ch29",
+        "clip_bench_ch29"
+      ],
+      "top3InCorrectClip": true,
+      "passed": false
+    },
+    {
+      "scenarioId": "S6",
+      "description": "Huck escapes in the dark after the gold is found in the coffin at the graveyard",
+      "query": "person escaping through a storm at night running away from a crowd",
+      "expectedClipId": "clip_bench_ch29",
+      "topHitClipId": "clip_bench_ch29",
+      "topHitScore": 0.5752,
+      "absoluteStart": 4128.67,
+      "absoluteEnd": 4171.27,
+      "clipRelativeStart": 1087.4,
+      "clipTimelineOffset": 3041.306188,
+      "chunkStartMs": 1087360,
+      "chunkEndMs": 1129960,
+      "hitInCorrectClip": true,
+      "hitInTimeWindow": true,
+      "keyPhraseMatched": true,
+      "chunkText": "the flicker of the lightning, and sent a man to the nearest house, a half mile off, to borrow one. So they dug and dug like everything, and it got awful dark, and the rain started, and the wind swished and swooshed along, and the lightning come brisker and brisker, and the thunder boomed, but then people never took no notice of it. They were so full of this business, and one minute you could see everything, and every face in that big crowd, and the shovel fulls of dirt sailing up out of the grave, and the next second, the dark wiped it all out, and you couldn't see nothing at all.",
+      "top3ClipIds": [
+        "clip_bench_ch29",
+        "clip_bench_ch08",
+        "clip_bench_ch29"
+      ],
+      "top3InCorrectClip": true,
+      "passed": true
+    }
+  ],
+  "summary": {
+    "totalScenarios": 6,
+    "passed": 3,
+    "hitAt1": 5,
+    "hitAt3": 5,
+    "windowAccuracy": 0.6,
+    "phraseMatchRate": 0.833,
+    "avgTopScore": 0.6672,
+    "avgWer": 1
+  }
+}

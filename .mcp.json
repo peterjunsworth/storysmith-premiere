@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "playwright": {
+    "type": "stdio",
+    "command": "npx",
+    "args": [
+    "@playwright/mcp@latest"
+    ],
+    "env": {
+        "PLAYWRIGHT_MCP_EXTENSION_TOKEN": "<install playwright chrome extension, paste token here add --extension to the command above>"
+      }
+    }
+  }
+}

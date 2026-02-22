@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Semantic Search — Timeline &amp; Benchmark</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0f1117; color: #e2e8f0; padding: 32px 24px; min-width: 900px; }
+  h1 { font-size: 20px; font-weight: 600; color: #f8fafc; margin-bottom: 4px; }
+  .subtitle { font-size: 12px; color: #64748b; margin-bottom: 32px; }
+
+  .cards { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 32px; }
+  .card { background: #1e2330; border: 1px solid #2d3548; border-radius: 8px; padding: 14px 16px; }
+  .card-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+  .card-value { font-size: 22px; font-weight: 700; color: #f8fafc; }
+  .card-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+  .card.green .card-value { color: #4ade80; }
+  .card.yellow .card-value { color: #facc15; }
+  .card.red .card-value { color: #f87171; }
+
+  .section-title { font-size: 13px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; }
+
+  .timeline-wrap { background: #1e2330; border: 1px solid #2d3548; border-radius: 10px; padding: 24px; margin-bottom: 32px; }
+  .tl-ruler { position: relative; height: 20px; margin-bottom: 6px; }
+  .tl-ruler-tick { position: absolute; top: 0; font-size: 10px; color: #475569; transform: translateX(-50%); white-space: nowrap; }
+  .tl-ruler-line { position: absolute; top: 14px; width: 1px; height: 6px; background: #2d3548; transform: translateX(-50%); }
+  .tl-clip-row { position: relative; margin-bottom: 20px; }
+  .tl-clip-label { font-size: 11px; color: #94a3b8; margin-bottom: 5px; display: flex; justify-content: space-between; }
+  .tl-clip-label span.right { color: #475569; font-size: 10px; }
+  .tl-bar-bg { position: relative; height: 36px; background: #141720; border-radius: 4px; overflow: visible; }
+  .tl-clip-extent { position: absolute; top: 0; height: 100%; border-radius: 4px; opacity: .25; }
+  .tl-chunk { position: absolute; top: 3px; height: 30px; border-radius: 2px; opacity: .7; cursor: pointer; transition: opacity .15s; }
+  .tl-chunk:hover { opacity: 1; z-index: 10; }
+  .tl-marker { position: absolute; top: -8px; width: 2px; bottom: -8px; z-index: 20; pointer-events: none; }
+  .tl-marker-label { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 700; white-space: nowrap; padding: 1px 4px; border-radius: 3px; }
+
+  .scenarios-wrap { background: #1e2330; border: 1px solid #2d3548; border-radius: 10px; padding: 24px; margin-bottom: 32px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  thead th { text-align: left; padding: 6px 10px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: #64748b; border-bottom: 1px solid #2d3548; }
+  tbody tr { border-bottom: 1px solid #1a1f2e; }
+  tbody tr:hover { background: #252c3d; }
+  tbody td { padding: 9px 10px; vertical-align: middle; }
+  .badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 600; }
+  .badge-pass    { background: #14532d; color: #4ade80; }
+  .badge-partial { background: #422006; color: #fb923c; }
+  .badge-fail    { background: #450a0a; color: #f87171; }
+  .mono { font-family: "SF Mono", "Fira Code", monospace; font-size: 11px; }
+  .score-bar { display: flex; align-items: center; gap: 6px; }
+  .score-fill { height: 5px; border-radius: 3px; background: #3b82f6; }
+  .check { color: #4ade80; }
+  .cross { color: #f87171; }
+  .warn  { color: #facc15; }
+
+  .clips-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+  .clip-card { background: #1e2330; border: 1px solid #2d3548; border-radius: 10px; padding: 20px; }
+  .clip-card-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .clip-card-sub { font-size: 11px; color: #64748b; margin-bottom: 16px; }
+  .clip-stat { display: flex; justify-content: space-between; font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
+  .clip-stat span { color: #e2e8f0; font-weight: 500; }
+  .chunk-mini-bar { display: flex; gap: 1px; flex-wrap: wrap; margin-top: 12px; }
+  .chunk-mini { width: 7px; height: 14px; border-radius: 1px; flex-shrink: 0; }
+
+  .wer-wrap { background: #1e2330; border: 1px solid #2d3548; border-radius: 10px; padding: 24px; margin-bottom: 32px; }
+  .wer-row { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; font-size: 12px; }
+  .wer-clip { width: 180px; color: #94a3b8; word-break: break-all; }
+  .wer-bar-bg { flex: 1; height: 8px; background: #141720; border-radius: 4px; overflow: hidden; }
+  .wer-bar-fill { height: 100%; border-radius: 4px; }
+  .wer-label { width: 220px; text-align: right; color: #64748b; font-size: 11px; }
+
+  #tooltip { position: fixed; background: #1e2330; border: 1px solid #2d3548; border-radius: 6px; padding: 8px 12px; font-size: 11px; color: #e2e8f0; pointer-events: none; opacity: 0; transition: opacity .1s; z-index: 999; max-width: 320px; line-height: 1.6; }
+
+  .legend { display: flex; gap: 18px; margin-bottom: 12px; font-size: 11px; color: #94a3b8; align-items: center; flex-wrap: wrap; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; margin-right: 4px; }
+</style>
+</head>
+<body>
+
+<h1>Semantic Search — Timeline &amp; Benchmark Report</h1>
+<p class="subtitle">Run: 2026-02-18T22:39:02.896Z &nbsp;·&nbsp; 3 clips &nbsp;·&nbsp; 155 chunks &nbsp;·&nbsp; 6 scenarios &nbsp;·&nbsp; Whisper base.en + nomic-embed-text + llama3.2:1b CLaRa</p>
+
+<!-- Summary cards -->
+<div class="cards">
+  <div class="card yellow">
+    <div class="card-label">Scenarios Passed</div>
+    <div class="card-value">3/6</div>
+    <div class="card-sub">all 3 criteria</div>
+  </div>
+  <div class="card green">
+    <div class="card-label">Hit @ 1</div>
+    <div class="card-value">83%</div>
+    <div class="card-sub">5 of 6 correct clip</div>
+  </div>
+  <div class="card green">
+    <div class="card-label">Hit @ 3</div>
+    <div class="card-value">83%</div>
+    <div class="card-sub">5 of 6 in top-3</div>
+  </div>
+  <div class="card yellow">
+    <div class="card-label">Window Accuracy</div>
+    <div class="card-value">60%</div>
+    <div class="card-sub">of correct-clip hits</div>
+  </div>
+  <div class="card green">
+    <div class="card-label">Phrase Match</div>
+    <div class="card-value">83%</div>
+    <div class="card-sub">key phrase in chunk</div>
+  </div>
+  <div class="card yellow">
+    <div class="card-label">Avg Cosine</div>
+    <div class="card-value">0.667</div>
+    <div class="card-sub">similarity score</div>
+  </div>
+</div>
+
+<!-- Full Timeline -->
+<div class="timeline-wrap">
+  <div class="section-title">Premiere Timeline — 155 Chunks Across 3 Clips</div>
+  <div class="legend">
+    <span><span class="legend-dot" style="background:#3b82f6"></span>clip_bench_ch08 (Chapter 8 — 0:00–23:07)</span>
+    <span><span class="legend-dot" style="background:#a855f7"></span>clip_bench_ch18 (Chapter 18 — 23:09–50:37)</span>
+    <span><span class="legend-dot" style="background:#f97316"></span>clip_bench_ch29 (Chapter 29 — 50:41–73:41)</span>
+    <span><span class="legend-dot" style="background:#facc15; border-radius:50%"></span>Scenario hit</span>
+  </div>
+  <div class="tl-ruler" id="ruler"></div>
+  <div class="tl-bar-bg" id="fullbar" style="height:44px;"></div>
+</div>
+
+<!-- Per-clip timeline rows -->
+<div class="timeline-wrap" style="margin-top:-16px;">
+  <div class="section-title">Per-Clip Chunk Distribution</div>
+  
+  <div class="tl-clip-row">
+    <div class="tl-clip-label">
+      <b style="color:#3b82f6">clip_bench_ch08</b>
+      <span class="right">Chapter 8 · 53 chunks · 0:00–23:07 (1388s)</span>
+    </div>
+    <div class="tl-bar-bg" id="bar-ch08" style="height:40px;"></div>
+  </div>
+
+  <div class="tl-clip-row">
+    <div class="tl-clip-label">
+      <b style="color:#a855f7">clip_bench_ch18</b>
+      <span class="right">Chapter 18 · 55 chunks · 23:09–50:37 (1649s)</span>
+    </div>
+    <div class="tl-bar-bg" id="bar-ch18" style="height:40px;"></div>
+  </div>
+
+  <div class="tl-clip-row">
+    <div class="tl-clip-label">
+      <b style="color:#f97316">clip_bench_ch29</b>
+      <span class="right">Chapter 29 · 47 chunks · 50:41–73:41 (1381s)</span>
+    </div>
+    <div class="tl-bar-bg" id="bar-ch29" style="height:40px;"></div>
+  </div>
+</div>
+
+<!-- Per-clip stat cards -->
+<div class="clips-grid">
+  
+  <div class="clip-card">
+    <div class="clip-card-title" style="color:#3b82f6">clip_bench_ch08</div>
+    <div class="clip-card-sub">huckfinn_08_twain_apc.wav — Chapter 8</div>
+    <div class="clip-stat">Timeline position <span>0:00 → 23:07</span></div>
+    <div class="clip-stat">Duration <span>1387.6s</span></div>
+    <div class="clip-stat">Chunks indexed <span>53</span></div>
+    <div class="clip-stat">Avg chunk length <span>~26.2s</span></div>
+    <div class="clip-stat">Transcript words <span>~5,615</span></div>
+    <div class="clip-stat">Word overlap vs ref <span>76.6%</span></div>
+    <div class="clip-stat">Scenarios targeting <span>S1, S2</span></div>
+    <div class="clip-stat">Scenarios passed <span>1 of 2</span></div>
+    <div class="chunk-mini-bar" id="mini-ch08"></div>
+  </div>
+
+  <div class="clip-card">
+    <div class="clip-card-title" style="color:#a855f7">clip_bench_ch18</div>
+    <div class="clip-card-sub">huckfinn_18_twain_apc.wav — Chapter 18</div>
+    <div class="clip-stat">Timeline position <span>23:09 → 50:37</span></div>
+    <div class="clip-stat">Duration <span>1648.8s</span></div>
+    <div class="clip-stat">Chunks indexed <span>55</span></div>
+    <div class="clip-stat">Avg chunk length <span>~30.0s</span></div>
+    <div class="clip-stat">Transcript words <span>~5,924</span></div>
+    <div class="clip-stat">Word overlap vs ref <span>94.1%</span></div>
+    <div class="clip-stat">Scenarios targeting <span>S3, S4</span></div>
+    <div class="clip-stat">Scenarios passed <span>1 of 2</span></div>
+    <div class="chunk-mini-bar" id="mini-ch18"></div>
+  </div>
+
+  <div class="clip-card">
+    <div class="clip-card-title" style="color:#f97316">clip_bench_ch29</div>
+    <div class="clip-card-sub">huckfinn_29_twain_apc.wav — Chapter 29</div>
+    <div class="clip-stat">Timeline position <span>50:41 → 73:41</span></div>
+    <div class="clip-stat">Duration <span>1380.6s</span></div>
+    <div class="clip-stat">Chunks indexed <span>47</span></div>
+    <div class="clip-stat">Avg chunk length <span>~29.4s</span></div>
+    <div class="clip-stat">Transcript words <span>~4,679</span></div>
+    <div class="clip-stat">Word overlap vs ref <span>84.9%</span></div>
+    <div class="clip-stat">Scenarios targeting <span>S5, S6</span></div>
+    <div class="clip-stat">Scenarios passed <span>1 of 2</span></div>
+    <div class="chunk-mini-bar" id="mini-ch29"></div>
+  </div>
+</div>
+
+<!-- Scenario table -->
+<div class="scenarios-wrap">
+  <div class="section-title">Search Scenarios</div>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>Description</th><th>Expected Clip</th><th>Hit Clip</th>
+        <th>Score</th><th>Clip-relative</th><th>Abs. Premiere</th>
+        <th>Clip ✓</th><th>Window ✓</th><th>Phrase ✓</th><th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+      <tr>
+        <td class="mono">S1</td>
+        <td>Huck hiding still watching the search party pass by on the island</td>
+        <td><span style="color:#3b82f6">ch08</span></td>
+        <td><span style="color:#a855f7">ch18</span></td>
+        <td>
+          <div class="score-bar">
+            <div class="score-fill" style="width:59.3px"></div>
+            <span>0.593</span>
+          </div>
+        </td>
+        <td class="mono">5:37</td>
+        <td class="mono">28:46</td>
+        <td class="cross">✗</td>
+        <td class="cross">✗</td>
+        <td class="cross">✗</td>
+        <td><span class="badge badge-fail">FAIL</span></td>
+      </tr>
+
+      <tr>
+        <td class="mono">S2</td>
+        <td>Jim mistakes Huck for a ghost and begs him not to harm him</td>
+        <td><span style="color:#3b82f6">ch08</span></td>
+        <td><span style="color:#3b82f6">ch08</span></td>
+        <td>
+          <div class="score-bar">
+            <div class="score-fill" style="width:72.8px"></div>
+            <span>0.728</span>
+          </div>
+        </td>
+        <td class="mono">11:22</td>
+        <td class="mono">11:22</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+
+      <tr>
+        <td class="mono">S3</td>
+        <td>Colonel Grangerford described as a tall, slim, aristocratic gentleman</td>
+        <td><span style="color:#a855f7">ch18</span></td>
+        <td><span style="color:#a855f7">ch18</span></td>
+        <td>
+          <div class="score-bar">
+            <div class="score-fill" style="width:73.5px"></div>
+            <span>0.735</span>
+          </div>
+        </td>
+        <td class="mono">0:53</td>
+        <td class="mono">24:02</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+
+      <tr>
+        <td class="mono">S4</td>
+        <td>Buck explains how a feud works and lists casualties on both sides</td>
+        <td><span style="color:#a855f7">ch18</span></td>
+        <td><span style="color:#a855f7">ch18</span></td>
+        <td>
+          <div class="score-bar">
+            <div class="score-fill" style="width:75.7px"></div>
+            <span>0.757</span>
+          </div>
+        </td>
+        <td class="mono">7:19</td>
+        <td class="mono">30:29</td>
+        <td class="check">✓</td>
+        <td class="cross warn">✗</td>
+        <td class="check">✓</td>
+        <td><span class="badge badge-partial">PARTIAL</span></td>
+      </tr>
+
+      <tr>
+        <td class="mono">S5</td>
+        <td>Imposters claiming to be the real Harvey Wilks when the actual relatives arrive</td>
+        <td><span style="color:#f97316">ch29</span></td>
+        <td><span style="color:#f97316">ch29</span></td>
+        <td>
+          <div class="score-bar">
+            <div class="score-fill" style="width:61.5px"></div>
+            <span>0.615</span>
+          </div>
+        </td>
+        <td class="mono">8:02</td>
+        <td class="mono">58:43</td>
+        <td class="check">✓</td>
+        <td class="cross warn">✗</td>
+        <td class="check">✓</td>
+        <td><span class="badge badge-partial">PARTIAL</span></td>
+      </tr>
+
+      <tr>
+        <td class="mono">S6</td>
+        <td>Huck escapes in the dark after the gold is found in the coffin at the graveyard</td>
+        <td><span style="color:#f97316">ch29</span></td>
+        <td><span style="color:#f97316">ch29</span></td>
+        <td>
+          <div class="score-bar">
+            <div class="score-fill" style="width:57.5px"></div>
+            <span>0.575</span>
+          </div>
+        </td>
+        <td class="mono">18:07</td>
+        <td class="mono">68:48</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td class="check">✓</td>
+        <td><span class="badge badge-pass">PASS</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Window accuracy detail -->
+<div class="scenarios-wrap" style="margin-top:-16px;">
+  <div class="section-title">Timestamp Window Check Detail</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Scenario</th><th>Expected window (clip-relative)</th>
+        <th>Matched chunk (clip-relative)</th><th>Chunk (ms range)</th>
+        <th>Window match</th><th>Note</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+      <tr>
+        <td class="mono">S1</td>
+        <td class="mono">3:20–10:00</td>
+        <td class="mono">5:37 <span style="color:#a855f7">(ch18)</span></td>
+        <td class="mono">337,320ms–383,880ms</td>
+        <td class="cross">✗</td>
+        <td style="color:#64748b">Wrong clip — ch18 returned instead of ch08</td>
+      </tr>
+
+      <tr>
+        <td class="mono">S2</td>
+        <td class="mono">10:50–16:40</td>
+        <td class="mono">11:22</td>
+        <td class="mono">682,200ms–720,400ms</td>
+        <td class="check">✓</td>
+        <td style="color:#64748b">Correct — matched at 11:22 within ch08</td>
+      </tr>
+
+      <tr>
+        <td class="mono">S3</td>
+        <td class="mono">0:00–5:00</td>
+        <td class="mono">0:53</td>
+        <td class="mono">53,360ms–91,560ms</td>
+        <td class="check">✓</td>
+        <td style="color:#64748b">Correct — matched at 0:53 within ch18</td>
+      </tr>
+
+      <tr>
+        <td class="mono">S4</td>
+        <td class="mono">9:10–15:00</td>
+        <td class="mono">7:19</td>
+        <td class="mono">439,920ms–490,840ms</td>
+        <td class="cross warn">✗</td>
+        <td style="color:#64748b">Off — chunk at 7:19, before window by ~1:50</td>
+      </tr>
+
+      <tr>
+        <td class="mono">S5</td>
+        <td class="mono">0:00–6:40</td>
+        <td class="mono">8:02</td>
+        <td class="mono">482,560ms–513,800ms</td>
+        <td class="cross warn">✗</td>
+        <td style="color:#64748b">Off — chunk at 8:02, after window by ~1:22</td>
+      </tr>
+
+      <tr>
+        <td class="mono">S6</td>
+        <td class="mono">15:50–23:02</td>
+        <td class="mono">18:07</td>
+        <td class="mono">1,087,360ms–1,129,960ms</td>
+        <td class="check">✓</td>
+        <td style="color:#64748b">Correct — matched at 18:07 within ch29</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Transcript coverage -->
+<div class="wer-wrap">
+  <div class="section-title">Transcript Coverage (Word Overlap vs Gutenberg Reference)</div>
+  <p style="font-size:11px;color:#475569;margin-bottom:16px;">Unique-word overlap: how many distinct words in the reference excerpt also appear at least once in the Whisper-generated transcript. Both sides deduplicated before comparison — each reference word counted once.</p>
+  
+  <div class="wer-row">
+    <div class="wer-clip" style="color:#3b82f6">clip_bench_ch08</div>
+    <div class="wer-bar-bg"><div class="wer-bar-fill" style="width:76.6%;background:#3b82f6"></div></div>
+    <div class="wer-label">76.6% overlap · ~5,615 gen words</div>
+  </div>
+
+  <div class="wer-row">
+    <div class="wer-clip" style="color:#a855f7">clip_bench_ch18</div>
+    <div class="wer-bar-bg"><div class="wer-bar-fill" style="width:94.1%;background:#a855f7"></div></div>
+    <div class="wer-label">94.1% overlap · ~5,924 gen words</div>
+  </div>
+
+  <div class="wer-row">
+    <div class="wer-clip" style="color:#f97316">clip_bench_ch29</div>
+    <div class="wer-bar-bg"><div class="wer-bar-fill" style="width:84.9%;background:#f97316"></div></div>
+    <div class="wer-label">84.9% overlap · ~4,679 gen words</div>
+  </div>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+const TOTAL_DUR = 4421.946188;
+
+const clips = {
+  ch08: { id:'clip_bench_ch08', start:0, end:1387.56, dur:1387.56, color:'#3b82f6', count:53 },
+  ch18: { id:'clip_bench_ch18', start:1389.139625, end:3037.979625, dur:1648.84, color:'#a855f7', count:55 },
+  ch29: { id:'clip_bench_ch29', start:3041.306188, end:4421.946188, dur:1380.6399999999999, color:'#f97316', count:47 }
+};
+
+const chunks = {
+  ch08: [{"i":0,"s":0,"e":60040,"as":0,"ae":60.04},{"i":1,"s":50280,"e":90520,"as":50.28,"ae":90.52},{"i":2,"s":82100,"e":115080,"as":82.1,"ae":115.08},{"i":3,"s":105080,"e":141960,"as":105.08,"ae":141.96},{"i":4,"s":135040,"e":170480,"as":135.04,"ae":170.48},{"i":5,"s":160720,"e":194120,"as":160.72,"ae":194.12},{"i":6,"s":186520,"e":218560,"as":186.52,"ae":218.56},{"i":7,"s":209880,"e":250160,"as":209.88,"ae":250.16},{"i":8,"s":238680,"e":278600,"as":238.68,"ae":278.6},{"i":9,"s":269800,"e":306760,"as":269.8,"ae":306.76},{"i":10,"s":298720,"e":334320,"as":298.72,"ae":334.32},{"i":11,"s":325280,"e":361320,"as":325.28,"ae":361.32},{"i":12,"s":353160,"e":388840,"as":353.16,"ae":388.84},{"i":13,"s":380680,"e":419640,"as":380.68,"ae":419.64},{"i":14,"s":409760,"e":448160,"as":409.76,"ae":448.16},{"i":15,"s":440840,"e":475500,"as":440.84,"ae":475.5},{"i":16,"s":467920,"e":500840,"as":467.92,"ae":500.84},{"i":17,"s":492040,"e":524120,"as":492.04,"ae":524.12},{"i":18,"s":513080,"e":551760,"as":513.08,"ae":551.76},{"i":19,"s":542760,"e":578160,"as":542.76,"ae":578.16},{"i":20,"s":572800,"e":608940,"as":572.8,"ae":608.94},{"i":21,"s":602680,"e":630440,"as":602.68,"ae":630.44},{"i":22,"s":619720,"e":659200,"as":619.72,"ae":659.2},{"i":23,"s":653200,"e":689520,"as":653.2,"ae":689.52},{"i":24,"s":682200,"e":720400,"as":682.2,"ae":720.4},{"i":25,"s":710720,"e":754520,"as":710.72,"ae":754.52},{"i":26,"s":746240,"e":772240,"as":746.24,"ae":772.24},{"i":27,"s":764920,"e":797840,"as":764.92,"ae":797.84},{"i":28,"s":788480,"e":824720,"as":788.48,"ae":824.72},{"i":29,"s":815880,"e":855920,"as":815.88,"ae":855.92},{"i":30,"s":846080,"e":884080,"as":846.08,"ae":884.08},{"i":31,"s":876920,"e":907840,"as":876.92,"ae":907.84},{"i":32,"s":899920,"e":934840,"as":899.92,"ae":934.84},{"i":33,"s":925280,"e":959120,"as":925.28,"ae":959.12},{"i":34,"s":952040,"e":977440,"as":952.04,"ae":977.44},{"i":35,"s":971280,"e":1000560,"as":971.28,"ae":1000.56},{"i":36,"s":991640,"e":1022560,"as":991.64,"ae":1022.56},{"i":37,"s":1014240,"e":1047440,"as":1014.24,"ae":1047.44},{"i":38,"s":1036600,"e":1072200,"as":1036.6,"ae":1072.2},{"i":39,"s":1065840,"e":1098080,"as":1065.84,"ae":1098.08},{"i":40,"s":1090520,"e":1121800,"as":1090.52,"ae":1121.8},{"i":41,"s":1116120,"e":1138840,"as":1116.12,"ae":1138.84},{"i":42,"s":1133380,"e":1167120,"as":1133.38,"ae":1167.12},{"i":43,"s":1159320,"e":1192360,"as":1159.32,"ae":1192.36},{"i":44,"s":1182200,"e":1222520,"as":1182.2,"ae":1222.52},{"i":45,"s":1210560,"e":1255400,"as":1210.56,"ae":1255.4},{"i":46,"s":1246440,"e":1278280,"as":1246.44,"ae":1278.28},{"i":47,"s":1272800,"e":1289640,"as":1272.8,"ae":1289.64},{"i":48,"s":1278280,"e":1317900,"as":1278.28,"ae":1317.9},{"i":49,"s":1310840,"e":1348240,"as":1310.84,"ae":1348.24},{"i":50,"s":1342240,"e":1375120,"as":1342.24,"ae":1375.12},{"i":51,"s":1363960,"e":1387560,"as":1363.96,"ae":1387.56},{"i":52,"s":1375120,"e":1387560,"as":1375.12,"ae":1387.56}],
+  ch18: [{"i":0,"s":0,"e":67320,"as":1389.139625,"ae":1456.459625},{"i":1,"s":53360,"e":91560,"as":1442.499625,"ae":1480.699625},{"i":2,"s":79560,"e":124840,"as":1468.699625,"ae":1513.979625},{"i":3,"s":116140,"e":159520,"as":1505.279625,"ae":1548.659625},{"i":4,"s":146560,"e":174400,"as":1535.699625,"ae":1563.539625},{"i":5,"s":164800,"e":197320,"as":1553.939625,"ae":1586.459625},{"i":6,"s":184640,"e":228840,"as":1573.779625,"ae":1617.979625},{"i":7,"s":214600,"e":259880,"as":1603.739625,"ae":1649.019625},{"i":8,"s":246920,"e":284160,"as":1636.059625,"ae":1673.299625},{"i":9,"s":271560,"e":319160,"as":1660.699625,"ae":1708.299625},{"i":10,"s":301920,"e":355440,"as":1691.059625,"ae":1744.579625},{"i":11,"s":337320,"e":383880,"as":1726.459625,"ae":1773.019625},{"i":12,"s":373040,"e":416720,"as":1762.179625,"ae":1805.859625},{"i":13,"s":401320,"e":454280,"as":1790.459625,"ae":1843.419625},{"i":14,"s":439920,"e":490840,"as":1829.059625,"ae":1879.979625},{"i":15,"s":479600,"e":528720,"as":1868.739625,"ae":1917.859625},{"i":16,"s":513680,"e":564080,"as":1902.819625,"ae":1953.219625},{"i":17,"s":549720,"e":596720,"as":1938.859625,"ae":1985.859625},{"i":18,"s":584720,"e":622160,"as":1973.859625,"ae":2011.299625},{"i":19,"s":606960,"e":650960,"as":1996.099625,"ae":2040.099625},{"i":20,"s":640000,"e":690480,"as":2029.139625,"ae":2079.6196250000003},{"i":21,"s":678400,"e":724320,"as":2067.539625,"ae":2113.459625},{"i":22,"s":713640,"e":753000,"as":2102.779625,"ae":2142.139625},{"i":23,"s":742080,"e":779120,"as":2131.219625,"ae":2168.259625},{"i":24,"s":764020,"e":800720,"as":2153.159625,"ae":2189.859625},{"i":25,"s":787240,"e":827820,"as":2176.379625,"ae":2216.959625},{"i":26,"s":815240,"e":854440,"as":2204.379625,"ae":2243.5796250000003},{"i":27,"s":844240,"e":886400,"as":2233.379625,"ae":2275.539625},{"i":28,"s":875760,"e":920320,"as":2264.899625,"ae":2309.459625},{"i":29,"s":912120,"e":944960,"as":2301.259625,"ae":2334.099625},{"i":30,"s":933240,"e":974120,"as":2322.379625,"ae":2363.259625},{"i":31,"s":963520,"e":1001320,"as":2352.659625,"ae":2390.459625},{"i":32,"s":990280,"e":1033800,"as":2379.419625,"ae":2422.939625},{"i":33,"s":1021160,"e":1064000,"as":2410.299625,"ae":2453.139625},{"i":34,"s":1053000,"e":1088560,"as":2442.139625,"ae":2477.699625},{"i":35,"s":1077920,"e":1119400,"as":2467.059625,"ae":2508.5396250000003},{"i":36,"s":1108800,"e":1153560,"as":2497.939625,"ae":2542.699625},{"i":37,"s":1139000,"e":1191680,"as":2528.139625,"ae":2580.819625},{"i":38,"s":1180560,"e":1224920,"as":2569.699625,"ae":2614.059625},{"i":39,"s":1213560,"e":1250440,"as":2602.699625,"ae":2639.5796250000003},{"i":40,"s":1239640,"e":1281200,"as":2628.779625,"ae":2670.339625},{"i":41,"s":1271400,"e":1311640,"as":2660.5396250000003,"ae":2700.779625},{"i":42,"s":1300240,"e":1339560,"as":2689.379625,"ae":2728.699625},{"i":43,"s":1328080,"e":1361200,"as":2717.2196249999997,"ae":2750.339625},{"i":44,"s":1349720,"e":1391160,"as":2738.859625,"ae":2780.299625},{"i":45,"s":1378800,"e":1425680,"as":2767.939625,"ae":2814.819625},{"i":46,"s":1413760,"e":1449800,"as":2802.899625,"ae":2838.939625},{"i":47,"s":1436440,"e":1467520,"as":2825.5796250000003,"ae":2856.659625},{"i":48,"s":1455240,"e":1495640,"as":2844.379625,"ae":2884.779625},{"i":49,"s":1484280,"e":1534240,"as":2873.419625,"ae":2923.379625},{"i":50,"s":1520380,"e":1561520,"as":2909.519625,"ae":2950.659625},{"i":51,"s":1548280,"e":1592480,"as":2937.419625,"ae":2981.6196250000003},{"i":52,"s":1582940,"e":1620880,"as":2972.0796250000003,"ae":3010.019625},{"i":53,"s":1610280,"e":1648840,"as":2999.419625,"ae":3037.979625},{"i":54,"s":1632640,"e":1648840,"as":3021.779625,"ae":3037.979625}],
+  ch29: [{"i":0,"s":0,"e":67040,"as":3041.306188,"ae":3108.346188},{"i":1,"s":56560,"e":93520,"as":3097.866188,"ae":3134.826188},{"i":2,"s":83040,"e":126520,"as":3124.346188,"ae":3167.826188},{"i":3,"s":114520,"e":155040,"as":3155.826188,"ae":3196.346188},{"i":4,"s":144480,"e":186280,"as":3185.786188,"ae":3227.586188},{"i":5,"s":177040,"e":201240,"as":3218.346188,"ae":3242.5461880000003},{"i":6,"s":190840,"e":240000,"as":3232.146188,"ae":3281.306188},{"i":7,"s":230880,"e":275120,"as":3272.186188,"ae":3316.426188},{"i":8,"s":265720,"e":310920,"as":3307.026188,"ae":3352.226188},{"i":9,"s":302360,"e":341520,"as":3343.666188,"ae":3382.826188},{"i":10,"s":335760,"e":371480,"as":3377.066188,"ae":3412.786188},{"i":11,"s":361040,"e":403280,"as":3402.346188,"ae":3444.586188},{"i":12,"s":390920,"e":433080,"as":3432.226188,"ae":3474.386188},{"i":13,"s":424000,"e":468160,"as":3465.306188,"ae":3509.466188},{"i":14,"s":458400,"e":489480,"as":3499.706188,"ae":3530.786188},{"i":15,"s":482560,"e":513800,"as":3523.866188,"ae":3555.1061879999997},{"i":16,"s":506200,"e":546360,"as":3547.506188,"ae":3587.666188},{"i":17,"s":537880,"e":563800,"as":3579.186188,"ae":3605.106188},{"i":18,"s":551960,"e":585600,"as":3593.266188,"ae":3626.906188},{"i":19,"s":575280,"e":617320,"as":3616.586188,"ae":3658.626188},{"i":20,"s":603360,"e":653760,"as":3644.666188,"ae":3695.066188},{"i":21,"s":641860,"e":688360,"as":3683.166188,"ae":3729.666188},{"i":22,"s":677800,"e":723720,"as":3719.106188,"ae":3765.026188},{"i":23,"s":714440,"e":756940,"as":3755.746188,"ae":3798.246188},{"i":24,"s":744760,"e":788000,"as":3786.066188,"ae":3829.306188},{"i":25,"s":780200,"e":822920,"as":3821.506188,"ae":3864.226188},{"i":26,"s":811480,"e":852800,"as":3852.786188,"ae":3894.106188},{"i":27,"s":846000,"e":881000,"as":3887.306188,"ae":3922.306188},{"i":28,"s":870440,"e":920200,"as":3911.746188,"ae":3961.506188},{"i":29,"s":912480,"e":957680,"as":3953.786188,"ae":3998.986188},{"i":30,"s":948040,"e":988760,"as":3989.346188,"ae":4030.066188},{"i":31,"s":980400,"e":1023160,"as":4021.706188,"ae":4064.466188},{"i":32,"s":1012160,"e":1052480,"as":4053.466188,"ae":4093.786188},{"i":33,"s":1043240,"e":1072960,"as":4084.546188,"ae":4114.266188},{"i":34,"s":1058400,"e":1097280,"as":4099.706188,"ae":4138.586188},{"i":35,"s":1087360,"e":1129960,"as":4128.666188,"ae":4171.266188},{"i":36,"s":1118320,"e":1168160,"as":4159.626188,"ae":4209.466188},{"i":37,"s":1152680,"e":1182240,"as":4193.986188,"ae":4223.546188},{"i":38,"s":1174200,"e":1200820,"as":4215.506188,"ae":4242.126188},{"i":39,"s":1192720,"e":1223120,"as":4234.026188,"ae":4264.4261879999995},{"i":40,"s":1210640,"e":1246200,"as":4251.946188,"ae":4287.506188},{"i":41,"s":1234640,"e":1263080,"as":4275.946188,"ae":4304.386188},{"i":42,"s":1251040,"e":1289160,"as":4292.3461879999995,"ae":4330.466188},{"i":43,"s":1280880,"e":1317680,"as":4322.186188,"ae":4358.986188},{"i":44,"s":1308880,"e":1354000,"as":4350.186188,"ae":4395.3061880000005},{"i":45,"s":1344080,"e":1380640,"as":4385.386188,"ae":4421.946188},{"i":46,"s":1367560,"e":1380640,"as":4408.866188,"ae":4421.946188}]
+};
+
+const scenarios = [
+  { id:'S1', absStart:1726.46, clipId:'ch18', passed:false, clipOk:false, windowOk:false, phraseOk:false },
+  { id:'S2', absStart:682.2, clipId:'ch08', passed:true, clipOk:true, windowOk:true, phraseOk:true },
+  { id:'S3', absStart:1442.5, clipId:'ch18', passed:true, clipOk:true, windowOk:true, phraseOk:true },
+  { id:'S4', absStart:1829.06, clipId:'ch18', passed:false, clipOk:true, windowOk:false, phraseOk:true },
+  { id:'S5', absStart:3523.87, clipId:'ch29', passed:false, clipOk:true, windowOk:false, phraseOk:true },
+  { id:'S6', absStart:4128.67, clipId:'ch29', passed:true, clipOk:true, windowOk:true, phraseOk:true }
+];
+
+const tooltip = document.getElementById('tooltip');
+
+function fmt(s) {
+  const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+  return m + ':' + String(sec).padStart(2, '0');
+}
+function showTip(e, html) {
+  tooltip.innerHTML = html;
+  tooltip.style.opacity = '1';
+  moveTip(e);
+}
+function moveTip(e) {
+  let x = e.clientX + 12, y = e.clientY + 12;
+  if (x + 330 > window.innerWidth) x = e.clientX - 330 - 12;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top  = y + 'px';
+}
+function hideTip() { tooltip.style.opacity = '0'; }
+document.addEventListener('mousemove', (e) => { if (tooltip.style.opacity !== '0') moveTip(e); });
+
+function buildRuler(container) {
+  const steps = [0, 600, 1200, 1800, 2400, 3000, 3600, 4200, 4421.946188];
+  steps.forEach(t => {
+    const pct = (t / TOTAL_DUR) * 100;
+    const tick = document.createElement('div');
+    tick.className = 'tl-ruler-tick';
+    tick.style.left = pct + '%';
+    tick.textContent = fmt(t);
+    container.appendChild(tick);
+    const line = document.createElement('div');
+    line.className = 'tl-ruler-line';
+    line.style.left = pct + '%';
+    container.appendChild(line);
+  });
+}
+
+function drawBar(container, clipKey, chunkList, absOffset, totalDur, barDur, markerScenarios) {
+  const clip = clips[clipKey];
+  const color = clip.color;
+  const ext = document.createElement('div');
+  ext.className = 'tl-clip-extent';
+  ext.style.left  = ((clip.start / totalDur) * 100) + '%';
+  ext.style.width = ((barDur / totalDur) * 100) + '%';
+  ext.style.background = color;
+  container.appendChild(ext);
+
+  chunkList.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'tl-chunk';
+    el.style.left  = ((c.as / totalDur) * 100) + '%';
+    el.style.width = Math.max(((c.ae - c.as) / totalDur) * 100, 0.15) + '%';
+    el.style.background = color;
+    el.addEventListener('mouseenter', (e) => {
+      showTip(e, '<b>chunk ' + c.i + '</b> &nbsp; ' + clipKey + '<br>clip-relative: ' + fmt(c.s/1000) + ' – ' + fmt(c.e/1000) + '<br>absolute: ' + fmt(c.as) + ' – ' + fmt(c.ae) + '<br>duration: ' + ((c.e-c.s)/1000).toFixed(1) + 's');
+    });
+    el.addEventListener('mouseleave', hideTip);
+    container.appendChild(el);
+  });
+
+  (markerScenarios || []).forEach(sc => {
+    const pct = (sc.absStart / totalDur) * 100;
+    const markerColor = sc.passed ? '#4ade80' : sc.clipOk ? '#facc15' : '#f87171';
+    const m = document.createElement('div');
+    m.className = 'tl-marker';
+    m.style.left = pct + '%';
+    m.style.background = markerColor;
+    const lbl = document.createElement('div');
+    lbl.className = 'tl-marker-label';
+    lbl.style.background = markerColor;
+    lbl.style.color = '#0f1117';
+    lbl.textContent = sc.id;
+    m.appendChild(lbl);
+    container.appendChild(m);
+  });
+}
+
+function drawClipBar(containerId, clipKey, chunkList, clipDur, clipAbsStart, markerScenarios) {
+  const container = document.getElementById(containerId);
+  const color = clips[clipKey].color;
+  const bg = document.createElement('div');
+  bg.style.cssText = 'position:absolute;left:0;right:0;top:0;bottom:0;border-radius:4px;';
+  bg.style.background = color;
+  bg.style.opacity = '0.08';
+  container.appendChild(bg);
+
+  chunkList.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'tl-chunk';
+    el.style.left  = ((c.s / 1000 / clipDur) * 100) + '%';
+    el.style.width = Math.max(((c.e - c.s) / 1000 / clipDur) * 100, 0.2) + '%';
+    el.style.background = color;
+    el.addEventListener('mouseenter', (e) => {
+      showTip(e, '<b>' + clipKey + ' chunk ' + c.i + '</b><br>clip-relative: ' + fmt(c.s/1000) + ' – ' + fmt(c.e/1000) + '<br>absolute timeline: ' + fmt(c.as) + ' – ' + fmt(c.ae) + '<br>duration: ' + ((c.e-c.s)/1000).toFixed(1) + 's');
+    });
+    el.addEventListener('mouseleave', hideTip);
+    container.appendChild(el);
+  });
+
+  (markerScenarios || []).forEach(sc => {
+    const relPos = sc.absStart - clipAbsStart;
+    const pct = (relPos / clipDur) * 100;
+    if (pct < 0 || pct > 100) return;
+    const markerColor = sc.passed ? '#4ade80' : sc.clipOk ? '#facc15' : '#f87171';
+    const m = document.createElement('div');
+    m.className = 'tl-marker';
+    m.style.left = pct + '%';
+    m.style.background = markerColor;
+    const lbl = document.createElement('div');
+    lbl.className = 'tl-marker-label';
+    lbl.style.background = markerColor;
+    lbl.style.color = '#0f1117';
+    lbl.textContent = sc.id;
+    m.appendChild(lbl);
+    container.appendChild(m);
+  });
+}
+
+function drawMini(containerId, clipKey, chunkList, clipDur) {
+  const container = document.getElementById(containerId);
+  const color = clips[clipKey].color;
+  chunkList.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'chunk-mini';
+    el.style.background = color;
+    el.style.opacity = String(0.3 + (c.s / 1000 / clipDur) * 0.7);
+    el.title = 'chunk ' + c.i + ': ' + fmt(c.s/1000) + '-' + fmt(c.e/1000);
+    container.appendChild(el);
+  });
+}
+
+const fullbar = document.getElementById('fullbar');
+drawBar(fullbar, 'ch08', chunks.ch08, clips.ch08.start, TOTAL_DUR, clips.ch08.dur, scenarios.filter(s => s.clipId === 'ch08' || !Object.keys(clips).includes(s.clipId)));
+drawBar(fullbar, 'ch18', chunks.ch18, clips.ch18.start, TOTAL_DUR, clips.ch18.dur, scenarios.filter(s => s.clipId === 'ch18'));
+drawBar(fullbar, 'ch29', chunks.ch29, clips.ch29.start, TOTAL_DUR, clips.ch29.dur, scenarios.filter(s => s.clipId === 'ch29'));
+drawClipBar('bar-ch08', 'ch08', chunks.ch08, clips.ch08.dur, clips.ch08.start, scenarios.filter(s => s.clipId === 'ch08'));
+drawClipBar('bar-ch18', 'ch18', chunks.ch18, clips.ch18.dur, clips.ch18.start, scenarios.filter(s => s.clipId === 'ch18'));
+drawClipBar('bar-ch29', 'ch29', chunks.ch29, clips.ch29.dur, clips.ch29.start, scenarios.filter(s => s.clipId === 'ch29'));
+drawMini('mini-ch08', 'ch08', chunks.ch08, clips.ch08.dur);
+drawMini('mini-ch18', 'ch18', chunks.ch18, clips.ch18.dur);
+drawMini('mini-ch29', 'ch29', chunks.ch29, clips.ch29.dur);
+buildRuler(document.getElementById('ruler'));
+</script>
+</body>
+</html>
