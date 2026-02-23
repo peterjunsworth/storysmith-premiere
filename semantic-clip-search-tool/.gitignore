@@ -1,0 +1,55 @@
+# Runtime PID tracking (written by start.sh, consumed by stop.sh)
+.pids
+
+# ── Node.js ───────────────────────────────────────────────────────────────────
+node_modules/
+dist/
+*.tsbuildinfo
+
+# ── Environment ───────────────────────────────────────────────────────────────
+.env
+# .env.example is intentionally kept
+
+# ── Runtime data ──────────────────────────────────────────────────────────────
+# SQLite — db files and WAL/SHM journal sidecars
+*.db
+*.db-shm
+*.db-wal
+
+# ChromaDB vector store (both legacy and current locations)
+data/chroma/
+chroma/
+
+# Whisper temp output files
+/tmp/whisper-out-*
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── Python (ChromaDB venv) ────────────────────────────────────────────────────
+chromadb/.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# ── Scripts / temp utilities ──────────────────────────────────────────────────
+scripts/tmp/
+
+# ── Test artifacts ────────────────────────────────────────────────────────────
+# Audio fixture files (large binaries, downloaded separately)
+test/fixtures/audio/
+test/report/out/
+*.wav
+*.mp3
+*.mp4
+*.m4a
+*.aac
+
+# ── OS / editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo

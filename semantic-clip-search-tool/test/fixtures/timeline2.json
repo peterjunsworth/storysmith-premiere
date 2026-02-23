@@ -1,0 +1,59 @@
+{
+  "sequences": [
+    {
+      "sequenceName": "Huck Finn Benchmark — Abridged",
+      "totalClips": 3,
+      "videoClips": 1,
+      "audioClips": 2,
+      "totalDuration": 3041.306188,
+      "clips": [
+        {
+          "id": "clip2_video_0",
+          "name": "title-card.mp4",
+          "filePath": null,
+          "trackType": "video",
+          "trackIndex": 0,
+          "timelineStart": 0,
+          "timelineEnd": 5,
+          "inPoint": 0,
+          "outPoint": 5,
+          "duration": 5,
+          "startTicks": "0",
+          "endTicks": "1270080000"
+        },
+        {
+          "id": "clip2_ch08",
+          "name": "huckfinn_08_twain_apc.wav",
+          "filePath": "/Users/jeik/ws/jk-dashboard/research/semantic-clip-search-tool/04-implementation/test/fixtures/audio/huckfinn_08_twain_apc.wav",
+          "trackType": "audio",
+          "trackIndex": 0,
+          "timelineStart": 0,
+          "timelineEnd": 1389.139625,
+          "inPoint": 0,
+          "outPoint": 1389.139625,
+          "duration": 1389.139625,
+          "startTicks": "0",
+          "endTicks": "352981920000",
+          "hasAudio": true
+        },
+        {
+          "id": "clip2_ch18",
+          "name": "huckfinn_18_twain_apc.wav",
+          "filePath": "/Users/jeik/ws/jk-dashboard/research/semantic-clip-search-tool/04-implementation/test/fixtures/audio/huckfinn_18_twain_apc.wav",
+          "trackType": "audio",
+          "trackIndex": 0,
+          "timelineStart": 1389.139625,
+          "timelineEnd": 3041.306188,
+          "inPoint": 0,
+          "outPoint": 1652.166563,
+          "duration": 1652.166563,
+          "startTicks": "352981920000",
+          "endTicks": "772613280000",
+          "hasAudio": true
+        }
+      ]
+    }
+  ],
+  "projectPath": "/benchmark/HuckFinnAbridged.prproj",
+  "timestamp": "2026-02-17T00:00:00.000Z"
+}

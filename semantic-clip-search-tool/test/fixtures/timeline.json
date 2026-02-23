@@ -1,0 +1,74 @@
+{
+  "sequences": [
+    {
+      "sequenceName": "Huck Finn Benchmark",
+      "totalClips": 4,
+      "videoClips": 1,
+      "audioClips": 3,
+      "totalDuration": 4424.777188,
+      "clips": [
+        {
+          "id": "clip_bench_video_0",
+          "name": "title-card.mp4",
+          "filePath": null,
+          "trackType": "video",
+          "trackIndex": 0,
+          "timelineStart": 0,
+          "timelineEnd": 5,
+          "inPoint": 0,
+          "outPoint": 5,
+          "duration": 5,
+          "startTicks": "0",
+          "endTicks": "1270080000"
+        },
+        {
+          "id": "clip_bench_ch08",
+          "name": "huckfinn_08_twain_apc.wav",
+          "filePath": "/Users/jeik/ws/jk-dashboard/research/semantic-clip-search-tool/04-implementation/test/fixtures/audio/huckfinn_08_twain_apc.wav",
+          "trackType": "audio",
+          "trackIndex": 0,
+          "timelineStart": 0,
+          "timelineEnd": 1389.139625,
+          "inPoint": 0,
+          "outPoint": 1389.139625,
+          "duration": 1389.139625,
+          "startTicks": "0",
+          "endTicks": "352981920000",
+          "hasAudio": true
+        },
+        {
+          "id": "clip_bench_ch18",
+          "name": "huckfinn_18_twain_apc.wav",
+          "filePath": "/Users/jeik/ws/jk-dashboard/research/semantic-clip-search-tool/04-implementation/test/fixtures/audio/huckfinn_18_twain_apc.wav",
+          "trackType": "audio",
+          "trackIndex": 0,
+          "timelineStart": 1389.139625,
+          "timelineEnd": 3041.306188,
+          "inPoint": 0,
+          "outPoint": 1652.166563,
+          "duration": 1652.166563,
+          "startTicks": "352981920000",
+          "endTicks": "772613280000",
+          "hasAudio": true
+        },
+        {
+          "id": "clip_bench_ch29",
+          "name": "huckfinn_29_twain_apc.wav",
+          "filePath": "/Users/jeik/ws/jk-dashboard/research/semantic-clip-search-tool/04-implementation/test/fixtures/audio/huckfinn_29_twain_apc.wav",
+          "trackType": "audio",
+          "trackIndex": 0,
+          "timelineStart": 3041.306188,
+          "timelineEnd": 4424.777188,
+          "inPoint": 0,
+          "outPoint": 1383.471,
+          "duration": 1383.471,
+          "startTicks": "772613280000",
+          "endTicks": "1123549440000",
+          "hasAudio": true
+        }
+      ]
+    }
+  ],
+  "projectPath": "/benchmark/HuckFinnBenchmark.prproj",
+  "timestamp": "2026-02-17T00:00:00.000Z"
+}
