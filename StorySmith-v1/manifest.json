@@ -14,7 +14,9 @@
     "clipboard": "readAndWrite",
     "network": {
       "domains": [
-        "cac122f1e238.ngrok-free.app",
+        "4cbc-2601-740-8600-8a30-f8d8-6249-de40-ec68.ngrok-free.app",
+        "localhost:3000",
+        "localhost:3100",
         "*.ngrok-free.app",
         "*.adobe.com",
         "*.n8n.cloud",

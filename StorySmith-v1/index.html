@@ -28,6 +28,9 @@
 
     <!-- Clip Selection Screen (Step 2) -->
     <div id="selection-screen" class="screen" style="display: none;">
+          <div id="infra-status" class="infra-status">
+            <small id="infra-status-content">🔄 Checking service status...</small>
+          </div>
       <!-- Tabs -->
       <div class="tabs">
         <button class="tab-button active" data-tab="load-tab">Load & Send</button>
@@ -70,6 +73,9 @@
             ⚠️ Warning icon = some clips missing file paths
           </small>
         </div>
+        <div id="job-progress" class="help-text">
+          <small id="job-progress-content"></small>
+        </div>
       </div>
 
       <!-- Search Tab -->
@@ -79,7 +85,7 @@
         </div>
 
         <!-- Sequence Selection for Search -->
-        <div class="search-sequences-section">
+        <!-- <div class="search-sequences-section">
           <div class="search-sequences-header">
             <span class="search-label">Search in:</span>
             <div class="search-sequences-actions">
@@ -94,7 +100,15 @@
               <small>No sequences loaded yet</small>
             </div>
           </div>
+        </div> -->
+
+        <div id="search-sequences-container" class="search-sequences-container">
+          <div class="empty-state">
+            <small>No sequences loaded yet</small>
+          </div>
         </div>
+
+        <br />
 
         <div class="search-section">
           <label for="searchQuery" class="search-label">What are you looking for?</label>

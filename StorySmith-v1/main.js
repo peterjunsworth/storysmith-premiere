@@ -7,7 +7,8 @@
 const ppro = require("premierepro");
 
 // Backend URL for file path retrieval
-const BACKEND_URL = "https://42c2ac9a3068.ngrok-free.app";
+const BACKEND_URL = "https://4cbc-2601-740-8600-8a30-f8d8-6249-de40-ec68.ngrok-free.app";
+const SERVER_URL = "http://localhost:3100";
 
 // ============================================================================
 // STATE
@@ -531,7 +532,7 @@ async function sendToWebhook() {
     const totalClips = sequences.reduce((sum, seq) => sum + seq.totalClips, 0);
     console.log(`📡 Sending ${sequences.length} sequences with ${totalClips} total clips to webhook...`);
 
-    const webhookUrl = "http://localhost:5678/webhook/c7b54aab-b27d-4832-bfc8-b03791cd441e";
+    const webhookUrl = `${SERVER_URL}/index`;
     const webhookData = {
       sequences: sequences,
       projectPath: window.currentProjectPath || "",
@@ -546,21 +547,23 @@ async function sendToWebhook() {
     console.log("=".repeat(80) + "\n");
 
     // Use backend as proxy to avoid UXP permission issues
-    const response = await fetch(`${BACKEND_URL}/webhook-proxy`, {
+    const response = await fetch(`${webhookUrl}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'ngrok-skip-browser-warning': 'true'
       },
-      body: JSON.stringify({
-        webhookUrl: webhookUrl,
-        data: webhookData
-      })
+      body: JSON.stringify(webhookData)
     });
 
     if (response.ok) {
-      const result = await response.text();
+      const result = await response.json();
       console.log("✅ Webhook response:", result);
+
+      // If server accepted the job, start polling its progress
+      if (result && result.jobId) {
+        startJobProgressPolling(result.jobId, 5000);
+      }
 
       statusContent.innerHTML = `
         <div class="success">
@@ -569,7 +572,7 @@ async function sendToWebhook() {
         </div>
       `;
     } else {
-      console.warn("Webhook request failed:", response.status);
+      console.warn("Webhook request failed:", response);
 
       statusContent.innerHTML = `
         <div class="error">
@@ -592,6 +595,108 @@ async function sendToWebhook() {
       </div>
     `;
   }
+}
+
+// ============================================================================
+// JOB PROGRESS POLLING
+// ============================================================================
+
+async function fetchJobProgress(jobId) {
+  try {
+    const url = `${SERVER_URL}/status/progress/${encodeURIComponent(jobId)}`;
+    console.debug(`fetchJobProgress -> ${url}`);
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Status ${res.status}`);
+    const data = await res.json();
+    return { ok: true, data };
+  } catch (err) {
+    return { ok: false, error: err.message || String(err) };
+  }
+}
+
+function formatElapsedMs(ms) {
+  if (!ms || ms <= 0) return '0s';
+  const seconds = Math.floor(ms / 1000);
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) return `${h}h ${m}m ${s}s`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
+function updateJobProgressDisplay(result) {
+  const el = document.getElementById('job-progress-content');
+  if (!el) return;
+
+  if (!result) {
+    el.innerHTML = '';
+    return;
+  }
+
+  if (result.ok) {
+    const d = result.data;
+    // store latest job progress for UI mapping
+    window._storysmith_lastJobProgress = d;
+    const state = d.state || d.status || 'unknown';
+    const pct = typeof d.percentComplete === 'number' ? `${d.percentComplete}%` : '';
+    const clips = (typeof d.completedClips === 'number' && typeof d.totalClips === 'number')
+      ? `${d.completedClips}/${d.totalClips}`
+      : '';
+    const chunks = d.chunksPercentComplete ? `${d.chunksPercentComplete}%` : '';
+    const elapsed = d.elapsedMs ? formatElapsedMs(d.elapsedMs) : (d.startedAt ? formatElapsedMs(Date.now() - new Date(d.startedAt).getTime()) : '');
+
+    el.innerHTML = `🔄 Job ${escapeHtml(d.jobId || '')} — <strong>${escapeHtml(state)}</strong>`
+      + (pct ? ` • ${pct}` : '')
+      + (clips ? ` • clips ${escapeHtml(clips)}` : '')
+      + (chunks ? ` • chunks ${escapeHtml(chunks)}` : '')
+      + (elapsed ? ` • ${escapeHtml(elapsed)}` : '');
+    el.style.color = state === 'complete' || state === 'done' ? 'green' : '#333';
+  } else {
+    el.innerHTML = `❌ Job status unavailable (${escapeHtml(result.error || 'unknown')})`;
+    el.style.color = 'crimson';
+  }
+
+  // refresh sequences UI so per-sequence badges can update
+  try { updateClipsDisplay(); } catch (e) { /* ignore */ }
+}
+
+function startJobProgressPolling(jobId, intervalMs = 5000) {
+  // clear existing poller
+  if (window._storysmith_jobPoller) {
+    clearInterval(window._storysmith_jobPoller);
+    window._storysmith_jobPoller = null;
+  }
+
+  // immediate fetch
+  (async () => {
+    const r = await fetchJobProgress(jobId);
+    updateJobProgressDisplay(r);
+    if (r.ok && (r.data.state === 'complete' || r.data.state === 'done' || r.data.percentComplete === 100)) {
+      // stop immediately if already complete
+      stopJobProgressPolling();
+    }
+  })();
+
+  const id = setInterval(async () => {
+    const r = await fetchJobProgress(jobId);
+    updateJobProgressDisplay(r);
+    if (r.ok && (r.data.state === 'complete' || r.data.state === 'done' || r.data.percentComplete === 100)) {
+      stopJobProgressPolling();
+    }
+  }, intervalMs);
+
+  window._storysmith_jobPoller = id;
+  window._storysmith_currentJobId = jobId;
+}
+
+function stopJobProgressPolling() {
+  if (window._storysmith_jobPoller) {
+    clearInterval(window._storysmith_jobPoller);
+    window._storysmith_jobPoller = null;
+  }
+  // leave final state visible but clear current job id
+  window._storysmith_currentJobId = null;
 }
 
 // ============================================================================
@@ -634,6 +739,34 @@ function updateClipsDisplay() {
       ? `<span class="path-indicator" title="${clipsWithPaths}/${totalClips} clips have file paths">📁</span>`
       : `<span class="no-path-indicator" title="${clipsWithPaths}/${totalClips} clips have file paths">⚠️</span>`;
 
+    // Per-sequence progress badge from last job progress (if available)
+    let progressBadge = '';
+    const jobProgress = window._storysmith_lastJobProgress;
+    if (jobProgress && Array.isArray(jobProgress.clips)) {
+      // Sum clip-level totals for this sequence using clip ids
+      const clipIds = clips.map(c => c.id);
+      let totalChunks = 0;
+      let embeddedChunks = 0;
+      let completedClips = 0;
+
+      for (const cp of jobProgress.clips) {
+        if (clipIds.includes(cp.clipId)) {
+          totalChunks += cp.totalChunks || 0;
+          embeddedChunks += cp.embeddedChunks || 0;
+          if (cp.stage === 'done') completedClips++;
+        }
+      }
+
+      if (totalChunks > 0) {
+        const pct = Math.round((embeddedChunks / totalChunks) * 100);
+        progressBadge = `<span class="sequence-progress" title="${embeddedChunks}/${totalChunks} chunks embedded">${pct}%</span>`;
+      } else if (clips.length > 0) {
+        // fallback to clip completion ratio
+        const pct = Math.round((completedClips / clips.length) * 100);
+        if (pct > 0) progressBadge = `<span class="sequence-progress" title="${completedClips}/${clips.length} clips">${pct}%</span>`;
+      }
+    }
+
     // Calculate total duration
     const totalDuration = clips.reduce((sum, clip) => sum + (clip.duration || 0), 0);
     const durationText = formatTimecode(totalDuration);
@@ -652,6 +785,7 @@ function updateClipsDisplay() {
           </span>
         </div>
         ${pathIndicator}
+        ${progressBadge}
       </div>
     `;
   }
@@ -726,54 +860,7 @@ function updateSelectedCount() {
  * Update search sequences display (for Search tab)
  */
 function updateSearchSequencesDisplay() {
-  const container = document.getElementById("search-sequences-container");
-
-  if (allClips.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <small>No sequences loaded yet</small>
-      </div>
-    `;
-    return;
-  }
-
-  // Get unique sequences
-  const uniqueSequences = [...new Set(allClips.map(clip => clip.sequenceName))];
-
-  let html = "";
-  for (const sequenceName of uniqueSequences) {
-    const isSelected = selectedSearchSequences.has(sequenceName);
-
-    html += `
-      <div class="search-sequence-item" data-sequence-name="${escapeHtml(sequenceName)}">
-        <input type="checkbox" ${isSelected ? 'checked' : ''} />
-        <span class="search-sequence-name">${escapeHtml(sequenceName)}</span>
-      </div>
-    `;
-  }
-
-  container.innerHTML = html;
-
-  // Add event listeners
-  const sequenceItems = container.querySelectorAll(".search-sequence-item");
-  for (const item of sequenceItems) {
-    const checkbox = item.querySelector("input[type='checkbox']");
-    const sequenceName = item.getAttribute("data-sequence-name");
-
-    // Clicking the item toggles selection
-    item.addEventListener("click", (e) => {
-      if (e.target.tagName !== "INPUT") {
-        checkbox.checked = !checkbox.checked;
-        toggleSearchSequenceSelection(sequenceName, checkbox.checked);
-      }
-    });
-
-    // Checkbox change event
-    checkbox.addEventListener("change", (e) => {
-      e.stopPropagation();
-      toggleSearchSequenceSelection(sequenceName, checkbox.checked);
-    });
-  }
+  
 }
 
 /**
@@ -806,6 +893,74 @@ function deselectAllSearchSequences() {
 }
 
 // ============================================================================
+// INFRA STATUS POLLING
+// ============================================================================
+
+async function fetchServerStatus() {
+  try {
+    const res = await fetch(`${SERVER_URL}/status/progress`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Status ${res.status}`);
+    const data = await res.json();
+    return { ok: true, data };
+  } catch (err) {
+    return { ok: false, error: err.message || String(err) };
+  }
+}
+
+function updateInfraStatusDisplay(result) {
+  const el = document.getElementById('infra-status-content');
+  if (!el) return;
+
+  if (result.ok) {
+    const d = result.data;
+    const allGood = d.chromaOk && d.ollamaOk;
+    if (allGood) {
+      el.innerHTML = `✅ Service online — Chroma & Ollama OK`;
+      el.style.color = 'green';
+    } else {
+      const parts = [];
+      parts.push(d.chromaOk ? 'Chroma OK' : 'Chroma ✖');
+      parts.push(d.ollamaOk ? 'Ollama OK' : 'Ollama ✖');
+      el.innerHTML = `⚠️ Service partial — ${parts.join(' • ')}`;
+      el.style.color = '#b36b00';
+    }
+  } else {
+    el.innerHTML = `❌ Service unreachable (${escapeHtml(result.error || 'unknown')})`;
+    el.style.color = 'crimson';
+  }
+}
+
+function startInfraStatusPolling(intervalMs = 5000) {
+  // run immediately, then every interval
+  (async () => {
+    // If a job is active, prefer fetching job progress
+    const jobId = window._storysmith_currentJobId;
+    if (jobId) {
+      const r = await fetchJobProgress(jobId);
+      // update both job progress and infra area (so infra area shows job state)
+      updateJobProgressDisplay(r);
+    } else {
+      const r = await fetchServerStatus();
+      updateInfraStatusDisplay(r);
+    }
+  })();
+
+  const id = setInterval(async () => {
+    const jobId = window._storysmith_currentJobId;
+    if (jobId) {
+      const r = await fetchJobProgress(jobId);
+      updateJobProgressDisplay(r);
+    } else {
+      const r = await fetchServerStatus();
+      updateInfraStatusDisplay(r);
+    }
+  }, intervalMs);
+
+  // keep ref so it can be cleared if needed
+  window._storysmith_statusPoller = id;
+}
+
+// ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
 
@@ -829,11 +984,6 @@ async function searchSequences() {
     return;
   }
 
-  if (selectedSearchSequences.size === 0) {
-    alert("Please select at least one sequence to search");
-    return;
-  }
-
   const statusDiv = document.getElementById("search-status");
   const statusContent = document.getElementById("search-status-content");
   const resultsDiv = document.getElementById("search-results");
@@ -847,16 +997,14 @@ async function searchSequences() {
   statusContent.innerHTML = `
     <div class="status-info">
       ⏳ <strong>Searching sequences...</strong><br>
-      <small>Query: "${escapeHtml(searchQuery)}" in ${selectedSearchSequences.size} sequence(s)</small>
     </div>
   `;
 
   try {
     console.log(`🔍 Searching for: "${searchQuery}"`);
-    console.log(`📋 Searching in sequences:`, Array.from(selectedSearchSequences));
 
-    // Placeholder API URL - replace with actual endpoint
-    const searchApiUrl = "https://api.placeholder.com/search";
+    // API URL
+    const searchApiUrl = `${SERVER_URL}/search`;
 
     const response = await fetch(searchApiUrl, {
       method: 'POST',
@@ -865,9 +1013,10 @@ async function searchSequences() {
       },
       body: JSON.stringify({
         query: searchQuery,
-        sequences: Array.from(selectedSearchSequences),
-        projectPath: window.currentProjectPath || "",
-        timestamp: new Date().toISOString()
+        topK: 10,
+        expandQuery: false,
+        // projectId is optional; include if available
+        projectId: window.currentProjectPath || undefined
       })
     });
 
@@ -878,19 +1027,25 @@ async function searchSequences() {
       // Hide status
       statusDiv.style.display = "none";
 
-      // Display results
-      if (data.results && data.results.length > 0) {
+      // The server returns a SearchResponse with `hits: TimelineHit[]`
+      const hits = data.hits || [];
+
+      if (hits.length > 0) {
         let resultsHtml = "";
 
-        for (const result of data.results) {
+        for (const hit of hits) {
+          const title = hit.filePath ? hit.filePath.split('/').pop() : hit.clipId || 'Result';
+          const timecode = typeof hit.timelineStart === 'number' ? formatTimecode(hit.timelineStart) : '';
+          const snippet = hit.chunkText || '';
+
           resultsHtml += `
-            <div class="search-result-item" data-sequence="${escapeHtml(result.sequenceName)}" data-timecode="${result.timecode || 0}">
-              <div class="search-result-title">${escapeHtml(result.sequenceName)}</div>
+            <div class="search-result-item" data-clipid="${escapeHtml(hit.clipId || '')}" data-timecode="${hit.timelineStart || 0}">
+              <div class="search-result-title">${escapeHtml(title)}</div>
               <div class="search-result-details">
-                ${result.timecode ? `⏱️ ${formatTimecode(result.timecode)} • ` : ''}
-                ${result.clipName ? `📁 ${escapeHtml(result.clipName)}` : ''}
+                ${timecode ? `⏱️ ${timecode} • ` : ''}
+                ${hit.filePath ? `📁 ${escapeHtml(hit.filePath)}` : ''}
               </div>
-              ${result.snippet ? `<div class="search-result-snippet">${escapeHtml(result.snippet)}</div>` : ''}
+              ${snippet ? `<div class="search-result-snippet">${escapeHtml(snippet)}</div>` : ''}
             </div>
           `;
         }
@@ -902,10 +1057,10 @@ async function searchSequences() {
         const resultItems = resultsContent.querySelectorAll(".search-result-item");
         resultItems.forEach(item => {
           item.addEventListener("click", () => {
-            const sequenceName = item.getAttribute("data-sequence");
+            const clipId = item.getAttribute("data-clipid");
             const timecode = parseFloat(item.getAttribute("data-timecode") || "0");
-            console.log(`📍 Navigate to: ${sequenceName} at ${formatTimecode(timecode)}`);
-            // TODO: Add navigation logic to jump to sequence/timecode in Premiere
+            console.log(`📍 Navigate to clip: ${clipId} at ${formatTimecode(timecode)}`);
+            // Navigation to Premiere sequences is not implemented here
           });
         });
       } else {
@@ -1026,9 +1181,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Button event listeners for Search tab
-  document.getElementById("btnSelectAllSearch").addEventListener("click", selectAllSearchSequences);
+  // document.getElementById("btnSelectAllSearch").addEventListener("click", selectAllSearchSequences);
 
-  document.getElementById("btnDeselectAllSearch").addEventListener("click", deselectAllSearchSequences);
+  // document.getElementById("btnDeselectAllSearch").addEventListener("click", deselectAllSearchSequences);
 
   document.getElementById("btnSearch").addEventListener("click", searchSequences);
 
@@ -1043,4 +1198,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize UI
   updateClipsCount();
   updateSelectedCount();
+
+  // Start polling the backend status endpoint every 5s
+  startInfraStatusPolling(5000);
 });
