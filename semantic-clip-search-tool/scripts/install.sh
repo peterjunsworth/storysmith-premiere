@@ -305,16 +305,24 @@ else
     done
     if [[ "$OLLAMA_RUNNING" -eq 0 ]]; then
       warn "Could not connect to Ollama after 10s — model pull skipped"
-      FOLLOWUP+=("Start Ollama then pull models: ollama pull nomic-embed-text && ollama pull llama3.2")
+      FOLLOWUP+=("Start Ollama then pull models from .env.example: ollama pull \$OLLAMA_EMBED_MODEL && ollama pull \$OLLAMA_LLM_MODEL")
     fi
   fi
 
   if [[ "$OLLAMA_RUNNING" -eq 1 ]]; then
-    for MODEL in nomic-embed-text llama3.2; do
-      if ollama list 2>/dev/null | grep -q "^${MODEL}"; then
+    # Read models from .env.example so this list stays in sync with the project config.
+    # Falls back to known defaults if the file is absent or the vars are unset.
+    EMBED_MODEL="$(grep -E '^OLLAMA_EMBED_MODEL=' "$ROOT/.env.example" 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')"
+    LLM_MODEL="$(grep -E '^OLLAMA_LLM_MODEL=' "$ROOT/.env.example" 2>/dev/null | cut -d= -f2 | tr -d '[:space:]')"
+    EMBED_MODEL="${EMBED_MODEL:-nomic-embed-text}"
+    LLM_MODEL="${LLM_MODEL:-llama3.2}"
+
+    for MODEL in "$EMBED_MODEL" "$LLM_MODEL"; do
+      # ollama list output format: "model:tag   ID   size   modified"
+      if ollama list 2>/dev/null | awk '{print $1}' | grep -qx "$MODEL"; then
         ok "Model: ${MODEL}"
       else
-        info "Pulling model: ${MODEL}"
+        info "Pulling model: ${MODEL} (this may take a while)..."
         ollama pull "$MODEL"
         ok "Model: ${MODEL} (pulled)"
       fi

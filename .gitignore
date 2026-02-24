@@ -55,3 +55,4 @@ transcripts/
 # CEP build
 . debug
 archive. zip
+.DS_Store

@@ -226,10 +226,11 @@ export class IndexQueue {
       timeline.projectId,
       timeline.projectName,
       clipsToProcess.map((c) => ({ clipId: c.clipId, name: c.name ?? c.clipId })),
+      timeline.sequenceName,
     );
 
     // Register job in SQLite
-    this.store.createJob(jobId, timeline.projectId, timeline.projectName, clipsToProcess.length);
+    this.store.createJob(jobId, timeline.projectId, timeline.projectName, clipsToProcess.length, timeline.sequenceName);
 
     // Save snapshot before processing — if server crashes mid-job, next POST
     // with the same JSON will see changeset = 0 (conservative but avoids duplicates)

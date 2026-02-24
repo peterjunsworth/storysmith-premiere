@@ -5,6 +5,7 @@ export interface JobRow {
   jobId: string;
   projectId: string;
   projectName: string;
+  sequenceName: string | null;
   state: JobState;
   totalClips: number;
   completedClips: number;
@@ -37,6 +38,7 @@ export class TimelineStore {
         jobId          TEXT PRIMARY KEY,
         projectId      TEXT NOT NULL,
         projectName    TEXT NOT NULL,
+        sequenceName   TEXT,
         state          TEXT NOT NULL,
         totalClips     INTEGER NOT NULL DEFAULT 0,
         completedClips INTEGER NOT NULL DEFAULT 0,
@@ -47,6 +49,13 @@ export class TimelineStore {
         durationMs     INTEGER
       );
     `);
+    // Backfill: add sequenceName to existing DBs that pre-date this column.
+    // ALTER TABLE ADD COLUMN throws if the column already exists, so we ignore that error.
+    try {
+      this.db.exec(`ALTER TABLE jobs ADD COLUMN sequenceName TEXT`);
+    } catch {
+      // column already present — no-op
+    }
   }
 
   computeChangeset(incoming: PremiereTimeline): Changeset {
@@ -117,15 +126,16 @@ export class TimelineStore {
     projectId: string,
     projectName: string,
     totalClips: number,
+    sequenceName?: string,
   ): void {
     this.db
       .prepare(
         `INSERT INTO jobs
-           (jobId, projectId, projectName, state, totalClips, completedClips,
+           (jobId, projectId, projectName, sequenceName, state, totalClips, completedClips,
             totalChunks, embeddedChunks, startedAt)
-         VALUES (?, ?, ?, 'running', ?, 0, 0, 0, ?)`,
+         VALUES (?, ?, ?, ?, 'running', ?, 0, 0, 0, ?)`,
       )
-      .run(jobId, projectId, projectName, totalClips, new Date().toISOString());
+      .run(jobId, projectId, projectName, sequenceName ?? null, totalClips, new Date().toISOString());
   }
 
   updateJobProgress(

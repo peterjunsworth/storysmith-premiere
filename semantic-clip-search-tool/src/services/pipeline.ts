@@ -168,6 +168,7 @@ export async function transcribeClip(
 export function parseRawExport(raw: unknown): PremiereTimeline {
   const data = raw as {
     sequences?: Array<{
+      sequenceName?: string;
       clips?: Array<{
         id: string;
         name: string;
@@ -185,6 +186,7 @@ export function parseRawExport(raw: unknown): PremiereTimeline {
   const projectPath = data.projectPath ?? 'unknown';
   const projectId = projectPath.replace(/[^a-zA-Z0-9]/g, '_').slice(-40);
   const projectName = projectPath.split('/').pop() ?? 'unknown';
+  const sequenceName = data.sequences?.[0]?.sequenceName;
 
   const clips: PremiereClip[] = [];
 
@@ -207,6 +209,7 @@ export function parseRawExport(raw: unknown): PremiereTimeline {
   return {
     projectId,
     projectName,
+    sequenceName,
     exportedAt: data.timestamp ?? new Date().toISOString(),
     clips,
   };
