@@ -8,6 +8,7 @@ import { createSearchRouter } from './routes/search.js';
 import { createIndexRouter } from './routes/index.js';
 import { createStatusRouter } from './routes/status.js';
 import { createAdminRouter } from './routes/admin.js';
+import { createClipPathsRouter } from './routes/clip-paths.js';
 
 export function createApp(
   config: Config,
@@ -22,6 +23,12 @@ export function createApp(
   app.use('/index', createIndexRouter(config, queue, tracker, store));
   app.use('/status', createStatusRouter(config, tracker, store));
   app.use('/admin', createAdminRouter(config, tracker, store));
+
+  // Clip paths endpoint - resolves file system paths for clips from Media Cache
+  // Keep /transcripts route for backward compatibility
+  const clipPathsRouter = createClipPathsRouter(config);
+  app.use('/clip-paths', clipPathsRouter);
+  app.use('/transcripts', clipPathsRouter); // Backward compatibility
 
   return app;
 }

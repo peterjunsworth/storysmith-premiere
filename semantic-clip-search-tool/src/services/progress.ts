@@ -8,11 +8,12 @@ import type { JobProgress, ClipProgress, ClipStage, JobState } from '../types/in
 export class ProgressTracker extends EventEmitter {
   private jobs = new Map<string, JobProgress>();
 
-  startJob(jobId: string, projectId: string, projectName: string, clips: Array<{ clipId: string; name: string }>): JobProgress {
+  startJob(jobId: string, projectId: string, projectName: string, clips: Array<{ clipId: string; name: string }>, sequenceName?: string): JobProgress {
     const job: JobProgress = {
       jobId,
       projectId,
       projectName,
+      sequenceName,
       state: 'running',
       totalClips: clips.length,
       completedClips: 0,

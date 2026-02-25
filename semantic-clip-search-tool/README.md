@@ -253,6 +253,8 @@ Navigate with arrow keys / `j`·`k`, `Enter` to select, `Esc`/`q` to go back.
 npm start
 ```
 
+Full request/response reference: [`api-spec.md`](api-spec.md)
+
 | Endpoint | Description |
 |----------|-------------|
 | `POST /search` | `{ query, topK?, expandQuery?, projectId? }` → `SearchResponse` |

@@ -14,13 +14,14 @@
     "clipboard": "readAndWrite",
     "network": {
       "domains": [
-        "4cbc-2601-740-8600-8a30-f8d8-6249-de40-ec68.ngrok-free.app",
-        "localhost:3000",
-        "localhost:3100",
-        "*.ngrok-free.app",
-        "*.adobe.com",
-        "*.n8n.cloud",
-        "peterjunsworth.app.n8n.cloud"
+        "https://4cbc-2601-740-8600-8a30-f8d8-6249-de40-ec68.ngrok-free.app",
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3100",
+        "https://*.ngrok-free.app",
+        "https://*.adobe.com",
+        "https://*.n8n.cloud",
+        "https://peterjunsworth.app.n8n.cloud"
       ]
     }
   },

@@ -6,8 +6,7 @@
 // Global object for Premiere Pro API
 const ppro = require("premierepro");
 
-// Backend URL for file path retrieval
-const BACKEND_URL = "https://4cbc-2601-740-8600-8a30-f8d8-6249-de40-ec68.ngrok-free.app";
+// Server URL for all backend requests
 const SERVER_URL = "http://localhost:3100";
 
 // ============================================================================
@@ -268,7 +267,7 @@ async function loadClipsFromProject() {
         ? [...new Set(allClipsList.map(clip => clip.name))]
         : []; // Empty array = get all clips
 
-      const response = await fetch(`${BACKEND_URL}/transcripts`, {
+      const response = await fetch(`${SERVER_URL}/transcripts`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -330,15 +329,15 @@ async function loadClipsFromProject() {
     if (allClips.length > 0) {
       statusContent.innerHTML = `
         <div class="success">
-          ✅ <strong>Loaded ${allClips.length} clips from project</strong><br>
-          <small>Select clips and click "Get File Paths" to retrieve paths</small>
+          ✅ <strong>Loaded project sequences</strong><br>
+          <small>Select sequences for processing</small>
         </div>
       `;
     } else {
       statusContent.innerHTML = `
         <div class="error">
-          ⚠️ <strong>No clips found</strong><br>
-          <small>Try adding clips to a sequence or check console for details</small>
+          ⚠️ <strong>No sequences found</strong><br>
+          <small>Try adding sequences to the project</small>
         </div>
       `;
     }
@@ -353,112 +352,6 @@ async function loadClipsFromProject() {
       <div class="error">
         ❌ <strong>Error:</strong> ${escapeHtml(error.message)}<br>
         <small>Check console for details</small>
-      </div>
-    `;
-  }
-}
-
-/**
- * Get file paths for selected clips from backend
- */
-async function getFilePathsForSelectedClips() {
-  if (selectedClips.size === 0) {
-    alert("Please select at least one clip first");
-    return;
-  }
-
-  const statusDiv = document.getElementById("status");
-  const statusContent = document.getElementById("status-content");
-
-  statusDiv.style.display = "block";
-  statusContent.innerHTML = `
-    <div class="status-info">
-      ⏳ <strong>Getting file paths from backend...</strong><br>
-      <small>Searching local file system</small>
-    </div>
-  `;
-
-  try {
-    const projectPath = window.currentProjectPath || "";
-    const selectedClipNames = Array.from(selectedClips).map(clipId => {
-      const clip = allClips.find(c => c.id === clipId);
-      return clip ? clip.name : null;
-    }).filter(name => name !== null);
-
-    console.log(`📡 Querying backend for ${selectedClipNames.length} clips...`);
-    console.log(`📁 Project path: ${projectPath}`);
-
-    const response = await fetch(`${BACKEND_URL}/transcripts`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true'
-      },
-      body: JSON.stringify({
-        projectPath: projectPath,
-        clipNames: selectedClipNames
-      })
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      console.log(`✅ Backend returned ${data.transcripts?.length || 0} results`);
-
-      // Update clip file paths
-      if (data.transcripts && data.transcripts.length > 0) {
-        let matchedCount = 0;
-
-        for (const transcript of data.transcripts) {
-          const clip = allClips.find(c =>
-            c.name === transcript.clipName ||
-            c.name.toLowerCase() === transcript.clipName?.toLowerCase()
-          );
-
-          if (clip && transcript.filePath) {
-            clip.filePath = transcript.filePath;
-            matchedCount++;
-          }
-        }
-
-        // Update UI
-        updateClipsDisplay();
-
-        statusContent.innerHTML = `
-          <div class="success">
-            ✅ <strong>Found ${matchedCount} file paths</strong><br>
-            <small>File paths updated in the list below</small>
-          </div>
-        `;
-      } else {
-        statusContent.innerHTML = `
-          <div class="error">
-            ⚠️ <strong>No file paths found</strong><br>
-            <small>Backend could not find files for selected clips</small>
-          </div>
-        `;
-      }
-    } else {
-      const errorText = await response.text();
-      console.warn("Backend request failed:", response.status, errorText);
-
-      statusContent.innerHTML = `
-        <div class="error">
-          ❌ <strong>Backend request failed</strong><br>
-          <small>Status: ${response.status}. Check console for details.</small>
-        </div>
-      `;
-    }
-
-    setTimeout(() => {
-      statusDiv.style.display = "none";
-    }, 5000);
-
-  } catch (error) {
-    console.error("❌ Error getting file paths:", error);
-    statusContent.innerHTML = `
-      <div class="error">
-        ❌ <strong>Error:</strong> ${escapeHtml(error.message)}<br>
-        <small>Make sure backend is running. Check console for details.</small>
       </div>
     `;
   }
@@ -560,9 +453,20 @@ async function sendToWebhook() {
       const result = await response.json();
       console.log("✅ Webhook response:", result);
 
+      // Track which sequences are being processed
+      if (!window._storysmith_processingSequences) {
+        window._storysmith_processingSequences = new Set();
+      }
+      sequences.forEach(seq => window._storysmith_processingSequences.add(seq.sequenceName));
+
+      // Refresh the display to show "Processing" badges
+      updateClipsDisplay();
+
       // If server accepted the job, start polling its progress
       if (result && result.jobId) {
         startJobProgressPolling(result.jobId, 5000);
+        // Also restart infra status polling in case it was stopped
+        startInfraStatusPolling(5000);
       }
 
       statusContent.innerHTML = `
@@ -741,30 +645,42 @@ function updateClipsDisplay() {
 
     // Per-sequence progress badge from last job progress (if available)
     let progressBadge = '';
-    const jobProgress = window._storysmith_lastJobProgress;
-    if (jobProgress && Array.isArray(jobProgress.clips)) {
-      // Sum clip-level totals for this sequence using clip ids
-      const clipIds = clips.map(c => c.id);
-      let totalChunks = 0;
-      let embeddedChunks = 0;
-      let completedClips = 0;
+    const statusData = window._storysmith_lastJobProgress;
+    const processingSequences = window._storysmith_processingSequences || new Set();
 
-      for (const cp of jobProgress.clips) {
-        if (clipIds.includes(cp.clipId)) {
-          totalChunks += cp.totalChunks || 0;
-          embeddedChunks += cp.embeddedChunks || 0;
-          if (cp.stage === 'done') completedClips++;
+    // Check if this sequence is being processed or has progress data
+    const isBeingProcessed = processingSequences.has(sequenceName);
+
+    if (statusData && Array.isArray(statusData.jobs)) {
+      // Find the most recent job for this sequence where totalClips > 0
+      const sequenceJobs = statusData.jobs
+        .filter(job => job.sequenceName === sequenceName && job.totalClips > 0)
+        .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
+
+      if (sequenceJobs.length > 0) {
+        const latestJob = sequenceJobs[0];
+        const percentComplete = latestJob.percentComplete || 0;
+        const isComplete = latestJob.state === 'done' && percentComplete === 100;
+
+        console.log(`[Badge] Sequence: "${sequenceName}", state: ${latestJob.state}, percent: ${percentComplete}, isComplete: ${isComplete}`);
+
+        // Remove from processing set if complete
+        if (isComplete && processingSequences.has(sequenceName)) {
+          processingSequences.delete(sequenceName);
+          console.log(`[Badge] Removed "${sequenceName}" from processing set`);
         }
-      }
 
-      if (totalChunks > 0) {
-        const pct = Math.round((embeddedChunks / totalChunks) * 100);
-        progressBadge = `<span class="sequence-progress" title="${embeddedChunks}/${totalChunks} chunks embedded">${pct}%</span>`;
-      } else if (clips.length > 0) {
-        // fallback to clip completion ratio
-        const pct = Math.round((completedClips / clips.length) * 100);
-        if (pct > 0) progressBadge = `<span class="sequence-progress" title="${completedClips}/${clips.length} clips">${pct}%</span>`;
+        const statusClass = isComplete ? 'sequence-progress-complete' : 'sequence-progress-processing';
+        const statusText = isComplete ? 'Complete' : 'Processing';
+        const tooltip = `${latestJob.embeddedChunks || 0}/${latestJob.totalChunks || 0} chunks embedded (${percentComplete}%)`;
+        progressBadge = `<span class="${statusClass}" title="${tooltip}">${statusText}</span>`;
+      } else if (isBeingProcessed) {
+        // Show "Processing" even with no progress yet
+        progressBadge = `<span class="sequence-progress-processing" title="Job submitted, awaiting progress data">Processing</span>`;
       }
+    } else if (isBeingProcessed) {
+      // Sequence was submitted but no progress data yet - show "Processing"
+      progressBadge = `<span class="sequence-progress-processing" title="Job submitted, awaiting progress data">Processing</span>`;
     }
 
     // Calculate total duration
@@ -857,10 +773,98 @@ function updateSelectedCount() {
 }
 
 /**
+ * Update sequence status display in Search tab
+ */
+async function updateSequenceStatusDisplay() {
+  const container = document.getElementById('sequence-status-list');
+  const searchQuery = document.getElementById('searchQuery');
+  const searchButton = document.getElementById('btnSearch');
+
+  if (!container) return;
+
+  // Show loading state
+  container.innerHTML = '<div class="empty-state"><small>Loading sequence status...</small></div>';
+
+  try {
+    // Fetch current status
+    const res = await fetch(`${SERVER_URL}/status/progress`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Status ${res.status}`);
+    const statusData = await res.json();
+
+    // Get unique sequences from allClips
+    const uniqueSequences = new Set(allClips.map(clip => clip.sequenceName));
+
+    if (uniqueSequences.size === 0) {
+      container.innerHTML = '<div class="empty-state"><small>No sequences loaded yet</small></div>';
+      searchQuery.disabled = true;
+      searchButton.disabled = true;
+      return;
+    }
+
+    // Build status display
+    let html = '';
+    let hasCompleteSequence = false;
+
+    for (const sequenceName of uniqueSequences) {
+      // Find the most recent job for this sequence where totalClips > 0
+      const sequenceJobs = statusData.jobs
+        ? statusData.jobs
+            .filter(job => job.sequenceName === sequenceName && job.totalClips > 0)
+            .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime())
+        : [];
+
+      let badge = '';
+      let isComplete = false;
+
+      if (sequenceJobs.length > 0) {
+        const latestJob = sequenceJobs[0];
+        const percentComplete = latestJob.percentComplete || 0;
+        isComplete = latestJob.state === 'done' && percentComplete === 100;
+
+        if (isComplete) {
+          hasCompleteSequence = true;
+          badge = '<span class="sequence-progress-complete">Complete</span>';
+        } else {
+          badge = '<span class="sequence-progress-processing">Processing</span>';
+        }
+      } else {
+        // No job found - not processed yet
+        badge = '<span class="sequence-progress-processing" style="opacity: 0.5;">Not Indexed</span>';
+      }
+
+      html += `
+        <div class="sequence-status-item">
+          <span class="sequence-status-name">${escapeHtml(sequenceName)}</span>
+          <span class="sequence-status-badge">${badge}</span>
+        </div>
+      `;
+    }
+
+    container.innerHTML = html;
+
+    // Enable/disable search based on whether any sequence is complete
+    searchQuery.disabled = !hasCompleteSequence;
+    searchButton.disabled = !hasCompleteSequence;
+
+    if (!hasCompleteSequence) {
+      searchQuery.placeholder = 'Search is disabled until at least one sequence is indexed';
+    } else {
+      searchQuery.placeholder = "e.g., 'Find moments where we discuss AI and machine learning' or 'Show me the intro section'";
+    }
+
+  } catch (error) {
+    console.error('Error fetching sequence status:', error);
+    container.innerHTML = '<div class="empty-state"><small>Error loading status</small></div>';
+    searchQuery.disabled = true;
+    searchButton.disabled = true;
+  }
+}
+
+/**
  * Update search sequences display (for Search tab)
  */
 function updateSearchSequencesDisplay() {
-  
+
 }
 
 /**
@@ -907,6 +911,32 @@ async function fetchServerStatus() {
   }
 }
 
+function areAllJobsComplete(statusData) {
+  // Check if all jobs are in a terminal state
+  if (!statusData || !statusData.jobs || statusData.jobs.length === 0) {
+    return true; // No jobs means nothing to poll
+  }
+
+  // Check if there are any active jobs
+  if (statusData.activeJobs > 0) {
+    return false;
+  }
+
+  // Only check jobs with actual clips (ignore empty placeholder jobs)
+  const realJobs = statusData.jobs.filter(job => job.totalClips > 0);
+
+  if (realJobs.length === 0) {
+    return true; // No real jobs to track
+  }
+
+  // Check if all real jobs are done (percentComplete === 100 or state === 'done')
+  return realJobs.every(job =>
+    job.state === 'done' ||
+    job.state === 'complete' ||
+    job.percentComplete === 100
+  );
+}
+
 function updateInfraStatusDisplay(result) {
   const el = document.getElementById('infra-status-content');
   if (!el) return;
@@ -924,13 +954,40 @@ function updateInfraStatusDisplay(result) {
       el.innerHTML = `⚠️ Service partial — ${parts.join(' • ')}`;
       el.style.color = '#b36b00';
     }
+
+    // Store the status data for progress badge display
+    window._storysmith_lastJobProgress = d;
+
+    // Update the clips display to refresh progress badges
+    updateClipsDisplay();
+
+    // Check if all jobs are complete and stop polling if so
+    if (areAllJobsComplete(d)) {
+      stopInfraStatusPolling();
+    }
   } else {
     el.innerHTML = `❌ Service unreachable (${escapeHtml(result.error || 'unknown')})`;
     el.style.color = 'crimson';
   }
 }
 
+function stopInfraStatusPolling() {
+  if (window._storysmith_statusPoller) {
+    clearInterval(window._storysmith_statusPoller);
+    window._storysmith_statusPoller = null;
+    console.log('✅ All jobs complete - stopped status polling');
+  }
+}
+
 function startInfraStatusPolling(intervalMs = 5000) {
+  // Stop existing poller if running
+  if (window._storysmith_statusPoller) {
+    clearInterval(window._storysmith_statusPoller);
+    window._storysmith_statusPoller = null;
+  }
+
+  console.log('🔄 Starting status polling...');
+
   // run immediately, then every interval
   (async () => {
     // If a job is active, prefer fetching job progress
@@ -1005,6 +1062,8 @@ async function searchSequences() {
 
     // API URL
     const searchApiUrl = `${SERVER_URL}/search`;
+    const projectId = window.currentProjectPath.replace(/[^a-zA-Z0-9]/g, '_').slice(-40);
+    const projectName = window.currentProjectPath.split('/').pop() ?? 'unknown';
 
     const response = await fetch(searchApiUrl, {
       method: 'POST',
@@ -1016,7 +1075,7 @@ async function searchSequences() {
         topK: 10,
         expandQuery: false,
         // projectId is optional; include if available
-        projectId: window.currentProjectPath || undefined
+        projectId: projectId || undefined
       })
     });
 
@@ -1131,6 +1190,11 @@ function switchTab(tabName) {
     setTimeout(() => {
       loadClipsFromProject();
     }, 100);
+  }
+
+  // Update sequence status when Search tab is activated
+  if (tabName === "search-tab") {
+    updateSequenceStatusDisplay();
   }
 }
 

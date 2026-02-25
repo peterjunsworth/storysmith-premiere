@@ -13,6 +13,7 @@ export interface PremiereClip {
 export interface PremiereTimeline {
   projectId: string;
   projectName: string;
+  sequenceName?: string;
   exportedAt: string;
   clips: PremiereClip[];
 }
@@ -131,6 +132,7 @@ export interface JobProgress {
   jobId: string;
   projectId: string;
   projectName: string;
+  sequenceName?: string;
   state: JobState;
   totalClips: number;
   completedClips: number;
