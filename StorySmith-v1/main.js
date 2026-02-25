@@ -19,9 +19,6 @@ let allClips = [];
 // Selected sequence names (for Load & Send tab)
 const selectedClips = new Set();
 
-// Selected sequences for search (separate from Load & Send selection)
-const selectedSearchSequences = new Set();
-
 // ============================================================================
 // MAIN FUNCTIONS
 // ============================================================================
@@ -154,7 +151,6 @@ async function loadClipsFromProject() {
                     const inPoint = await item.getInPoint();
                     const outPoint = await item.getOutPoint();
                     const duration = await item.getDuration();
-                    const clipName = await item.getName();
 
                     // Generate a unique ID for this clip
                     const clipId = `clip_${seqIndex}_${trackIndex}_${allClipsList.length}`;
@@ -212,7 +208,6 @@ async function loadClipsFromProject() {
                     const inPoint = await item.getInPoint();
                     const outPoint = await item.getOutPoint();
                     const duration = await item.getDuration();
-                    const clipName = await item.getName();
 
                     // Generate a unique ID for this clip
                     const clipId = `clip_${seqIndex}_${trackIndex}_${allClipsList.length}`;
@@ -324,7 +319,6 @@ async function loadClipsFromProject() {
     // Update UI
     updateClipsDisplay();
     updateClipsCount();
-    updateSearchSequencesDisplay();
 
     if (allClips.length > 0) {
       statusContent.innerHTML = `
@@ -518,53 +512,6 @@ async function fetchJobProgress(jobId) {
   }
 }
 
-function formatElapsedMs(ms) {
-  if (!ms || ms <= 0) return '0s';
-  const seconds = Math.floor(ms / 1000);
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  if (h > 0) return `${h}h ${m}m ${s}s`;
-  if (m > 0) return `${m}m ${s}s`;
-  return `${s}s`;
-}
-
-function updateJobProgressDisplay(result) {
-  const el = document.getElementById('job-progress-content');
-  if (!el) return;
-
-  if (!result) {
-    el.innerHTML = '';
-    return;
-  }
-
-  if (result.ok) {
-    const d = result.data;
-    // store latest job progress for UI mapping
-    window._storysmith_lastJobProgress = d;
-    const state = d.state || d.status || 'unknown';
-    const pct = typeof d.percentComplete === 'number' ? `${d.percentComplete}%` : '';
-    const clips = (typeof d.completedClips === 'number' && typeof d.totalClips === 'number')
-      ? `${d.completedClips}/${d.totalClips}`
-      : '';
-    const chunks = d.chunksPercentComplete ? `${d.chunksPercentComplete}%` : '';
-    const elapsed = d.elapsedMs ? formatElapsedMs(d.elapsedMs) : (d.startedAt ? formatElapsedMs(Date.now() - new Date(d.startedAt).getTime()) : '');
-
-    el.innerHTML = `🔄 Job ${escapeHtml(d.jobId || '')} — <strong>${escapeHtml(state)}</strong>`
-      + (pct ? ` • ${pct}` : '')
-      + (clips ? ` • clips ${escapeHtml(clips)}` : '')
-      + (chunks ? ` • chunks ${escapeHtml(chunks)}` : '')
-      + (elapsed ? ` • ${escapeHtml(elapsed)}` : '');
-    el.style.color = state === 'complete' || state === 'done' ? 'green' : '#333';
-  } else {
-    el.innerHTML = `❌ Job status unavailable (${escapeHtml(result.error || 'unknown')})`;
-    el.style.color = 'crimson';
-  }
-
-  // refresh sequences UI so per-sequence badges can update
-  try { updateClipsDisplay(); } catch (e) { /* ignore */ }
-}
-
 function startJobProgressPolling(jobId, intervalMs = 5000) {
   // clear existing poller
   if (window._storysmith_jobPoller) {
@@ -575,7 +522,6 @@ function startJobProgressPolling(jobId, intervalMs = 5000) {
   // immediate fetch
   (async () => {
     const r = await fetchJobProgress(jobId);
-    updateJobProgressDisplay(r);
     if (r.ok && (r.data.state === 'complete' || r.data.state === 'done' || r.data.percentComplete === 100)) {
       // stop immediately if already complete
       stopJobProgressPolling();
@@ -584,7 +530,6 @@ function startJobProgressPolling(jobId, intervalMs = 5000) {
 
   const id = setInterval(async () => {
     const r = await fetchJobProgress(jobId);
-    updateJobProgressDisplay(r);
     if (r.ok && (r.data.state === 'complete' || r.data.state === 'done' || r.data.percentComplete === 100)) {
       stopJobProgressPolling();
     }
@@ -863,39 +808,6 @@ async function updateSequenceStatusDisplay() {
 /**
  * Update search sequences display (for Search tab)
  */
-function updateSearchSequencesDisplay() {
-
-}
-
-/**
- * Toggle search sequence selection
- */
-function toggleSearchSequenceSelection(sequenceName, selected) {
-  if (selected) {
-    selectedSearchSequences.add(sequenceName);
-  } else {
-    selectedSearchSequences.delete(sequenceName);
-  }
-}
-
-/**
- * Select all sequences for search
- */
-function selectAllSearchSequences() {
-  const uniqueSequences = [...new Set(allClips.map(clip => clip.sequenceName))];
-  selectedSearchSequences.clear();
-  uniqueSequences.forEach(seq => selectedSearchSequences.add(seq));
-  updateSearchSequencesDisplay();
-}
-
-/**
- * Deselect all sequences for search
- */
-function deselectAllSearchSequences() {
-  selectedSearchSequences.clear();
-  updateSearchSequencesDisplay();
-}
-
 // ============================================================================
 // INFRA STATUS POLLING
 // ============================================================================
@@ -993,9 +905,8 @@ function startInfraStatusPolling(intervalMs = 5000) {
     // If a job is active, prefer fetching job progress
     const jobId = window._storysmith_currentJobId;
     if (jobId) {
-      const r = await fetchJobProgress(jobId);
-      // update both job progress and infra area (so infra area shows job state)
-      updateJobProgressDisplay(r);
+      await fetchJobProgress(jobId);
+      // Job progress fetched but not displayed
     } else {
       const r = await fetchServerStatus();
       updateInfraStatusDisplay(r);
@@ -1005,8 +916,8 @@ function startInfraStatusPolling(intervalMs = 5000) {
   const id = setInterval(async () => {
     const jobId = window._storysmith_currentJobId;
     if (jobId) {
-      const r = await fetchJobProgress(jobId);
-      updateJobProgressDisplay(r);
+      await fetchJobProgress(jobId);
+      // Job progress fetched but not displayed
     } else {
       const r = await fetchServerStatus();
       updateInfraStatusDisplay(r);
@@ -1180,19 +1091,19 @@ async function searchSequences() {
 
           resultsHtml += `
             <div class="search-result-item" data-clipid="${escapeHtml(hit.clipId || '')}" data-timecode="${hit.absoluteStart || 0}">
-              <div class="search-result-content">
+              <div class="search-result-title-row">
                 <div class="search-result-title">${escapeHtml(sequenceName)}</div>
-                <div class="search-result-details">
-                  ${inTimecode && outTimecode ? `⏱️ ${inTimecode} - ${outTimecode}` : ''}
-                  ${clipName ? ` • 🎬 ${escapeHtml(clipName)}` : ''}
-                </div>
-                ${snippet ? `<div class="search-result-snippet">${escapeHtml(snippet)}</div>` : ''}
+                <button class="view-in-sequence-btn"
+                        data-sequence-name="${escapeHtml(sequenceName)}"
+                        data-timecode="${hit.absoluteStart || 0}">
+                  View in Sequence
+                </button>
               </div>
-              <button class="view-in-sequence-btn"
-                      data-sequence-name="${escapeHtml(sequenceName)}"
-                      data-timecode="${hit.absoluteStart || 0}">
-                View in Sequence
-              </button>
+              <div class="search-result-details">
+                ${inTimecode && outTimecode ? `⏱️ ${inTimecode} - ${outTimecode}` : ''}
+                ${clipName ? ` • 🎬 ${escapeHtml(clipName)}` : ''}
+              </div>
+              ${snippet ? `<div class="search-result-snippet">${escapeHtml(snippet)}</div>` : ''}
             </div>
           `;
         }
@@ -1350,11 +1261,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     console.log("✓ Selection cleared");
   });
-
-  // Button event listeners for Search tab
-  // document.getElementById("btnSelectAllSearch").addEventListener("click", selectAllSearchSequences);
-
-  // document.getElementById("btnDeselectAllSearch").addEventListener("click", deselectAllSearchSequences);
 
   document.getElementById("btnSearch").addEventListener("click", searchSequences);
 
