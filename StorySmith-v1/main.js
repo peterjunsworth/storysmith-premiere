@@ -1031,6 +1031,78 @@ function escapeHtml(text) {
 }
 
 /**
+ * Navigate to a specific sequence and timecode in Premiere Pro
+ * @param {string} sequenceName - Name of the sequence to activate
+ * @param {number} timecodeSeconds - Timecode in seconds to navigate to
+ */
+async function navigateToSequence(sequenceName, timecodeSeconds) {
+  console.log(`[Navigation] Navigating to sequence "${sequenceName}" at ${formatTimecode(timecodeSeconds)}`);
+
+  try {
+    const project = await ppro.Project.getActiveProject();
+    const sequences = await project.getSequences();
+
+    // Find the target sequence
+    let targetSequence = null;
+    for (let i = 0; i < sequences.length; i++) {
+      if (sequences[i].name === sequenceName) {
+        targetSequence = sequences[i];
+        console.log(`[Navigation] Found sequence at index ${i}`);
+        break;
+      }
+    }
+
+    if (!targetSequence) {
+      throw new Error(`Sequence "${sequenceName}" not found in project`);
+    }
+
+    // Open the sequence
+    await project.openSequence(targetSequence);
+    console.log(`[Navigation] ✅ Opened sequence in timeline`);
+
+    // Try to set playhead position
+    // Calculate ticks from seconds
+    const ticksPerSecond = 254016000000;
+    const targetTicks = Math.round(timecodeSeconds * ticksPerSecond);
+    const ticksString = targetTicks.toString();
+
+    console.log(`[Navigation] Attempting to set playhead to ${timecodeSeconds}s (${ticksString} ticks)`);
+
+    // Give Premiere a moment to finish opening the sequence
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    console.log(`[Navigation] Setting playhead to ${formatTimecode(timecodeSeconds)} (${timecodeSeconds}s)`);
+
+    // setPlayerPosition() requires a TickTime object
+    // Use ppro.TickTime.createWithSeconds() to create one
+    try {
+      const tickTime = ppro.TickTime.createWithSeconds(timecodeSeconds);
+      console.log(`[Navigation] Created TickTime:`, tickTime);
+      console.log(`[Navigation]   - seconds: ${tickTime.seconds}`);
+      console.log(`[Navigation]   - ticks: ${tickTime.ticks}`);
+
+      await targetSequence.setPlayerPosition(tickTime);
+      console.log(`[Navigation] ✅ Playhead positioned at ${formatTimecode(timecodeSeconds)}!`);
+
+      return {
+        success: true,
+        sequenceName: sequenceName,
+        timecode: formatTimecode(timecodeSeconds),
+        opened: true,
+        playheadSet: true
+      };
+    } catch (err) {
+      console.error(`[Navigation] ❌ Failed to set playhead:`, err);
+      throw err;
+    }
+
+  } catch (error) {
+    console.error(`[Navigation] Error:`, error);
+    throw new Error(`Failed to navigate to sequence: ${error.message}`);
+  }
+}
+
+/**
  * Send search query to API
  */
 async function searchSequences() {
@@ -1093,18 +1165,34 @@ async function searchSequences() {
         let resultsHtml = "";
 
         for (const hit of hits) {
-          const title = hit.filePath ? hit.filePath.split('/').pop() : hit.clipId || 'Result';
-          const timecode = typeof hit.timelineStart === 'number' ? formatTimecode(hit.timelineStart) : '';
+          // Find the clip in allClips to get sequence name
+          const clip = allClips.find(c => c.id === hit.clipId);
+          const sequenceName = clip ? clip.sequenceName : 'Unknown Sequence';
+
+          // Extract clip name from filePath
+          const clipName = hit.filePath ? hit.filePath.split('/').pop() : hit.clipId || 'Result';
+
+          // Convert absoluteStart and absoluteEnd (seconds) to timecodes
+          const inTimecode = typeof hit.absoluteStart === 'number' ? formatTimecode(hit.absoluteStart) : '';
+          const outTimecode = typeof hit.absoluteEnd === 'number' ? formatTimecode(hit.absoluteEnd) : '';
+
           const snippet = hit.chunkText || '';
 
           resultsHtml += `
-            <div class="search-result-item" data-clipid="${escapeHtml(hit.clipId || '')}" data-timecode="${hit.timelineStart || 0}">
-              <div class="search-result-title">${escapeHtml(title)}</div>
-              <div class="search-result-details">
-                ${timecode ? `⏱️ ${timecode} • ` : ''}
-                ${hit.filePath ? `📁 ${escapeHtml(hit.filePath)}` : ''}
+            <div class="search-result-item" data-clipid="${escapeHtml(hit.clipId || '')}" data-timecode="${hit.absoluteStart || 0}">
+              <div class="search-result-content">
+                <div class="search-result-title">${escapeHtml(sequenceName)}</div>
+                <div class="search-result-details">
+                  ${inTimecode && outTimecode ? `⏱️ ${inTimecode} - ${outTimecode}` : ''}
+                  ${clipName ? ` • 🎬 ${escapeHtml(clipName)}` : ''}
+                </div>
+                ${snippet ? `<div class="search-result-snippet">${escapeHtml(snippet)}</div>` : ''}
               </div>
-              ${snippet ? `<div class="search-result-snippet">${escapeHtml(snippet)}</div>` : ''}
+              <button class="view-in-sequence-btn"
+                      data-sequence-name="${escapeHtml(sequenceName)}"
+                      data-timecode="${hit.absoluteStart || 0}">
+                View in Sequence
+              </button>
             </div>
           `;
         }
@@ -1112,14 +1200,33 @@ async function searchSequences() {
         resultsContent.innerHTML = resultsHtml;
         resultsDiv.style.display = "block";
 
-        // Add click handlers to results
+        // Add click handlers to "View in Sequence" buttons
+        const viewButtons = resultsContent.querySelectorAll(".view-in-sequence-btn");
+        viewButtons.forEach(button => {
+          button.addEventListener("click", async (e) => {
+            e.stopPropagation(); // Prevent parent click handler
+
+            const sequenceName = button.getAttribute("data-sequence-name");
+            const timecode = parseFloat(button.getAttribute("data-timecode") || "0");
+
+            console.log(`🎯 Navigating to sequence "${sequenceName}" at ${formatTimecode(timecode)}`);
+
+            try {
+              await navigateToSequence(sequenceName, timecode);
+            } catch (error) {
+              console.error("❌ Failed to navigate to sequence:", error);
+              // TODO: Show error message to user
+            }
+          });
+        });
+
+        // Add click handlers to result items (for future use)
         const resultItems = resultsContent.querySelectorAll(".search-result-item");
         resultItems.forEach(item => {
           item.addEventListener("click", () => {
             const clipId = item.getAttribute("data-clipid");
             const timecode = parseFloat(item.getAttribute("data-timecode") || "0");
-            console.log(`📍 Navigate to clip: ${clipId} at ${formatTimecode(timecode)}`);
-            // Navigation to Premiere sequences is not implemented here
+            console.log(`📍 Result clicked: ${clipId} at ${formatTimecode(timecode)}`);
           });
         });
       } else {
