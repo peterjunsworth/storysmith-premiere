@@ -1,9 +1,0 @@
-{
-  "timestamp": "2026-02-25T16:32:17.362Z",
-  "server": "http://localhost:3100",
-  "durationMs": 227,
-  "passed": 85,
-  "failed": 0,
-  "total": 85,
-  "failures": []
-}
