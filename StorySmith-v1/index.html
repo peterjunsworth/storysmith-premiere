@@ -5,8 +5,6 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <h4 id="plugin-heading">StorySmith</h4>
-
     <!-- Welcome Screen (Step 1) -->
     <div id="welcome-screen" class="screen">
       <div class="welcome-content">
@@ -28,10 +26,13 @@
 
     <!-- Clip Selection Screen (Step 2) -->
     <div id="selection-screen" class="screen" style="display: none;">
+          <div id="infra-status" class="infra-status">
+            <small id="infra-status-content">🔄 Checking service status...</small>
+          </div>
       <!-- Tabs -->
       <div class="tabs">
-        <button class="tab-button active" data-tab="load-tab">Load & Send</button>
-        <button class="tab-button" data-tab="search-tab">Search</button>
+        <button class="tab-button active" data-tab="load-tab">Process Sequences</button>
+        <button class="tab-button" data-tab="search-tab">Search Project</button>
       </div>
 
       <!-- Load & Send Tab -->
@@ -78,20 +79,12 @@
           Search across sequences to find your moment.
         </div>
 
-        <!-- Sequence Selection for Search -->
-        <div class="search-sequences-section">
-          <div class="search-sequences-header">
-            <span class="search-label">Search in:</span>
-            <div class="search-sequences-actions">
-              <button id="btnSelectAllSearch" class="link-button">Select All</button>
-              <span class="separator">•</span>
-              <button id="btnDeselectAllSearch" class="link-button">Deselect All</button>
-            </div>
-          </div>
-
-          <div id="search-sequences-container" class="search-sequences-container">
+        <!-- Sequence Status Display -->
+        <div id="sequence-status-section" class="sequence-status-section">
+          <div class="search-label">Sequence Status:</div>
+          <div id="sequence-status-list" class="sequence-status-list">
             <div class="empty-state">
-              <small>No sequences loaded yet</small>
+              <small>Loading sequence status...</small>
             </div>
           </div>
         </div>

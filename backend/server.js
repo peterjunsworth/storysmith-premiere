@@ -593,6 +593,82 @@ app.post('/webhook-proxy', async (req, res) => {
 });
 
 /**
+ * Proxy to semantic-clip-search-tool server
+ * These endpoints forward requests to the indexing/search service on port 3100
+ */
+const SEARCH_SERVER = 'http://localhost:3100';
+
+// POST /index - Queue timeline for indexing
+app.post('/index', async (req, res) => {
+  try {
+    const response = await fetch(`${SEARCH_SERVER}/index`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body)
+    });
+
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (error) {
+    console.error('Proxy error (/index):', error.message);
+    res.status(503).json({
+      error: 'Search service unavailable',
+      message: 'Make sure the semantic-clip-search-tool server is running on port 3100'
+    });
+  }
+});
+
+// GET /status/progress - Get overall system status
+app.get('/status/progress', async (req, res) => {
+  try {
+    const response = await fetch(`${SEARCH_SERVER}/status/progress`);
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (error) {
+    console.error('Proxy error (/status/progress):', error.message);
+    res.status(503).json({
+      error: 'Search service unavailable',
+      chromaOk: false,
+      ollamaOk: false
+    });
+  }
+});
+
+// GET /status/progress/:jobId - Get job progress
+app.get('/status/progress/:jobId', async (req, res) => {
+  try {
+    const response = await fetch(`${SEARCH_SERVER}/status/progress/${encodeURIComponent(req.params.jobId)}`);
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (error) {
+    console.error(`Proxy error (/status/progress/${req.params.jobId}):`, error.message);
+    res.status(503).json({
+      error: 'Search service unavailable'
+    });
+  }
+});
+
+// POST /search - Semantic search
+app.post('/search', async (req, res) => {
+  try {
+    const response = await fetch(`${SEARCH_SERVER}/search`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body)
+    });
+
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (error) {
+    console.error('Proxy error (/search):', error.message);
+    res.status(503).json({
+      error: 'Search service unavailable',
+      message: 'Make sure the semantic-clip-search-tool server is running on port 3100'
+    });
+  }
+});
+
+/**
  * Start server
  */
 app.listen(PORT, () => {
@@ -605,10 +681,16 @@ app.listen(PORT, () => {
   console.log(`🏠 Home directory: ${os.homedir()}`);
   console.log('');
   console.log('📡 Available endpoints:');
-  console.log('  GET  /health          - Check server status');
-  console.log('  POST /project-info    - Extract project GUID');
-  console.log('  POST /transcripts     - Extract transcripts from cache');
-  console.log('  POST /webhook-proxy   - Forward data to external webhook');
+  console.log('  GET  /health                   - Check server status');
+  console.log('  POST /project-info             - Extract project GUID');
+  console.log('  POST /transcripts              - Extract transcripts from cache');
+  console.log('  POST /webhook-proxy            - Forward data to external webhook');
+  console.log('  POST /index                    - Queue timeline for indexing (proxied)');
+  console.log('  GET  /status/progress          - Get system status (proxied)');
+  console.log('  GET  /status/progress/:jobId   - Get job progress (proxied)');
+  console.log('  POST /search                   - Semantic search (proxied)');
+  console.log('');
+  console.log(`⚙️  Proxying search/indexing requests to: ${SEARCH_SERVER}`);
   console.log('');
   console.log('💡 Keep this terminal open while using the StorySmith UXP plugin');
   console.log('━'.repeat(60));
