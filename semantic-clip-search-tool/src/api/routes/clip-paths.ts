@@ -237,6 +237,142 @@ function getMediaCachePath(projectGuid: string): string {
   return join(basePath, `StorySmith${projectGuid}.prmdc2`);
 }
 
+/**
+ * Helper function to find the longest existing path prefix by working backwards
+ */
+function findLongestValidPrefix(
+  parts: string[],
+  basePrefix: string,
+  startIdx: number
+): { validPrefix: string; remainingIdx: number } {
+  // Try progressively shorter paths from full length down to startIdx
+  for (let endIdx = parts.length; endIdx >= startIdx; endIdx--) {
+    const pathParts = parts.slice(startIdx, endIdx);
+    if (pathParts.length === 0) continue;
+
+    const testPath = basePrefix + '/' + pathParts.join('/');
+    if (existsSync(testPath)) {
+      return {
+        validPrefix: testPath,
+        remainingIdx: endIdx
+      };
+    }
+  }
+
+  // No valid prefix found, start from base
+  return {
+    validPrefix: basePrefix,
+    remainingIdx: startIdx
+  };
+}
+
+/**
+ * Generate candidate path combinations with different separators
+ * Returns array sorted by priority (longest matches first)
+ */
+function generateCandidates(
+  basePath: string,
+  parts: string[],
+  idx: number
+): Array<{ length: number; path: string; priority: number }> {
+  const candidates = [];
+
+  // Strategy 1: Single word (as-is)
+  if (idx < parts.length) {
+    candidates.push({
+      length: 1,
+      path: basePath + '/' + parts[idx],
+      priority: 1
+    });
+  }
+
+  // Strategy 2: Four words with spaces (e.g., "My Project v2 Final")
+  if (idx + 3 < parts.length) {
+    candidates.push({
+      length: 4,
+      path: basePath + '/' + [parts[idx], parts[idx+1], parts[idx+2], parts[idx+3]].join(' '),
+      priority: 5
+    });
+  }
+
+  // Strategy 3: Three words with spaces (e.g., "My Project v2")
+  if (idx + 2 < parts.length) {
+    candidates.push({
+      length: 3,
+      path: basePath + '/' + [parts[idx], parts[idx+1], parts[idx+2]].join(' '),
+      priority: 4
+    });
+  }
+
+  // Strategy 4: Two words with space (e.g., "Card 1")
+  if (idx + 1 < parts.length) {
+    candidates.push({
+      length: 2,
+      path: basePath + '/' + parts[idx] + ' ' + parts[idx+1],
+      priority: 3
+    });
+  }
+
+  // Strategy 5: Two words with hyphen (e.g., "storysmith-premiere")
+  if (idx + 1 < parts.length) {
+    candidates.push({
+      length: 2,
+      path: basePath + '/' + parts[idx] + '-' + parts[idx+1],
+      priority: 2
+    });
+  }
+
+  // Strategy 6: Two words with dot (e.g., "file.wav")
+  if (idx + 1 < parts.length) {
+    candidates.push({
+      length: 2,
+      path: basePath + '/' + parts[idx] + '.' + parts[idx+1],
+      priority: 2
+    });
+  }
+
+  // Sort by priority (higher first), then by length (longer first)
+  return candidates.sort((a, b) => {
+    if (a.priority !== b.priority) return b.priority - a.priority;
+    return b.length - a.length;
+  });
+}
+
+/**
+ * Reconstruct path from remaining parts using prioritized multi-word strategies
+ */
+function reconstructPath(
+  basePrefix: string,
+  parts: string[],
+  startIdx: number
+): string {
+  let currentPath = basePrefix;
+  let idx = startIdx;
+
+  while (idx < parts.length) {
+    const candidates = generateCandidates(currentPath, parts, idx);
+    let matched = false;
+
+    // Try each candidate in priority order
+    for (const candidate of candidates) {
+      if (existsSync(candidate.path)) {
+        currentPath = candidate.path;
+        idx += candidate.length;
+        matched = true;
+        break;
+      }
+    }
+
+    // If nothing matched, append single word and continue
+    if (!matched) {
+      currentPath += '/' + parts[idx];
+      idx++;
+    }
+  }
+
+  return currentPath;
+}
+
 function fixFilePath(dbPath: string): string {
   if (!dbPath) return '';
 
@@ -264,41 +400,11 @@ function fixFilePath(dbPath: string): string {
       }
     }
 
-    while (idx < parts.length) {
-      let found = false;
+    // Phase 1: Find longest valid prefix by working backwards
+    const { validPrefix, remainingIdx } = findLongestValidPrefix(parts, currentPath, idx);
 
-      let testPath = currentPath + '/' + parts[idx];
-      if (existsSync(testPath)) {
-        currentPath = testPath;
-        idx++;
-        found = true;
-      } else {
-        if (idx + 1 < parts.length) {
-          testPath = currentPath + '/' + parts[idx] + '-' + parts[idx + 1];
-          if (existsSync(testPath)) {
-            currentPath = testPath;
-            idx += 2;
-            found = true;
-          }
-        }
-
-        if (!found && idx + 1 < parts.length) {
-          testPath = currentPath + '/' + parts[idx] + '.' + parts[idx + 1];
-          if (existsSync(testPath)) {
-            currentPath = testPath;
-            idx += 2;
-            found = true;
-          }
-        }
-
-        if (!found) {
-          currentPath += '/' + parts[idx];
-          idx++;
-        }
-      }
-    }
-
-    return currentPath;
+    // Phase 2: Reconstruct remaining path with prioritized strategies
+    return reconstructPath(validPrefix, parts, remainingIdx);
   }
 
   // For non-Volumes paths
@@ -309,39 +415,9 @@ function fixFilePath(dbPath: string): string {
     idx++;
   }
 
-  while (idx < parts.length) {
-    let found = false;
+  // Phase 1: Find longest valid prefix
+  const { validPrefix, remainingIdx } = findLongestValidPrefix(parts, currentPath, idx);
 
-    let testPath = currentPath + '/' + parts[idx];
-    if (existsSync(testPath)) {
-      currentPath = testPath;
-      idx++;
-      found = true;
-    } else {
-      if (idx + 1 < parts.length) {
-        testPath = currentPath + '/' + parts[idx] + '-' + parts[idx + 1];
-        if (existsSync(testPath)) {
-          currentPath = testPath;
-          idx += 2;
-          found = true;
-        }
-      }
-
-      if (!found && idx + 1 < parts.length) {
-        testPath = currentPath + '/' + parts[idx] + '.' + parts[idx + 1];
-        if (existsSync(testPath)) {
-          currentPath = testPath;
-          idx += 2;
-          found = true;
-        }
-      }
-
-      if (!found) {
-        currentPath += '/' + parts[idx];
-        idx++;
-      }
-    }
-  }
-
-  return currentPath;
+  // Phase 2: Reconstruct remaining path
+  return reconstructPath(validPrefix, parts, remainingIdx);
 }
