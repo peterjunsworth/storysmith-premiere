@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
+import { createReadStream, existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { createGunzip } from 'node:zlib';
 import { homedir, platform } from 'node:os';
@@ -192,7 +192,6 @@ export function createClipPathsRouter(_config: Config): Router {
 
 function decompressGzip(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    const { createReadStream } = require('node:fs');
     const readStream = createReadStream(filePath);
     const gunzip = createGunzip();
     let data = '';
