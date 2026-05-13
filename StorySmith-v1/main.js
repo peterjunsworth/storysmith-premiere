@@ -24,6 +24,37 @@ const selectedClips = new Set();
 // ============================================================================
 
 /**
+ * Get file paths directly from Premiere using JSX
+ * Returns array of { clipName, filePath, hasAudio, hasVideo }
+ */
+async function getFilePathsFromPremiere() {
+  try {
+    // Read the JSX script
+    const fs = require('fs');
+    const path = require('path');
+    const jsxPath = path.join(__dirname, 'jsx', 'getClipFilePaths.jsx');
+    const jsxScript = fs.readFileSync(jsxPath, 'utf-8');
+
+    // Execute the JSX script in Premiere Pro
+    const result = await ppro.evalES(jsxScript);
+
+    // Parse the JSON response
+    const data = JSON.parse(result);
+
+    if (data.success) {
+      console.log(`✅ Got ${data.total} file paths directly from Premiere`);
+      return data.results;
+    } else {
+      console.error('❌ JSX script failed:', data.error);
+      return [];
+    }
+  } catch (error) {
+    console.error('❌ Error executing JSX script:', error);
+    return [];
+  }
+}
+
+/**
  * Format seconds to timecode (HH:MM:SS.mmm)
  */
 function formatTimecode(seconds) {
@@ -249,7 +280,7 @@ async function loadClipsFromProject() {
       console.warn("Could not access sequences:", seqError);
     }
 
-    // Query backend for file paths
+    // Query backend for file paths from database (with enhanced fixFilePath)
     if (allClipsList.length === 0) {
       console.log("No clips found in sequences");
     } else {
