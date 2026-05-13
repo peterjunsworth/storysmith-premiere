@@ -143,6 +143,14 @@ body {
   margin-top: 16px;
 }
 
+.refresh-section {
+  margin-bottom: 12px;
+}
+
+.refresh-section .secondary-button {
+  width: 100%;
+}
+
 /* Status Display */
 .status {
   margin: 16px 0;

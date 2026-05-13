@@ -1476,6 +1476,16 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Button event listeners for Load & Send tab
+  document.getElementById("btnRefreshSequences").addEventListener("click", async () => {
+    console.log("🔄 Refreshing sequences from project...");
+    try {
+      await loadClipsFromProject();
+      console.log(`✅ Refresh complete - ${allClips.length} clips loaded from ${new Set(allClips.map(c => c.sequenceName)).size} sequences`);
+    } catch (error) {
+      console.error("❌ Error refreshing sequences:", error);
+    }
+  });
+
   document.getElementById("btnSendToWebhook").addEventListener("click", sendToWebhook);
 
   document.getElementById("btnReset").addEventListener("click", () => {
