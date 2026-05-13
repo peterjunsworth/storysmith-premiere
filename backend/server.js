@@ -344,63 +344,44 @@ function findLongestValidPrefix(parts, basePrefix, startIdx) {
 
 /**
  * Generate candidate path combinations with different separators
- * Returns array sorted by priority (longest matches first)
+ * Returns array sorted by length (longest first) to maximize greedy matching
  */
 function generateCandidates(basePath, parts, idx) {
   const candidates = [];
+  const remainingWords = parts.length - idx;
 
-  // Strategy 1: Single word (as-is)
-  if (idx < parts.length) {
-    candidates.push({
-      length: 1,
-      path: basePath + '/' + parts[idx],
-      priority: 1
-    });
-  }
+  // Try progressively longer multi-word combinations with spaces
+  // Start from longest possible (up to 10 words) down to 1 word
+  const maxWords = Math.min(10, remainingWords);
 
-  // Strategy 2: Four words with spaces (e.g., "My Project v2 Final")
-  if (idx + 3 < parts.length) {
-    candidates.push({
-      length: 4,
-      path: basePath + '/' + [parts[idx], parts[idx+1], parts[idx+2], parts[idx+3]].join(' '),
-      priority: 5
-    });
-  }
+  for (let wordCount = maxWords; wordCount >= 1; wordCount--) {
+    if (idx + wordCount - 1 < parts.length) {
+      // Multi-word with spaces (highest priority for longer combinations)
+      const spacePath = basePath + '/' + parts.slice(idx, idx + wordCount).join(' ');
+      candidates.push({
+        length: wordCount,
+        path: spacePath,
+        priority: wordCount * 10  // Higher priority for longer matches
+      });
 
-  // Strategy 3: Three words with spaces (e.g., "My Project v2")
-  if (idx + 2 < parts.length) {
-    candidates.push({
-      length: 3,
-      path: basePath + '/' + [parts[idx], parts[idx+1], parts[idx+2]].join(' '),
-      priority: 4
-    });
-  }
+      // Also try with hyphen for 2-word combinations
+      if (wordCount === 2) {
+        candidates.push({
+          length: 2,
+          path: basePath + '/' + parts[idx] + '-' + parts[idx+1],
+          priority: 2
+        });
+      }
 
-  // Strategy 4: Two words with space (e.g., "Card 1")
-  if (idx + 1 < parts.length) {
-    candidates.push({
-      length: 2,
-      path: basePath + '/' + parts[idx] + ' ' + parts[idx+1],
-      priority: 3
-    });
-  }
-
-  // Strategy 5: Two words with hyphen (e.g., "storysmith-premiere")
-  if (idx + 1 < parts.length) {
-    candidates.push({
-      length: 2,
-      path: basePath + '/' + parts[idx] + '-' + parts[idx+1],
-      priority: 2
-    });
-  }
-
-  // Strategy 6: Two words with dot (e.g., "file.wav")
-  if (idx + 1 < parts.length) {
-    candidates.push({
-      length: 2,
-      path: basePath + '/' + parts[idx] + '.' + parts[idx+1],
-      priority: 2
-    });
+      // Also try with dot for 2-word combinations (file extensions)
+      if (wordCount === 2) {
+        candidates.push({
+          length: 2,
+          path: basePath + '/' + parts[idx] + '.' + parts[idx+1],
+          priority: 2
+        });
+      }
+    }
   }
 
   // Sort by priority (higher first), then by length (longer first)
@@ -417,6 +398,8 @@ function reconstructPath(basePrefix, parts, startIdx) {
   let currentPath = basePrefix;
   let idx = startIdx;
 
+  console.log(`  🔨 Reconstructing from idx ${idx}/${parts.length}`);
+
   while (idx < parts.length) {
     const candidates = generateCandidates(currentPath, parts, idx);
     let matched = false;
@@ -424,6 +407,7 @@ function reconstructPath(basePrefix, parts, startIdx) {
     // Try each candidate in priority order
     for (const candidate of candidates) {
       if (fs.existsSync(candidate.path)) {
+        console.log(`    ✅ Matched ${candidate.length}-word: "${parts.slice(idx, idx + candidate.length).join(' ')}"`);
         currentPath = candidate.path;
         idx += candidate.length;
         matched = true;
@@ -433,6 +417,7 @@ function reconstructPath(basePrefix, parts, startIdx) {
 
     // If nothing matched, append single word and continue
     if (!matched) {
+      console.log(`    ⚠️  No match found, using single word: "${parts[idx]}"`);
       currentPath += '/' + parts[idx];
       idx++;
     }
@@ -466,17 +451,27 @@ function fixFilePath(dbPath) {
       idx++;
     }
 
-    // Handle multi-word volume names (e.g., "Macintosh HD")
+    // Handle multi-word volume names by trying to find the longest valid volume path
     if (idx < parts.length) {
-      const volumeName = parts[idx];
-      idx++;
+      // Try up to 5 words for volume name (e.g., "My External Drive Name")
+      let volumeFound = false;
+      for (let wordCount = Math.min(5, parts.length - idx); wordCount >= 1; wordCount--) {
+        const volumeNameParts = parts.slice(idx, idx + wordCount);
+        const testVolumePath = currentPath + '/' + volumeNameParts.join(' ');
 
-      // Check for "Macintosh HD" or similar multi-word volumes
-      if (volumeName === 'Macintosh' && idx < parts.length && parts[idx] === 'HD') {
-        currentPath += '/Macintosh HD';
+        if (fs.existsSync(testVolumePath)) {
+          currentPath = testVolumePath;
+          idx += wordCount;
+          volumeFound = true;
+          console.log(`  🛠️  Found ${wordCount}-word volume: "${volumeNameParts.join(' ')}"`);
+          break;
+        }
+      }
+
+      // Fallback: single word volume
+      if (!volumeFound) {
+        currentPath += '/' + parts[idx];
         idx++;
-      } else {
-        currentPath += '/' + volumeName;
       }
     }
 
