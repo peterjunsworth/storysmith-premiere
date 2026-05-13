@@ -145,17 +145,19 @@ async function loadClipsFromProject() {
           const sequence = sequences[seqIndex];
 
           // Get sequence time range using the correct method
-          let endTime = null;
+          let sequenceEndTime = null;
           try {
-            endTime = await sequence.getEndTime();
+            sequenceEndTime = await sequence.getEndTime();
 
             // Skip empty sequences
-            if (endTime.ticks === 0) {
+            if (sequenceEndTime.ticks === 0) {
               continue;
             }
           } catch (e) {
             continue;
           }
+
+          console.log(`📺 Processing sequence "${sequence.name}" (end: ${sequenceEndTime.seconds}s)`);
 
           // Get clips from video tracks
           const videoTrackCount = await sequence.getVideoTrackCount();
@@ -182,6 +184,20 @@ async function loadClipsFromProject() {
                     const inPoint = await item.getInPoint();
                     const outPoint = await item.getOutPoint();
                     const duration = await item.getDuration();
+
+                    // Check if the clip is disabled (muted/hidden)
+                    let isEnabled = true;
+                    try {
+                      isEnabled = await item.isEnabled();
+                      if (!isEnabled) {
+                        console.log(`⏭️  Skipping disabled video clip "${projectItem.name}" at ${startTime.seconds}s`);
+                        continue;
+                      }
+                    } catch (e) {
+                      // If isEnabled() fails, assume it's enabled
+                    }
+
+                    console.log(`✅ Video clip "${projectItem.name}" at ${startTime.seconds}s (enabled: ${isEnabled})`);
 
                     // Generate a unique ID for this clip
                     const clipId = `clip_${seqIndex}_${trackIndex}_${allClipsList.length}`;
@@ -239,6 +255,20 @@ async function loadClipsFromProject() {
                     const inPoint = await item.getInPoint();
                     const outPoint = await item.getOutPoint();
                     const duration = await item.getDuration();
+
+                    // Check if the clip is disabled (muted/hidden)
+                    let isEnabled = true;
+                    try {
+                      isEnabled = await item.isEnabled();
+                      if (!isEnabled) {
+                        console.log(`⏭️  Skipping disabled audio clip "${projectItem.name}" at ${startTime.seconds}s`);
+                        continue;
+                      }
+                    } catch (e) {
+                      // If isEnabled() fails, assume it's enabled
+                    }
+
+                    console.log(`✅ Audio clip "${projectItem.name}" at ${startTime.seconds}s (enabled: ${isEnabled})`);
 
                     // Generate a unique ID for this clip
                     const clipId = `clip_${seqIndex}_${trackIndex}_${allClipsList.length}`;
@@ -395,6 +425,185 @@ async function loadClipsFromProject() {
 }
 
 /**
+ * Build sequence data from selected sequences or specific sequence names
+ * @param {Set<string> | string[]} sequenceNames - Sequence names to build data for
+ * @returns {Array} Array of sequence objects with clips
+ */
+function buildSequenceData(sequenceNames) {
+  const sequences = [];
+  const namesToProcess = Array.isArray(sequenceNames) ? sequenceNames : Array.from(sequenceNames);
+
+  for (const sequenceName of namesToProcess) {
+    // Get all clips in this sequence
+    const clipsInSequence = allClips.filter(clip => clip.sequenceName === sequenceName);
+
+    if (clipsInSequence.length > 0) {
+      // Sort clips by timeline start position
+      clipsInSequence.sort((a, b) => a.timelineStart - b.timelineStart);
+
+      // Calculate sequence total duration
+      const totalDuration = clipsInSequence.reduce((sum, clip) => sum + (clip.duration || 0), 0);
+
+      // Count clip types
+      const videoCount = clipsInSequence.filter(c => c.trackType === 'video').length;
+      const audioCount = clipsInSequence.filter(c => c.trackType === 'audio').length;
+
+      sequences.push({
+        sequenceName: sequenceName,
+        totalClips: clipsInSequence.length,
+        videoClips: videoCount,
+        audioClips: audioCount,
+        totalDuration: totalDuration,
+        clips: clipsInSequence.map(clip => ({
+          id: clip.id,
+          name: clip.name,
+          filePath: clip.filePath,
+          trackType: clip.trackType,
+          trackIndex: clip.trackIndex,
+          timelineStart: clip.timelineStart,
+          timelineEnd: clip.timelineEnd,
+          inPoint: clip.inPoint,
+          outPoint: clip.outPoint,
+          duration: clip.duration,
+          startTicks: clip.startTicks,
+          endTicks: clip.endTicks,
+          hasAudio: clip.hasAudio,
+          hasVideo: clip.hasVideo
+        }))
+      });
+    }
+  }
+
+  return sequences;
+}
+
+/**
+ * Send sequence data to the indexing endpoint
+ * @param {Array} sequences - Sequence data to send
+ * @param {Object} statusElements - Status display elements (statusDiv, statusContent)
+ * @returns {Promise<Object>} Response data
+ */
+async function sendSequencesToIndex(sequences, statusElements = null) {
+  const totalClips = sequences.reduce((sum, seq) => sum + seq.totalClips, 0);
+  console.log(`📡 Sending ${sequences.length} sequences with ${totalClips} total clips to index...`);
+
+  const webhookUrl = `${SERVER_URL}/index`;
+  const webhookData = {
+    sequences: sequences,
+    projectPath: window.currentProjectPath || "",
+    timestamp: new Date().toISOString()
+  };
+
+  // Log the complete data being sent
+  console.log("\n" + "=".repeat(80));
+  console.log("📤 INDEX DATA BEING SENT");
+  console.log("=".repeat(80));
+  console.log(JSON.stringify(webhookData, null, 2));
+  console.log("=".repeat(80) + "\n");
+
+  const response = await fetch(`${webhookUrl}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'ngrok-skip-browser-warning': 'true'
+    },
+    body: JSON.stringify(webhookData)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  const result = await response.json();
+  console.log("✅ Index response:", result);
+
+  // Track which sequences are being processed
+  if (!window._storysmith_processingSequences) {
+    window._storysmith_processingSequences = new Set();
+  }
+  sequences.forEach(seq => window._storysmith_processingSequences.add(seq.sequenceName));
+
+  // Refresh the display to show "Processing" badges
+  updateClipsDisplay();
+
+  // If server accepted the job, start polling its progress
+  if (result && result.jobId) {
+    startJobProgressPolling(result.jobId, 5000);
+    // Also restart infra status polling in case it was stopped
+    startInfraStatusPolling(5000);
+  }
+
+  return { result, totalClips, sequences };
+}
+
+/**
+ * Reindex a specific sequence by re-gathering and re-sending its data
+ * @param {string} sequenceName - Name of the sequence to reindex
+ */
+async function reindexSequence(sequenceName) {
+  console.log(`🔄 Reindexing sequence: "${sequenceName}"`);
+
+  const statusDiv = document.getElementById("status");
+  const statusContent = document.getElementById("status-content");
+
+  statusDiv.style.display = "block";
+  statusContent.innerHTML = `
+    <div class="status-info">
+      🔄 <strong>Reindexing "${sequenceName}"...</strong><br>
+      <small>Re-gathering fresh sequence data from Premiere</small>
+    </div>
+  `;
+
+  try {
+    // Re-gather clips from the project to ensure completely fresh data
+    console.log("🔄 Re-gathering clips from project for reindex...");
+    await loadClipsFromProject();
+
+    // Update status
+    statusContent.innerHTML = `
+      <div class="status-info">
+        🔄 <strong>Reindexing "${sequenceName}"...</strong><br>
+        <small>Sending updated sequence data to index</small>
+      </div>
+    `;
+
+    // Build sequence data for just this sequence
+    const sequences = buildSequenceData([sequenceName]);
+
+    if (sequences.length === 0) {
+      throw new Error(`No clips found for sequence "${sequenceName}"`);
+    }
+
+    // Send to index endpoint
+    const { totalClips } = await sendSequencesToIndex(sequences);
+
+    statusContent.innerHTML = `
+      <div class="success">
+        ✅ <strong>Reindexed "${sequenceName}"</strong><br>
+        <small>${totalClips} clips sent for processing</small>
+      </div>
+    `;
+
+    setTimeout(() => {
+      statusDiv.style.display = "none";
+    }, 5000);
+
+  } catch (error) {
+    console.error("❌ Error reindexing sequence:", error);
+    statusContent.innerHTML = `
+      <div class="error">
+        ❌ <strong>Reindex failed:</strong> ${escapeHtml(error.message)}<br>
+        <small>Check console for details</small>
+      </div>
+    `;
+
+    setTimeout(() => {
+      statusDiv.style.display = "none";
+    }, 5000);
+  }
+}
+
+/**
  * Send selected sequences to webhook
  */
 async function sendToWebhook() {
@@ -409,119 +618,43 @@ async function sendToWebhook() {
   statusDiv.style.display = "block";
   statusContent.innerHTML = `
     <div class="status-info">
-      ⏳ <strong>Sending to webhook...</strong><br>
-      <small>Posting sequence information</small>
+      ⏳ <strong>Re-gathering sequence data...</strong><br>
+      <small>Ensuring up-to-date clip information</small>
     </div>
   `;
 
   try {
+    // Store the current selection
+    const sequencesToSend = Array.from(selectedClips);
+
+    // Re-gather clips from the project to ensure up-to-date data
+    console.log("🔄 Re-gathering clips from project before sending...");
+    await loadClipsFromProject();
+
+    // Restore the selection after reloading
+    sequencesToSend.forEach(seq => selectedClips.add(seq));
+    updateClipsDisplay();
+
+    // Update status
+    statusContent.innerHTML = `
+      <div class="status-info">
+        ⏳ <strong>Sending to webhook...</strong><br>
+        <small>Posting sequence information</small>
+      </div>
+    `;
+
     // Build sequence data with all clips for selected sequences
-    const sequences = [];
+    const sequences = buildSequenceData(selectedClips);
 
-    for (const sequenceName of selectedClips) {
-      // Get all clips in this sequence
-      const clipsInSequence = allClips.filter(clip => clip.sequenceName === sequenceName);
+    // Send to index endpoint
+    const { totalClips } = await sendSequencesToIndex(sequences);
 
-      if (clipsInSequence.length > 0) {
-        // Sort clips by timeline start position
-        clipsInSequence.sort((a, b) => a.timelineStart - b.timelineStart);
-
-        // Calculate sequence total duration
-        const totalDuration = clipsInSequence.reduce((sum, clip) => sum + (clip.duration || 0), 0);
-
-        // Count clip types
-        const videoCount = clipsInSequence.filter(c => c.trackType === 'video').length;
-        const audioCount = clipsInSequence.filter(c => c.trackType === 'audio').length;
-
-        sequences.push({
-          sequenceName: sequenceName,
-          totalClips: clipsInSequence.length,
-          videoClips: videoCount,
-          audioClips: audioCount,
-          totalDuration: totalDuration,
-          clips: clipsInSequence.map(clip => ({
-            id: clip.id,
-            name: clip.name,
-            filePath: clip.filePath,
-            trackType: clip.trackType,
-            trackIndex: clip.trackIndex,
-            timelineStart: clip.timelineStart,
-            timelineEnd: clip.timelineEnd,
-            inPoint: clip.inPoint,
-            outPoint: clip.outPoint,
-            duration: clip.duration,
-            startTicks: clip.startTicks,
-            endTicks: clip.endTicks,
-            hasAudio: clip.hasAudio,
-            hasVideo: clip.hasVideo
-          }))
-        });
-      }
-    }
-
-    const totalClips = sequences.reduce((sum, seq) => sum + seq.totalClips, 0);
-    console.log(`📡 Sending ${sequences.length} sequences with ${totalClips} total clips to webhook...`);
-
-    const webhookUrl = `${SERVER_URL}/index`;
-    const webhookData = {
-      sequences: sequences,
-      projectPath: window.currentProjectPath || "",
-      timestamp: new Date().toISOString()
-    };
-
-    // Log the complete data being sent
-    console.log("\n" + "=".repeat(80));
-    console.log("📤 WEBHOOK DATA BEING SENT");
-    console.log("=".repeat(80));
-    console.log(JSON.stringify(webhookData, null, 2));
-    console.log("=".repeat(80) + "\n");
-
-    // Use backend as proxy to avoid UXP permission issues
-    const response = await fetch(`${webhookUrl}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'ngrok-skip-browser-warning': 'true'
-      },
-      body: JSON.stringify(webhookData)
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      console.log("✅ Webhook response:", result);
-
-      // Track which sequences are being processed
-      if (!window._storysmith_processingSequences) {
-        window._storysmith_processingSequences = new Set();
-      }
-      sequences.forEach(seq => window._storysmith_processingSequences.add(seq.sequenceName));
-
-      // Refresh the display to show "Processing" badges
-      updateClipsDisplay();
-
-      // If server accepted the job, start polling its progress
-      if (result && result.jobId) {
-        startJobProgressPolling(result.jobId, 5000);
-        // Also restart infra status polling in case it was stopped
-        startInfraStatusPolling(5000);
-      }
-
-      statusContent.innerHTML = `
-        <div class="success">
-          ✅ <strong>Sent ${sequences.length} sequence${sequences.length !== 1 ? 's' : ''} to webhook</strong><br>
-          <small>${totalClips} total clips • Check webhook for results</small>
-        </div>
-      `;
-    } else {
-      console.warn("Webhook request failed:", response);
-
-      statusContent.innerHTML = `
-        <div class="error">
-          ❌ <strong>Webhook request failed</strong><br>
-          <small>Status: ${response.status}</small>
-        </div>
-      `;
-    }
+    statusContent.innerHTML = `
+      <div class="success">
+        ✅ <strong>Sent ${sequences.length} sequence${sequences.length !== 1 ? 's' : ''} to webhook</strong><br>
+        <small>${totalClips} total clips • Check webhook for results</small>
+      </div>
+    `;
 
     setTimeout(() => {
       statusDiv.style.display = "none";
@@ -661,7 +794,17 @@ function updateClipsDisplay() {
         const statusClass = isComplete ? 'sequence-progress-complete' : 'sequence-progress-processing';
         const statusText = isComplete ? 'Complete' : 'Processing';
         const tooltip = `${latestJob.embeddedChunks || 0}/${latestJob.totalChunks || 0} chunks embedded (${percentComplete}%)`;
-        progressBadge = `<span class="${statusClass}" title="${tooltip}">${statusText}</span>`;
+
+        if (isComplete) {
+          progressBadge = `
+            <span class="${statusClass}" title="${tooltip}">${statusText}</span>
+            <button class="reindex-btn" data-sequence="${escapeHtml(sequenceName)}" title="Reindex this sequence">
+              🔄 Reindex
+            </button>
+          `;
+        } else {
+          progressBadge = `<span class="${statusClass}" title="${tooltip}">${statusText}</span>`;
+        }
       } else if (isBeingProcessed) {
         // Show "Processing" even with no progress yet
         progressBadge = `<span class="sequence-progress-processing" title="Job submitted, awaiting progress data">Processing</span>`;
@@ -704,7 +847,7 @@ function updateClipsDisplay() {
 
     // Clicking the clip item toggles selection
     item.addEventListener("click", (e) => {
-      if (e.target.tagName !== "INPUT") {
+      if (e.target.tagName !== "INPUT" && !e.target.classList.contains('reindex-btn')) {
         checkbox.checked = !checkbox.checked;
         toggleClipSelection(sequenceName, checkbox.checked);
       }
@@ -716,6 +859,18 @@ function updateClipsDisplay() {
       toggleClipSelection(sequenceName, checkbox.checked);
     });
   }
+
+  // Add event listeners to reindex buttons
+  const reindexButtons = container.querySelectorAll('.reindex-btn');
+  reindexButtons.forEach(button => {
+    button.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const sequenceName = button.getAttribute('data-sequence');
+      if (sequenceName) {
+        reindexSequence(sequenceName);
+      }
+    });
+  });
 }
 
 /**
@@ -758,6 +913,18 @@ function updateClipsCount() {
 function updateSelectedCount() {
   const selectedCount = document.getElementById("selected-count");
   selectedCount.textContent = `${selectedClips.size} selected`;
+
+  // Enable/disable buttons based on selection
+  const sendButton = document.getElementById("btnSendToWebhook");
+  const resetButton = document.getElementById("btnReset");
+
+  if (sendButton) {
+    sendButton.disabled = selectedClips.size === 0;
+  }
+
+  if (resetButton) {
+    resetButton.disabled = selectedClips.size === 0;
+  }
 }
 
 /**
@@ -811,7 +978,12 @@ async function updateSequenceStatusDisplay() {
 
         if (isComplete) {
           hasCompleteSequence = true;
-          badge = '<span class="sequence-progress-complete">Complete</span>';
+          badge = `
+            <span class="sequence-progress-complete">Complete</span>
+            <button class="reindex-btn" data-sequence="${escapeHtml(sequenceName)}" title="Reindex this sequence">
+              🔄 Reindex
+            </button>
+          `;
         } else {
           badge = '<span class="sequence-progress-processing">Processing</span>';
         }
@@ -829,6 +1001,18 @@ async function updateSequenceStatusDisplay() {
     }
 
     container.innerHTML = html;
+
+    // Add event listeners to reindex buttons
+    const reindexButtons = container.querySelectorAll('.reindex-btn');
+    reindexButtons.forEach(button => {
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const sequenceName = button.getAttribute('data-sequence');
+        if (sequenceName) {
+          reindexSequence(sequenceName);
+        }
+      });
+    });
 
     // Enable/disable search based on whether any sequence is complete
     searchQuery.disabled = !hasCompleteSequence;
@@ -899,7 +1083,7 @@ function updateInfraStatusDisplay(result) {
   if (result.ok) {
     const d = result.data;
     const allGood = d.chromaOk && d.ollamaOk;
-    if (allGood) {
+    /*if (allGood) {
       el.innerHTML = `✅ Service online — Chroma & Ollama OK`;
       el.style.color = 'green';
     } else {
@@ -908,7 +1092,7 @@ function updateInfraStatusDisplay(result) {
       parts.push(d.ollamaOk ? 'Ollama OK' : 'Ollama ✖');
       el.innerHTML = `⚠️ Service partial — ${parts.join(' • ')}`;
       el.style.color = '#b36b00';
-    }
+    }*/
 
     // Store the status data for progress badge display
     window._storysmith_lastJobProgress = d;
