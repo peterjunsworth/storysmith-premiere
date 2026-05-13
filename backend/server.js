@@ -146,6 +146,13 @@ app.post('/transcripts', async (req, res) => {
       });
     }
 
+    // Debug: Log incoming request
+    console.log('\n🔍 DEBUG /transcripts request:');
+    console.log('  projectPath:', projectPath);
+    console.log('  projectGuid:', projectGuid);
+    console.log('  filePaths:', filePaths);
+    console.log('  clipNames:', clipNames ? clipNames.slice(0, 5) : null, clipNames && clipNames.length > 5 ? `... (${clipNames.length} total)` : '');
+
     // Query all databases for completed transcripts
     let allTranscripts = [];
 
@@ -268,6 +275,11 @@ app.post('/transcripts', async (req, res) => {
         transcriptText: null,
         source: 'status_only'
       };
+
+      // Debug: Log path transformation
+      console.log(`  📂 ${transcriptData.clipName}:`);
+      console.log(`     DB raw: "${transcript.columnintrinsicfilepath}"`);
+      console.log(`     Fixed:  "${transcriptData.filePath}"`);
 
       // Try to find transcript file in MetadataIndexer
       const transcriptFile = await findTranscriptFile(transcript.columnintrinsicfilepath);
@@ -432,8 +444,13 @@ function reconstructPath(basePrefix, parts, startIdx) {
 function fixFilePath(dbPath) {
   if (!dbPath) return '';
 
+  // Debug logging
+  console.log(`\n  🛠️  fixFilePath input: "${dbPath}"`);
+
   // Remove leading/trailing spaces and normalize
   const parts = dbPath.trim().split(/\s+/).filter(p => p.length > 0);
+
+  console.log(`  🛠️  Split into parts (${parts.length}):`, parts.slice(0, 10), parts.length > 10 ? '...' : '');
 
   if (parts.length === 0) return '';
 
@@ -463,11 +480,19 @@ function fixFilePath(dbPath) {
       }
     }
 
+    console.log(`  🛠️  Base volume path: "${currentPath}", remaining idx: ${idx}`);
+
     // Phase 1: Find longest valid prefix by working backwards
     const { validPrefix, remainingIdx } = findLongestValidPrefix(parts, currentPath, idx);
 
+    console.log(`  🛠️  Longest valid prefix: "${validPrefix}", remaining idx: ${remainingIdx}`);
+
     // Phase 2: Reconstruct remaining path with prioritized strategies
-    return reconstructPath(validPrefix, parts, remainingIdx);
+    const finalPath = reconstructPath(validPrefix, parts, remainingIdx);
+
+    console.log(`  🛠️  Final reconstructed path: "${finalPath}"`);
+
+    return finalPath;
   }
 
   // For non-Volumes paths, start from root
