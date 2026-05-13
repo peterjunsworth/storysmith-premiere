@@ -345,41 +345,81 @@ function findLongestValidPrefix(parts, basePrefix, startIdx) {
 /**
  * Generate candidate path combinations with different separators
  * Returns array sorted by length (longest first) to maximize greedy matching
+ *
+ * Handles special characters like colons that appear in macOS folder names.
+ * Example: "Penny Van:Hiking" or "02:17:2024"
  */
 function generateCandidates(basePath, parts, idx) {
   const candidates = [];
   const remainingWords = parts.length - idx;
 
-  // Try progressively longer multi-word combinations with spaces
+  // Try progressively longer multi-word combinations with various separators
   // Start from longest possible (up to 10 words) down to 1 word
   const maxWords = Math.min(10, remainingWords);
 
   for (let wordCount = maxWords; wordCount >= 1; wordCount--) {
     if (idx + wordCount - 1 < parts.length) {
-      // Multi-word with spaces (highest priority for longer combinations)
-      const spacePath = basePath + '/' + parts.slice(idx, idx + wordCount).join(' ');
+      const words = parts.slice(idx, idx + wordCount);
+
+      // Strategy 1: Multi-word with spaces (highest priority for longer combinations)
+      const spacePath = basePath + '/' + words.join(' ');
       candidates.push({
         length: wordCount,
         path: spacePath,
-        priority: wordCount * 10  // Higher priority for longer matches
+        priority: wordCount * 10,
+        separator: 'space'
       });
 
-      // Also try with hyphen for 2-word combinations
-      if (wordCount === 2) {
-        candidates.push({
-          length: 2,
-          path: basePath + '/' + parts[idx] + '-' + parts[idx+1],
-          priority: 2
-        });
+      // Strategy 2: Try all possible combinations of colons and spaces for multi-word
+      // Example: "Penny Van Hiking" could be "Penny Van:Hiking" or "Penny Van Hiking"
+      if (wordCount >= 2 && wordCount <= 5) {
+        // Generate all possible colon/space combinations
+        const separatorCombinations = generateSeparatorCombinations(wordCount - 1);
+
+        for (const separators of separatorCombinations) {
+          let combinedPath = basePath + '/' + words[0];
+          for (let i = 1; i < words.length; i++) {
+            combinedPath += separators[i - 1] + words[i];
+          }
+
+          candidates.push({
+            length: wordCount,
+            path: combinedPath,
+            priority: wordCount * 10 + 1, // Slightly higher priority than space-only
+            separator: 'mixed'
+          });
+        }
       }
 
-      // Also try with dot for 2-word combinations (file extensions)
+      // Strategy 5: Special 2-character separators
       if (wordCount === 2) {
-        candidates.push({
-          length: 2,
-          path: basePath + '/' + parts[idx] + '.' + parts[idx+1],
-          priority: 2
-        });
+        const twoWordSeparators = [':', '-', '_', '/', '.'];
+        for (const sep of twoWordSeparators) {
+          candidates.push({
+            length: 2,
+            path: basePath + '/' + parts[idx] + sep + parts[idx+1],
+            priority: sep === ':' ? 5 : 2,
+            separator: sep === ':' ? 'colon' : sep === '/' ? 'slash' : sep
+          });
+        }
+      }
+
+      // Strategy 6: Triple-character patterns for dates/times
+      if (wordCount === 3) {
+        const triplePatterns = [
+          { sep: ':', name: 'triple-colon', priority: 8 },    // 02:17:2024
+          { sep: '/', name: 'triple-slash', priority: 8 },    // 02/17/2024
+          { sep: '-', name: 'triple-hyphen', priority: 7 }    // 02-17-2024
+        ];
+
+        for (const pattern of triplePatterns) {
+          candidates.push({
+            length: 3,
+            path: basePath + '/' + parts[idx] + pattern.sep + parts[idx+1] + pattern.sep + parts[idx+2],
+            priority: pattern.priority,
+            separator: pattern.name
+          });
+        }
       }
     }
   }
@@ -389,6 +429,48 @@ function generateCandidates(basePath, parts, idx) {
     if (a.priority !== b.priority) return b.priority - a.priority;
     return b.length - a.length;
   });
+}
+
+/**
+ * Generate all combinations of separators for n positions
+ * Separators include: space, colon, slash (for dates), hyphen, underscore, period
+ * Returns array of arrays, where each inner array contains n separators
+ */
+function generateSeparatorCombinations(n) {
+  if (n === 0) return [[]];
+  if (n === 1) return [[' '], [':'], ['-'], ['_'], ['.'], ['/']];
+
+  const combinations = [];
+
+  // Limit combinations to avoid explosion
+  if (n > 3) {
+    // For longer paths, only try key patterns
+    return [
+      Array(n).fill(' '),           // All spaces
+      Array(n).fill(':'),           // All colons (e.g., "12:30:45")
+      [' ', ...Array(n-1).fill(':')], // Space first, rest colons
+      [...Array(n-1).fill(' '), ':'],  // Spaces first, last colon
+      Array(n).fill('-'),           // All hyphens
+      Array(n).fill('_'),           // All underscores
+      Array(n).fill('/'),           // All slashes (for dates like 02/17/2024)
+    ];
+  }
+
+  // For 2-3 positions, try common patterns
+  const commonPatterns = [
+    Array(n).fill(' '),           // All spaces
+    Array(n).fill(':'),           // All colons
+    Array(n).fill('-'),           // All hyphens
+    Array(n).fill('_'),           // All underscores
+    Array(n).fill('/'),           // All slashes
+    [' ', ':'],                   // Space then colon
+    [':', ' '],                   // Colon then space
+    [' ', '-'],                   // Space then hyphen
+    ['-', ' '],                   // Hyphen then space
+  ];
+
+  // Only return patterns that match the required length
+  return commonPatterns.filter(p => p.length === n);
 }
 
 /**
@@ -407,7 +489,9 @@ function reconstructPath(basePrefix, parts, startIdx) {
     // Try each candidate in priority order
     for (const candidate of candidates) {
       if (fs.existsSync(candidate.path)) {
-        console.log(`    ✅ Matched ${candidate.length}-word: "${parts.slice(idx, idx + candidate.length).join(' ')}"`);
+        const matchedText = parts.slice(idx, idx + candidate.length).join(' ');
+        const actualFolderName = candidate.path.split('/').pop();
+        console.log(`    ✅ Matched ${candidate.length}-word (${candidate.separator}): "${matchedText}" → "${actualFolderName}"`);
         currentPath = candidate.path;
         idx += candidate.length;
         matched = true;
