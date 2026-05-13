@@ -307,8 +307,10 @@ async function loadClipsFromProject() {
 
       if (response.ok) {
         const data = await response.json();
+        console.log("📥 Backend response:", JSON.stringify(data, null, 2));
 
         if (data.transcripts && data.transcripts.length > 0) {
+          console.log(`Backend returned ${data.transcripts.length} transcripts`);
           // If we already have clips from sequences, match file paths
           if (allClipsList.length > 0) {
             for (const transcript of data.transcripts) {
@@ -318,11 +320,16 @@ async function loadClipsFromProject() {
                 normalizeClipName(clip.name) === normalizedBackendName
               );
 
+              console.log(`Matching "${transcript.clipName}" (normalized: "${normalizedBackendName}") → found ${matchingClips.length} clips`);
+
               if (matchingClips.length > 0) {
                 for (const clip of matchingClips) {
                   clip.filePath = transcript.filePath || "";
                   clip.hasAudio = transcript.audioInfo ? true : false;
+                  console.log(`  ✓ Set filePath for "${clip.name}" → "${clip.filePath}"`);
                 }
+              } else {
+                console.log(`  ✗ No matching clips found for "${transcript.clipName}"`);
               }
             }
 
@@ -330,10 +337,15 @@ async function loadClipsFromProject() {
             const clipsWithoutPaths = allClipsList.filter(clip => !clip.filePath);
             if (clipsWithoutPaths.length > 0) {
               console.log(`${clipsWithoutPaths.length} clip(s) have no file path from backend`);
+              clipsWithoutPaths.forEach(clip => {
+                console.log(`  - "${clip.name}" (normalized: "${normalizeClipName(clip.name)}")`);
+              });
             }
           } else {
             console.log(`No clips found in sequences, but backend returned ${data.transcripts.length} file(s)`);
           }
+        } else {
+          console.log("Backend returned no transcripts or empty array");
         }
       } else {
         const errorText = await response.text();

@@ -12,6 +12,11 @@ export function createClipPathsRouter(_config: Config): Router {
   // This endpoint queries Premiere Pro's Media Cache database to find the actual
   // file system paths for clips used in sequences
   router.post('/', async (req: Request, res: Response) => {
+    console.log('\n' + '='.repeat(80));
+    console.log('📨 POST /clip-paths called');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('='.repeat(80));
+
     try {
       let { projectGuid, projectPath, filePaths, clipNames } = req.body;
 
@@ -105,6 +110,7 @@ export function createClipPathsRouter(_config: Config): Router {
       }
 
       if (allClipRecords.length === 0) {
+        console.log('❌ No clip records found in any Media Cache database');
         res.json({
           success: false,
           clips: [],
@@ -114,10 +120,15 @@ export function createClipPathsRouter(_config: Config): Router {
         return;
       }
 
+      console.log(`Found ${allClipRecords.length} total clip records in databases`);
+      console.log(`Filtering by clipNames:`, clipNames);
+
       // Process clip records and resolve file paths
       const clipsWithPaths: any[] = [];
 
       for (const clipRecord of allClipRecords) {
+        const dbClipName = (clipRecord.columnintrinsicfilename || '').toLowerCase().trim();
+
         // Filter by file paths or clip names if provided
         if ((filePaths && filePaths.length > 0) || (clipNames && clipNames.length > 0)) {
           let matches = false;
@@ -135,16 +146,46 @@ export function createClipPathsRouter(_config: Config): Router {
             matches = clipNames.some((name: string) => {
               if (!clipRecord.columnintrinsicfilename) return false;
 
-              const dbName = (clipRecord.columnintrinsicfilename || '').toLowerCase().trim();
-              const searchName = (name || '').toLowerCase().trim();
+              // Normalize both names for comparison
+              const normalizeForMatch = (str: string) => {
+                const normalized = str
+                  .toLowerCase()
+                  .trim()
+                  .replace(/%20/g, ' ')           // Decode URL-encoded spaces
+                  .replace(/%/g, ' ')             // Decode any remaining % as space
+                  .replace(/^[-–—]\s+/, '')       // Remove leading dash/hyphen
+                  .replace(/\s+/g, ' ')           // Normalize multiple spaces
+                  .replace(/\.[^.]+$/, '');       // Remove file extension with dot (e.g., ".mp4")
 
-              if (dbName === searchName) return true;
+                // Also remove last word if it's a common extension without dot (e.g., "mp4" "wav")
+                const parts = normalized.split(' ');
+                const lastWord = parts[parts.length - 1];
+                const commonExtensions = ['mp4', 'mov', 'wav', 'mp3', 'aac', 'm4a', 'avi', 'mkv', 'mxf',
+                                          'aiff', 'flac', 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'txt'];
+                if (commonExtensions.includes(lastWord)) {
+                  parts.pop();
+                  return parts.join(' ');
+                }
 
-              const searchNameWithSpaces = searchName.replace(/\./g, ' ');
-              if (dbName === searchNameWithSpaces) return true;
+                return normalized;
+              };
 
-              const nameWithoutExt = searchName.replace(/\.[^.]+$/, '').trim();
-              if (dbName === nameWithoutExt || dbName.startsWith(nameWithoutExt + ' ')) {
+              const dbName = normalizeForMatch(clipRecord.columnintrinsicfilename);
+              const searchName = normalizeForMatch(name);
+
+              // Debug: Log first comparison for "the secret" clip
+              if (dbName.includes('secret')) {
+                console.log(`  [DEBUG] Comparing:`);
+                console.log(`    DB raw: "${clipRecord.columnintrinsicfilename}"`);
+                console.log(`    DB normalized: "${dbName}"`);
+                console.log(`    Search raw: "${name}"`);
+                console.log(`    Search normalized: "${searchName}"`);
+                console.log(`    Match: ${dbName === searchName}`);
+              }
+
+              // Direct match after normalization
+              if (dbName === searchName) {
+                console.log(`  ✓ Match: "${clipRecord.columnintrinsicfilename}" === "${name}"`);
                 return true;
               }
 
@@ -152,17 +193,63 @@ export function createClipPathsRouter(_config: Config): Router {
             });
           }
 
-          if (!matches) continue;
+          if (!matches) {
+            console.log(`  ✗ No match for: "${dbClipName}"`);
+            continue;
+          }
+        }
+
+        const reconstructedPath = fixFilePath(clipRecord.columnintrinsicfilepath);
+
+        // The filename from the database may have lost special characters
+        // Try to find the actual file on disk by searching the directory
+        let actualFilePath = reconstructedPath;
+
+        try {
+          const dirPath = reconstructedPath.substring(0, reconstructedPath.lastIndexOf('/'));
+          const dbFilename = reconstructedPath.substring(reconstructedPath.lastIndexOf('/') + 1);
+
+          if (existsSync(dirPath)) {
+            const filesInDir = readdirSync(dirPath);
+
+            // Normalize for comparison (remove special chars, lowercase, no extension)
+            const normalizeFilename = (name: string) => {
+              return name.toLowerCase()
+                .replace(/[-–—_%]/g, ' ')  // Replace dashes, underscores, % with space
+                .replace(/\s+/g, ' ')       // Normalize spaces
+                .replace(/\.[^.]+$/, '')    // Remove extension
+                .trim();
+            };
+
+            const normalizedDbName = normalizeFilename(dbFilename);
+
+            // Find a file that matches after normalization
+            const matchingFile = filesInDir.find(f => {
+              const normalized = normalizeFilename(f);
+              return normalized === normalizedDbName;
+            });
+
+            if (matchingFile) {
+              actualFilePath = dirPath + '/' + matchingFile;
+              console.log(`   ACTUAL FILE: "${matchingFile}" (found in directory)`);
+            }
+          }
+        } catch (err) {
+          // Failed to search directory - use reconstructed path as-is
         }
 
         const clipData = {
           clipName: clipRecord.columnintrinsicfilename,
-          filePath: fixFilePath(clipRecord.columnintrinsicfilepath),
+          filePath: actualFilePath,
           status: clipRecord.columnintrinsictranscriptstatus,
           audioInfo: clipRecord.columnintrinsicaudioinfo,
           transcriptText: null,
           source: 'media_cache'
         };
+
+        console.log(`\n📂 ${clipData.clipName}`);
+        console.log(`   DB: "${clipRecord.columnintrinsicfilepath}"`);
+        console.log(`   FIXED: "${clipData.filePath}"`);
 
         clipsWithPaths.push(clipData);
       }
@@ -175,6 +262,9 @@ export function createClipPathsRouter(_config: Config): Router {
         clips: clipsWithPaths,
         totalFound: clipsWithPaths.length
       });
+
+      console.log(`\n✅ Returning ${clipsWithPaths.length} clips to client`);
+      console.log('='.repeat(80) + '\n');
 
     } catch (error) {
       console.error('Error extracting transcripts:', error);
@@ -275,6 +365,27 @@ function generateCandidates(
   idx: number
 ): Array<{ length: number; path: string; priority: number }> {
   const candidates = [];
+  const remainingWords = parts.length - idx;
+
+  // HIGHEST PRIORITY: File extension detection for last 2 words
+  if (remainingWords === 2) {
+    const possibleExtension = parts[idx + 1].toLowerCase();
+    const commonExtensions = ['mov', 'mp4', 'wav', 'mp3', 'aac', 'm4a', 'avi', 'mkv', 'mxf',
+                              'aiff', 'flac', 'jpg', 'png', 'pdf', 'txt', 'prproj', 'aep'];
+
+    console.log(`[EXT CHECK] remainingWords=${remainingWords}, idx=${idx}, parts.length=${parts.length}, ext="${possibleExtension}"`);
+
+    if (commonExtensions.includes(possibleExtension) || possibleExtension.length <= 4) {
+      // This is a file extension - use dot separator with HIGHEST priority
+      const extPath = basePath + '/' + parts[idx] + '.' + parts[idx+1];
+      console.log(`[EXT MATCH] Adding candidate with priority 100: "${extPath}"`);
+      candidates.push({
+        length: 2,
+        path: extPath,
+        priority: 100
+      });
+    }
+  }
 
   // Strategy 1: Single word (as-is)
   if (idx < parts.length) {
@@ -321,8 +432,8 @@ function generateCandidates(
     });
   }
 
-  // Strategy 6: Two words with dot (e.g., "file.wav")
-  if (idx + 1 < parts.length) {
+  // Strategy 6: Two words with dot (for non-extension cases)
+  if (idx + 1 < parts.length && remainingWords > 2) {
     candidates.push({
       length: 2,
       path: basePath + '/' + parts[idx] + '.' + parts[idx+1],
@@ -352,18 +463,49 @@ function reconstructPath(
     const candidates = generateCandidates(currentPath, parts, idx);
     let matched = false;
 
+    // Check if we're at the last 2 words (likely filename + extension)
+    const remainingWords = parts.length - idx;
+    const isLikelyFilename = remainingWords === 2;
+
     // Try each candidate in priority order
     for (const candidate of candidates) {
-      if (existsSync(candidate.path)) {
+      // For likely filenames (last 2 words), accept high-priority extension candidates without existsSync
+      // because the file might not exist yet or might be offline
+      const shouldAcceptWithoutCheck = isLikelyFilename && candidate.priority >= 100;
+
+      if (shouldAcceptWithoutCheck || existsSync(candidate.path)) {
         currentPath = candidate.path;
         idx += candidate.length;
         matched = true;
+        console.log(`[PATH MATCH] Used candidate: "${candidate.path}" (priority=${candidate.priority}, exists=${existsSync(candidate.path)})`);
         break;
       }
     }
 
-    // If nothing matched, append single word and continue
+    // If nothing matched, we might have reached the filename
+    // Check if none of the candidates exist - this likely means we're at the filename portion
     if (!matched) {
+      const allCandidatesFailed = candidates.every(c => !existsSync(c.path));
+
+      // If all candidates failed and we have multiple words remaining, treat rest as filename
+      if (allCandidatesFailed && remainingWords >= 3) {
+        // Remaining words are the filename - combine them with spaces and add extension
+        const commonExtensions = ['mp4', 'mov', 'wav', 'mp3', 'aac', 'm4a', 'avi', 'mkv', 'mxf',
+                                  'aiff', 'flac', 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'txt'];
+        const lastWord = parts[parts.length - 1];
+        const isExtension = commonExtensions.includes(lastWord.toLowerCase());
+
+        if (isExtension) {
+          // Last word is extension - combine all middle words as filename
+          const filenameParts = parts.slice(idx, parts.length - 1);
+          const filename = filenameParts.join(' ');
+          currentPath += '/' + filename + '.' + lastWord;
+          console.log(`[FILENAME] Treating remaining ${filenameParts.length} words as filename: "${filename}.${lastWord}"`);
+          break; // Done - we've built the complete path
+        }
+      }
+
+      // Otherwise, append single word and continue
       currentPath += '/' + parts[idx];
       idx++;
     }

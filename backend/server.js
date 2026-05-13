@@ -92,6 +92,10 @@ app.post('/project-info', async (req, res) => {
  */
 app.post('/transcripts', async (req, res) => {
   try {
+    console.log('\n' + '='.repeat(80));
+    console.log('📨 /transcripts endpoint called');
+    console.log('='.repeat(80));
+
     let { projectGuid, projectPath, filePaths, clipNames } = req.body;
 
     // If projectPath provided and looks like a full path (not just a name), extract GUID first
@@ -158,6 +162,7 @@ app.post('/transcripts', async (req, res) => {
 
     for (const mediaCacheDb of mediaCacheDbs) {
       try {
+        console.log(`\n🔍 Querying database: ${path.basename(mediaCacheDb)}`);
         const db = new sqlite3.Database(mediaCacheDb, sqlite3.OPEN_READONLY);
 
         // Query for files with completed transcripts
@@ -172,13 +177,17 @@ app.post('/transcripts', async (req, res) => {
             WHERE columnintrinsictranscriptstatus LIKE '%omplete%'
           `, (err, rows) => {
             if (err) reject(err);
-            else resolve(rows);
+            else {
+              console.log(`   Found ${rows.length} completed transcripts`);
+              resolve(rows);
+            }
           });
         });
 
         // Also query for files without transcript status (like video files)
         // but only if we have specific clip names to search for
         if (clipNames && clipNames.length > 0) {
+          console.log(`   Searching for ${clipNames.length} specific clip names...`);
           const filesWithoutTranscripts = await new Promise((resolve, reject) => {
             db.all(`
               SELECT DISTINCT
@@ -191,7 +200,10 @@ app.post('/transcripts', async (req, res) => {
                 AND columnintrinsicfilename IS NOT NULL
             `, (err, rows) => {
               if (err) reject(err);
-              else resolve(rows);
+              else {
+                console.log(`   Found ${rows.length} total files in database`);
+                resolve(rows);
+              }
             });
           });
 
@@ -213,6 +225,7 @@ app.post('/transcripts', async (req, res) => {
     }
 
     if (allTranscripts.length === 0) {
+      console.log('\n⚠️  No transcripts found in any database');
       return res.json({
         success: false,
         transcripts: [],
@@ -221,10 +234,16 @@ app.post('/transcripts', async (req, res) => {
       });
     }
 
+    console.log(`\n✅ Total transcripts found across all databases: ${allTranscripts.length}`);
+    console.log(`📋 Filtering for ${clipNames ? clipNames.length : 0} clip names`);
+
     // Try to find actual transcript files
     const transcriptsWithData = [];
 
     for (const transcript of allTranscripts) {
+      // Debug: Show what we're processing
+      console.log(`\n🔍 Processing: ${transcript.columnintrinsicfilename}`);
+
       // Filter by file paths or clip names if provided
       if ((filePaths && filePaths.length > 0) || (clipNames && clipNames.length > 0)) {
         let matches = false;
@@ -248,15 +267,22 @@ app.post('/transcripts', async (req, res) => {
             const searchName = (name || '').toLowerCase().trim();
 
             // Direct match
-            if (dbName === searchName) return true;
+            if (dbName === searchName) {
+              console.log(`   ✅ Matched by direct name: "${searchName}"`);
+              return true;
+            }
 
             // Match with dots replaced by spaces (podcast.wav -> podcast wav)
             const searchNameWithSpaces = searchName.replace(/\./g, ' ');
-            if (dbName === searchNameWithSpaces) return true;
+            if (dbName === searchNameWithSpaces) {
+              console.log(`   ✅ Matched by spaces: "${searchNameWithSpaces}"`);
+              return true;
+            }
 
             // Match with extension removed (podcast.wav -> podcast)
             const nameWithoutExt = searchName.replace(/\.[^.]+$/, '').trim();
             if (dbName === nameWithoutExt || dbName.startsWith(nameWithoutExt + ' ')) {
+              console.log(`   ✅ Matched by name without ext: "${nameWithoutExt}"`);
               return true;
             }
 
@@ -264,8 +290,13 @@ app.post('/transcripts', async (req, res) => {
           });
         }
 
-        if (!matches) continue;
+        if (!matches) {
+          console.log(`   ❌ No match found, skipping`);
+          continue;
+        }
       }
+
+      console.log(`   🎯 Processing matched clip...`);
 
       const transcriptData = {
         clipName: transcript.columnintrinsicfilename,
@@ -277,9 +308,10 @@ app.post('/transcripts', async (req, res) => {
       };
 
       // Debug: Log path transformation
-      console.log(`  📂 ${transcriptData.clipName}:`);
-      console.log(`     DB raw: "${transcript.columnintrinsicfilepath}"`);
-      console.log(`     Fixed:  "${transcriptData.filePath}"`);
+      console.log(`\n📂 Clip: ${transcriptData.clipName}`);
+      console.log(`   DB STRING: "${transcript.columnintrinsicfilepath}"`);
+      console.log(`   CONVERTED: "${transcriptData.filePath}"`);
+      console.log('');
 
       // Try to find transcript file in MetadataIndexer
       const transcriptFile = await findTranscriptFile(transcript.columnintrinsicfilepath);
@@ -391,9 +423,27 @@ function generateCandidates(basePath, parts, idx) {
         }
       }
 
-      // Strategy 5: Special 2-character separators
+      // Strategy 5: File extensions - HIGHEST PRIORITY for last 2 words
+      // Detect if this looks like a file name + extension pattern
+      if (wordCount === 2 && idx + 2 === parts.length) {
+        const possibleExtension = parts[idx + 1].toLowerCase();
+        const commonExtensions = ['mov', 'mp4', 'wav', 'mp3', 'aac', 'm4a', 'avi', 'mkv', 'mxf',
+                                  'aiff', 'flac', 'jpg', 'png', 'pdf', 'txt', 'prproj', 'aep'];
+
+        if (commonExtensions.includes(possibleExtension) || possibleExtension.length <= 4) {
+          // This looks like a file extension - prioritize dot separator
+          candidates.push({
+            length: 2,
+            path: basePath + '/' + parts[idx] + '.' + parts[idx+1],
+            priority: 100, // VERY HIGH PRIORITY for file extensions
+            separator: 'file-extension'
+          });
+        }
+      }
+
+      // Strategy 6: Other 2-character separators
       if (wordCount === 2) {
-        const twoWordSeparators = [':', '-', '_', '/', '.'];
+        const twoWordSeparators = [':', '-', '_', '/'];
         for (const sep of twoWordSeparators) {
           candidates.push({
             length: 2,
@@ -404,7 +454,7 @@ function generateCandidates(basePath, parts, idx) {
         }
       }
 
-      // Strategy 6: Triple-character patterns for dates/times
+      // Strategy 7: Triple-character patterns for dates/times
       if (wordCount === 3) {
         const triplePatterns = [
           { sep: ':', name: 'triple-colon', priority: 8 },    // 02:17:2024
@@ -480,8 +530,6 @@ function reconstructPath(basePrefix, parts, startIdx) {
   let currentPath = basePrefix;
   let idx = startIdx;
 
-  console.log(`  🔨 Reconstructing from idx ${idx}/${parts.length}`);
-
   while (idx < parts.length) {
     const candidates = generateCandidates(currentPath, parts, idx);
     let matched = false;
@@ -489,9 +537,6 @@ function reconstructPath(basePrefix, parts, startIdx) {
     // Try each candidate in priority order
     for (const candidate of candidates) {
       if (fs.existsSync(candidate.path)) {
-        const matchedText = parts.slice(idx, idx + candidate.length).join(' ');
-        const actualFolderName = candidate.path.split('/').pop();
-        console.log(`    ✅ Matched ${candidate.length}-word (${candidate.separator}): "${matchedText}" → "${actualFolderName}"`);
         currentPath = candidate.path;
         idx += candidate.length;
         matched = true;
@@ -501,7 +546,6 @@ function reconstructPath(basePrefix, parts, startIdx) {
 
     // If nothing matched, append single word and continue
     if (!matched) {
-      console.log(`    ⚠️  No match found, using single word: "${parts[idx]}"`);
       currentPath += '/' + parts[idx];
       idx++;
     }
@@ -513,13 +557,8 @@ function reconstructPath(basePrefix, parts, startIdx) {
 function fixFilePath(dbPath) {
   if (!dbPath) return '';
 
-  // Debug logging
-  console.log(`\n  🛠️  fixFilePath input: "${dbPath}"`);
-
   // Remove leading/trailing spaces and normalize
   const parts = dbPath.trim().split(/\s+/).filter(p => p.length > 0);
-
-  console.log(`  🛠️  Split into parts (${parts.length}):`, parts.slice(0, 10), parts.length > 10 ? '...' : '');
 
   if (parts.length === 0) return '';
 
@@ -547,7 +586,6 @@ function fixFilePath(dbPath) {
           currentPath = testVolumePath;
           idx += wordCount;
           volumeFound = true;
-          console.log(`  🛠️  Found ${wordCount}-word volume: "${volumeNameParts.join(' ')}"`);
           break;
         }
       }
@@ -559,17 +597,11 @@ function fixFilePath(dbPath) {
       }
     }
 
-    console.log(`  🛠️  Base volume path: "${currentPath}", remaining idx: ${idx}`);
-
     // Phase 1: Find longest valid prefix by working backwards
     const { validPrefix, remainingIdx } = findLongestValidPrefix(parts, currentPath, idx);
 
-    console.log(`  🛠️  Longest valid prefix: "${validPrefix}", remaining idx: ${remainingIdx}`);
-
     // Phase 2: Reconstruct remaining path with prioritized strategies
     const finalPath = reconstructPath(validPrefix, parts, remainingIdx);
-
-    console.log(`  🛠️  Final reconstructed path: "${finalPath}"`);
 
     return finalPath;
   }
