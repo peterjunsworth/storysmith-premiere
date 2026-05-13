@@ -108,36 +108,43 @@
         
         var clipName = item.name || "Unnamed";
         var filePath = "";
-        
+
         // Try to get the full OS file path
         try {
           // Method 1: getMediaPath() - most reliable for project items
           if (item.getMediaPath && typeof item.getMediaPath === 'function') {
             filePath = item.getMediaPath();
+            $.writeln("DEBUG [getMediaPath]: " + clipName + " -> " + filePath);
           }
-          
+
           // Method 2: path property (if available)
           if (!filePath && item.path) {
             filePath = item.path;
+            $.writeln("DEBUG [path property]: " + clipName + " -> " + filePath);
           }
-          
+
           // Method 3: file property
           if (!filePath && item.file) {
             if (item.file.fsName) {
               filePath = item.file.fsName;
+              $.writeln("DEBUG [file.fsName]: " + clipName + " -> " + filePath);
             } else if (item.file.toString) {
               filePath = item.file.toString();
+              $.writeln("DEBUG [file.toString]: " + clipName + " -> " + filePath);
             } else if (typeof item.file === 'string') {
               filePath = item.file;
+              $.writeln("DEBUG [file string]: " + clipName + " -> " + filePath);
             }
           }
-          
+
           // Method 4: Try getFilePath() if available
           if (!filePath && item.getFilePath && typeof item.getFilePath === 'function') {
             filePath = item.getFilePath();
+            $.writeln("DEBUG [getFilePath]: " + clipName + " -> " + filePath);
           }
         } catch (e) {
           // Error getting file path - item may be offline or generated media
+          $.writeln("DEBUG [ERROR getting path]: " + clipName + " -> " + e.toString());
           filePath = "";
         }
         
