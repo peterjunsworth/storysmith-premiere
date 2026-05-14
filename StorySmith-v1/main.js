@@ -543,6 +543,13 @@ async function sendSequencesToIndex(sequences, statusElements = null) {
 async function reindexSequence(sequenceName) {
   console.log(`🔄 Reindexing sequence: "${sequenceName}"`);
 
+  // Mark sequence as processing and refresh UI to show "Processing" status
+  if (!window._storysmith_processingSequences) {
+    window._storysmith_processingSequences = new Set();
+  }
+  window._storysmith_processingSequences.add(sequenceName);
+  updateClipsDisplay();
+
   const statusDiv = document.getElementById("status");
   const statusContent = document.getElementById("status-content");
 
