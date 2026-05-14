@@ -23,36 +23,6 @@ const selectedClips = new Set();
 // MAIN FUNCTIONS
 // ============================================================================
 
-/**
- * Get file paths directly from Premiere using JSX
- * Returns array of { clipName, filePath, hasAudio, hasVideo }
- */
-async function getFilePathsFromPremiere() {
-  try {
-    // Read the JSX script
-    const fs = require('fs');
-    const path = require('path');
-    const jsxPath = path.join(__dirname, 'jsx', 'getClipFilePaths.jsx');
-    const jsxScript = fs.readFileSync(jsxPath, 'utf-8');
-
-    // Execute the JSX script in Premiere Pro
-    const result = await ppro.evalES(jsxScript);
-
-    // Parse the JSON response
-    const data = JSON.parse(result);
-
-    if (data.success) {
-      console.log(`✅ Got ${data.total} file paths directly from Premiere`);
-      return data.results;
-    } else {
-      console.error('❌ JSX script failed:', data.error);
-      return [];
-    }
-  } catch (error) {
-    console.error('❌ Error executing JSX script:', error);
-    return [];
-  }
-}
 
 /**
  * Format seconds to timecode (HH:MM:SS.mmm)
@@ -89,8 +59,8 @@ function normalizeClipName(name) {
     }
   }
 
-  // Remove remaining special characters
-  normalized = normalized.replace(/[-_]/g, '');
+  // Remove remaining special characters (including %, -, _)
+  normalized = normalized.replace(/[-_%]/g, '');
 
   return normalized;
 }
@@ -159,79 +129,7 @@ async function loadClipsFromProject() {
 
           console.log(`📺 Processing sequence "${sequence.name}" (end: ${sequenceEndTime.seconds}s)`);
 
-          // Get clips from video tracks
-          const videoTrackCount = await sequence.getVideoTrackCount();
-
-          for (let trackIndex = 0; trackIndex < videoTrackCount; trackIndex++) {
-            try {
-              const track = await sequence.getVideoTrack(trackIndex);
-
-              // Use the correct parameters: (Type: 1 for Clips, IncludeEmpty: false)
-              try {
-                const trackItems = await track.getTrackItems(1, false);
-
-                // Process the items
-                for (const item of trackItems) {
-                  try {
-                    const projectItem = await item.getProjectItem();
-                    if (!projectItem) {
-                      continue;
-                    }
-
-                    // Get timecode information using the correct methods
-                    const startTime = await item.getStartTime();
-                    const endTime = await item.getEndTime();
-                    const inPoint = await item.getInPoint();
-                    const outPoint = await item.getOutPoint();
-                    const duration = await item.getDuration();
-
-                    // Check if the clip is disabled (muted/hidden)
-                    let isEnabled = true;
-                    try {
-                      isEnabled = await item.isEnabled();
-                      if (!isEnabled) {
-                        console.log(`⏭️  Skipping disabled video clip "${projectItem.name}" at ${startTime.seconds}s`);
-                        continue;
-                      }
-                    } catch (e) {
-                      // If isEnabled() fails, assume it's enabled
-                    }
-
-                    console.log(`✅ Video clip "${projectItem.name}" at ${startTime.seconds}s (enabled: ${isEnabled})`);
-
-                    // Generate a unique ID for this clip
-                    const clipId = `clip_${seqIndex}_${trackIndex}_${allClipsList.length}`;
-
-                    // Add to our clips list (we'll get file path from backend)
-                    allClipsList.push({
-                      id: clipId,
-                      name: projectItem.name,
-                      filePath: null, // Will be populated from backend
-                      sequenceName: sequence.name,
-                      trackType: 'video',
-                      trackIndex: trackIndex,
-                      timelineStart: startTime.seconds,
-                      timelineEnd: endTime.seconds,
-                      inPoint: inPoint.seconds,
-                      outPoint: outPoint.seconds,
-                      duration: duration.seconds,
-                      startTicks: startTime.ticks,
-                      endTicks: endTime.ticks
-                    });
-
-                  } catch (error) {
-                    console.warn(`Error processing video item:`, error);
-                  }
-                }
-              } catch (e) {
-                console.warn(`getTrackItems failed for video track ${trackIndex}:`, e.message);
-              }
-            } catch (trackError) {
-              console.warn(`Error processing video track ${trackIndex}:`, trackError);
-            }
-          }
-
-          // Get clips from audio tracks
+          // Get clips from audio tracks (video files have their audio on separate audio tracks)
           const audioTrackCount = await sequence.getAudioTrackCount();
 
           for (let trackIndex = 0; trackIndex < audioTrackCount; trackIndex++) {
@@ -310,7 +208,7 @@ async function loadClipsFromProject() {
       console.warn("Could not access sequences:", seqError);
     }
 
-    // Query backend for file paths from database (with enhanced fixFilePath)
+    // Query backend for file paths from media cache
     if (allClipsList.length === 0) {
       console.log("No clips found in sequences");
     } else {
@@ -341,10 +239,9 @@ async function loadClipsFromProject() {
 
         if (data.transcripts && data.transcripts.length > 0) {
           console.log(`Backend returned ${data.transcripts.length} transcripts`);
-          // If we already have clips from sequences, match file paths
+          // Match file paths from backend media cache
           if (allClipsList.length > 0) {
             for (const transcript of data.transcripts) {
-              // Find clips with matching name (using normalized comparison)
               const normalizedBackendName = normalizeClipName(transcript.clipName);
               const matchingClips = allClipsList.filter(clip =>
                 normalizeClipName(clip.name) === normalizedBackendName
@@ -354,28 +251,25 @@ async function loadClipsFromProject() {
 
               if (matchingClips.length > 0) {
                 for (const clip of matchingClips) {
+                  // Set file path from backend
                   clip.filePath = transcript.filePath || "";
                   clip.hasAudio = transcript.audioInfo ? true : false;
                   console.log(`  ✓ Set filePath for "${clip.name}" → "${clip.filePath}"`);
                 }
-              } else {
-                console.log(`  ✗ No matching clips found for "${transcript.clipName}"`);
               }
             }
 
             // Check for clips without file paths
             const clipsWithoutPaths = allClipsList.filter(clip => !clip.filePath);
             if (clipsWithoutPaths.length > 0) {
-              console.log(`${clipsWithoutPaths.length} clip(s) have no file path from backend`);
+              console.log(`⚠️ ${clipsWithoutPaths.length} clip(s) have no file path from backend`);
               clipsWithoutPaths.forEach(clip => {
                 console.log(`  - "${clip.name}" (normalized: "${normalizeClipName(clip.name)}")`);
               });
             }
-          } else {
-            console.log(`No clips found in sequences, but backend returned ${data.transcripts.length} file(s)`);
           }
         } else {
-          console.log("Backend returned no transcripts or empty array");
+          console.log("Backend returned no transcripts");
         }
       } else {
         const errorText = await response.text();
