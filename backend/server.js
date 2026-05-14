@@ -92,6 +92,10 @@ app.post('/project-info', async (req, res) => {
  */
 app.post('/transcripts', async (req, res) => {
   try {
+    console.log('\n' + '='.repeat(80));
+    console.log('📨 /transcripts endpoint called');
+    console.log('='.repeat(80));
+
     let { projectGuid, projectPath, filePaths, clipNames } = req.body;
 
     // If projectPath provided and looks like a full path (not just a name), extract GUID first
@@ -146,11 +150,19 @@ app.post('/transcripts', async (req, res) => {
       });
     }
 
+    // Debug: Log incoming request
+    console.log('\n🔍 DEBUG /transcripts request:');
+    console.log('  projectPath:', projectPath);
+    console.log('  projectGuid:', projectGuid);
+    console.log('  filePaths:', filePaths);
+    console.log('  clipNames:', clipNames ? clipNames.slice(0, 5) : null, clipNames && clipNames.length > 5 ? `... (${clipNames.length} total)` : '');
+
     // Query all databases for completed transcripts
     let allTranscripts = [];
 
     for (const mediaCacheDb of mediaCacheDbs) {
       try {
+        console.log(`\n🔍 Querying database: ${path.basename(mediaCacheDb)}`);
         const db = new sqlite3.Database(mediaCacheDb, sqlite3.OPEN_READONLY);
 
         // Query for files with completed transcripts
@@ -165,13 +177,17 @@ app.post('/transcripts', async (req, res) => {
             WHERE columnintrinsictranscriptstatus LIKE '%omplete%'
           `, (err, rows) => {
             if (err) reject(err);
-            else resolve(rows);
+            else {
+              console.log(`   Found ${rows.length} completed transcripts`);
+              resolve(rows);
+            }
           });
         });
 
         // Also query for files without transcript status (like video files)
         // but only if we have specific clip names to search for
         if (clipNames && clipNames.length > 0) {
+          console.log(`   Searching for ${clipNames.length} specific clip names...`);
           const filesWithoutTranscripts = await new Promise((resolve, reject) => {
             db.all(`
               SELECT DISTINCT
@@ -184,7 +200,10 @@ app.post('/transcripts', async (req, res) => {
                 AND columnintrinsicfilename IS NOT NULL
             `, (err, rows) => {
               if (err) reject(err);
-              else resolve(rows);
+              else {
+                console.log(`   Found ${rows.length} total files in database`);
+                resolve(rows);
+              }
             });
           });
 
@@ -206,6 +225,7 @@ app.post('/transcripts', async (req, res) => {
     }
 
     if (allTranscripts.length === 0) {
+      console.log('\n⚠️  No transcripts found in any database');
       return res.json({
         success: false,
         transcripts: [],
@@ -214,10 +234,16 @@ app.post('/transcripts', async (req, res) => {
       });
     }
 
+    console.log(`\n✅ Total transcripts found across all databases: ${allTranscripts.length}`);
+    console.log(`📋 Filtering for ${clipNames ? clipNames.length : 0} clip names`);
+
     // Try to find actual transcript files
     const transcriptsWithData = [];
 
     for (const transcript of allTranscripts) {
+      // Debug: Show what we're processing
+      console.log(`\n🔍 Processing: ${transcript.columnintrinsicfilename}`);
+
       // Filter by file paths or clip names if provided
       if ((filePaths && filePaths.length > 0) || (clipNames && clipNames.length > 0)) {
         let matches = false;
@@ -241,15 +267,22 @@ app.post('/transcripts', async (req, res) => {
             const searchName = (name || '').toLowerCase().trim();
 
             // Direct match
-            if (dbName === searchName) return true;
+            if (dbName === searchName) {
+              console.log(`   ✅ Matched by direct name: "${searchName}"`);
+              return true;
+            }
 
             // Match with dots replaced by spaces (podcast.wav -> podcast wav)
             const searchNameWithSpaces = searchName.replace(/\./g, ' ');
-            if (dbName === searchNameWithSpaces) return true;
+            if (dbName === searchNameWithSpaces) {
+              console.log(`   ✅ Matched by spaces: "${searchNameWithSpaces}"`);
+              return true;
+            }
 
             // Match with extension removed (podcast.wav -> podcast)
             const nameWithoutExt = searchName.replace(/\.[^.]+$/, '').trim();
             if (dbName === nameWithoutExt || dbName.startsWith(nameWithoutExt + ' ')) {
+              console.log(`   ✅ Matched by name without ext: "${nameWithoutExt}"`);
               return true;
             }
 
@@ -257,8 +290,13 @@ app.post('/transcripts', async (req, res) => {
           });
         }
 
-        if (!matches) continue;
+        if (!matches) {
+          console.log(`   ❌ No match found, skipping`);
+          continue;
+        }
       }
+
+      console.log(`   🎯 Processing matched clip...`);
 
       const transcriptData = {
         clipName: transcript.columnintrinsicfilename,
@@ -268,6 +306,12 @@ app.post('/transcripts', async (req, res) => {
         transcriptText: null,
         source: 'status_only'
       };
+
+      // Debug: Log path transformation
+      console.log(`\n📂 Clip: ${transcriptData.clipName}`);
+      console.log(`   DB STRING: "${transcript.columnintrinsicfilepath}"`);
+      console.log(`   CONVERTED: "${transcriptData.filePath}"`);
+      console.log('');
 
       // Try to find transcript file in MetadataIndexer
       const transcriptFile = await findTranscriptFile(transcript.columnintrinsicfilepath);
@@ -332,63 +376,102 @@ function findLongestValidPrefix(parts, basePrefix, startIdx) {
 
 /**
  * Generate candidate path combinations with different separators
- * Returns array sorted by priority (longest matches first)
+ * Returns array sorted by length (longest first) to maximize greedy matching
+ *
+ * Handles special characters like colons that appear in macOS folder names.
+ * Example: "Penny Van:Hiking" or "02:17:2024"
  */
 function generateCandidates(basePath, parts, idx) {
   const candidates = [];
+  const remainingWords = parts.length - idx;
 
-  // Strategy 1: Single word (as-is)
-  if (idx < parts.length) {
-    candidates.push({
-      length: 1,
-      path: basePath + '/' + parts[idx],
-      priority: 1
-    });
-  }
+  // Try progressively longer multi-word combinations with various separators
+  // Start from longest possible (up to 10 words) down to 1 word
+  const maxWords = Math.min(10, remainingWords);
 
-  // Strategy 2: Four words with spaces (e.g., "My Project v2 Final")
-  if (idx + 3 < parts.length) {
-    candidates.push({
-      length: 4,
-      path: basePath + '/' + [parts[idx], parts[idx+1], parts[idx+2], parts[idx+3]].join(' '),
-      priority: 5
-    });
-  }
+  for (let wordCount = maxWords; wordCount >= 1; wordCount--) {
+    if (idx + wordCount - 1 < parts.length) {
+      const words = parts.slice(idx, idx + wordCount);
 
-  // Strategy 3: Three words with spaces (e.g., "My Project v2")
-  if (idx + 2 < parts.length) {
-    candidates.push({
-      length: 3,
-      path: basePath + '/' + [parts[idx], parts[idx+1], parts[idx+2]].join(' '),
-      priority: 4
-    });
-  }
+      // Strategy 1: Multi-word with spaces (highest priority for longer combinations)
+      const spacePath = basePath + '/' + words.join(' ');
+      candidates.push({
+        length: wordCount,
+        path: spacePath,
+        priority: wordCount * 10,
+        separator: 'space'
+      });
 
-  // Strategy 4: Two words with space (e.g., "Card 1")
-  if (idx + 1 < parts.length) {
-    candidates.push({
-      length: 2,
-      path: basePath + '/' + parts[idx] + ' ' + parts[idx+1],
-      priority: 3
-    });
-  }
+      // Strategy 2: Try all possible combinations of colons and spaces for multi-word
+      // Example: "Penny Van Hiking" could be "Penny Van:Hiking" or "Penny Van Hiking"
+      if (wordCount >= 2 && wordCount <= 5) {
+        // Generate all possible colon/space combinations
+        const separatorCombinations = generateSeparatorCombinations(wordCount - 1);
 
-  // Strategy 5: Two words with hyphen (e.g., "storysmith-premiere")
-  if (idx + 1 < parts.length) {
-    candidates.push({
-      length: 2,
-      path: basePath + '/' + parts[idx] + '-' + parts[idx+1],
-      priority: 2
-    });
-  }
+        for (const separators of separatorCombinations) {
+          let combinedPath = basePath + '/' + words[0];
+          for (let i = 1; i < words.length; i++) {
+            combinedPath += separators[i - 1] + words[i];
+          }
 
-  // Strategy 6: Two words with dot (e.g., "file.wav")
-  if (idx + 1 < parts.length) {
-    candidates.push({
-      length: 2,
-      path: basePath + '/' + parts[idx] + '.' + parts[idx+1],
-      priority: 2
-    });
+          candidates.push({
+            length: wordCount,
+            path: combinedPath,
+            priority: wordCount * 10 + 1, // Slightly higher priority than space-only
+            separator: 'mixed'
+          });
+        }
+      }
+
+      // Strategy 5: File extensions - HIGHEST PRIORITY for last 2 words
+      // Detect if this looks like a file name + extension pattern
+      if (wordCount === 2 && idx + 2 === parts.length) {
+        const possibleExtension = parts[idx + 1].toLowerCase();
+        const commonExtensions = ['mov', 'mp4', 'wav', 'mp3', 'aac', 'm4a', 'avi', 'mkv', 'mxf',
+                                  'aiff', 'flac', 'jpg', 'png', 'pdf', 'txt', 'prproj', 'aep'];
+
+        if (commonExtensions.includes(possibleExtension) || possibleExtension.length <= 4) {
+          // This looks like a file extension - prioritize dot separator
+          candidates.push({
+            length: 2,
+            path: basePath + '/' + parts[idx] + '.' + parts[idx+1],
+            priority: 100, // VERY HIGH PRIORITY for file extensions
+            separator: 'file-extension'
+          });
+        }
+      }
+
+      // Strategy 6: Other 2-character separators
+      if (wordCount === 2) {
+        const twoWordSeparators = [':', '-', '_', '/'];
+        for (const sep of twoWordSeparators) {
+          candidates.push({
+            length: 2,
+            path: basePath + '/' + parts[idx] + sep + parts[idx+1],
+            priority: sep === ':' ? 5 : 2,
+            separator: sep === ':' ? 'colon' : sep === '/' ? 'slash' : sep
+          });
+        }
+      }
+
+      // Strategy 7: Triple-character patterns for dates/times
+      if (wordCount === 3) {
+        const triplePatterns = [
+          { sep: ':', name: 'triple-colon', priority: 8 },    // 02:17:2024
+          { sep: '/', name: 'triple-slash', priority: 8 },    // 02/17/2024
+          { sep: '-', name: 'triple-hyphen', priority: 7 }    // 02-17-2024
+        ];
+
+        for (const pattern of triplePatterns) {
+          candidates.push({
+            length: 3,
+            path: basePath + '/' + parts[idx] + pattern.sep + parts[idx+1] + pattern.sep + parts[idx+2],
+            priority: pattern.priority,
+            separator: pattern.name
+          });
+        }
+      }
+    }
   }
 
   // Sort by priority (higher first), then by length (longer first)
@@ -396,6 +479,48 @@ function generateCandidates(basePath, parts, idx) {
     if (a.priority !== b.priority) return b.priority - a.priority;
     return b.length - a.length;
   });
+}
+
+/**
+ * Generate all combinations of separators for n positions
+ * Separators include: space, colon, slash (for dates), hyphen, underscore, period
+ * Returns array of arrays, where each inner array contains n separators
+ */
+function generateSeparatorCombinations(n) {
+  if (n === 0) return [[]];
+  if (n === 1) return [[' '], [':'], ['-'], ['_'], ['.'], ['/']];
+
+  const combinations = [];
+
+  // Limit combinations to avoid explosion
+  if (n > 3) {
+    // For longer paths, only try key patterns
+    return [
+      Array(n).fill(' '),           // All spaces
+      Array(n).fill(':'),           // All colons (e.g., "12:30:45")
+      [' ', ...Array(n-1).fill(':')], // Space first, rest colons
+      [...Array(n-1).fill(' '), ':'],  // Spaces first, last colon
+      Array(n).fill('-'),           // All hyphens
+      Array(n).fill('_'),           // All underscores
+      Array(n).fill('/'),           // All slashes (for dates like 02/17/2024)
+    ];
+  }
+
+  // For 2-3 positions, try common patterns
+  const commonPatterns = [
+    Array(n).fill(' '),           // All spaces
+    Array(n).fill(':'),           // All colons
+    Array(n).fill('-'),           // All hyphens
+    Array(n).fill('_'),           // All underscores
+    Array(n).fill('/'),           // All slashes
+    [' ', ':'],                   // Space then colon
+    [':', ' '],                   // Colon then space
+    [' ', '-'],                   // Space then hyphen
+    ['-', ' '],                   // Hyphen then space
+  ];
+
+  // Only return patterns that match the required length
+  return commonPatterns.filter(p => p.length === n);
 }
 
 /**
@@ -449,17 +574,26 @@ function fixFilePath(dbPath) {
       idx++;
     }
 
-    // Handle multi-word volume names (e.g., "Macintosh HD")
+    // Handle multi-word volume names by trying to find the longest valid volume path
     if (idx < parts.length) {
-      const volumeName = parts[idx];
-      idx++;
+      // Try up to 5 words for volume name (e.g., "My External Drive Name")
+      let volumeFound = false;
+      for (let wordCount = Math.min(5, parts.length - idx); wordCount >= 1; wordCount--) {
+        const volumeNameParts = parts.slice(idx, idx + wordCount);
+        const testVolumePath = currentPath + '/' + volumeNameParts.join(' ');
 
-      // Check for "Macintosh HD" or similar multi-word volumes
-      if (volumeName === 'Macintosh' && idx < parts.length && parts[idx] === 'HD') {
-        currentPath += '/Macintosh HD';
+        if (fs.existsSync(testVolumePath)) {
+          currentPath = testVolumePath;
+          idx += wordCount;
+          volumeFound = true;
+          break;
+        }
+      }
+
+      // Fallback: single word volume
+      if (!volumeFound) {
+        currentPath += '/' + parts[idx];
         idx++;
-      } else {
-        currentPath += '/' + volumeName;
       }
     }
 
@@ -467,7 +601,9 @@ function fixFilePath(dbPath) {
     const { validPrefix, remainingIdx } = findLongestValidPrefix(parts, currentPath, idx);
 
     // Phase 2: Reconstruct remaining path with prioritized strategies
-    return reconstructPath(validPrefix, parts, remainingIdx);
+    const finalPath = reconstructPath(validPrefix, parts, remainingIdx);
+
+    return finalPath;
   }
 
   // For non-Volumes paths, start from root

@@ -27,7 +27,7 @@
     <!-- Clip Selection Screen (Step 2) -->
     <div id="selection-screen" class="screen" style="display: none;">
           <div id="infra-status" class="infra-status">
-            <small id="infra-status-content">🔄 Checking service status...</small>
+            <small id="infra-status-content"></small>
           </div>
       <!-- Tabs -->
       <div class="tabs">
@@ -44,6 +44,11 @@
         <!-- Status Display -->
         <div id="status" class="status" style="display: none;">
           <div id="status-content"></div>
+        </div>
+
+        <!-- Refresh Button -->
+        <div class="refresh-section">
+          <button id="btnRefreshSequences" class="secondary-button">🔄 Search for New Sequences</button>
         </div>
 
         <!-- Clips Section -->
